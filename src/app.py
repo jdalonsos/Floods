@@ -10,10 +10,10 @@ import matplotlib.cm as cm
 
 # ------------------ STREAMLIT PAGE CONFIG ------------------
 st.set_page_config(page_title="Flood events dashboard", layout="wide")
-st.title("🌊 Flood events dashboard")
+st.title(" Flood events dashboard")
 
 # ------------------ DATA: LIST TIF FILES -------------------
-flood_dir = Path("data/events_filtered")
+flood_dir = Path("data/one")
 tif_files = sorted(flood_dir.glob("*.tif"))
 
 if not tif_files:
