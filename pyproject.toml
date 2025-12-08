@@ -1,28 +1,26 @@
-[project]
+[tool.poetry]
 name = "datacollection"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "jdalonsos@unal.edu.co",email = "jdalonsos@unal.edu.co"}
-]
-package-mode = false
+authors = ["jdalonsos@unal.edu.co <jdalonsos@unal.edu.co>"]
 readme = "README.md"
-requires-python = "^3.12"
-dependencies = [
-    "streamlit (>=1.51.0,<2.0.0)",
-    "rasterio (>=1.4.3,<2.0.0)",
-    "matplotlib (>=3.10.7,<4.0.0)",
-    "pip (>=25.3,<26.0)",
-    "leafmap (>=0.57.9,<0.58.0)",
-    "streamlit-folium (>=0.25.3,<0.26.0)",
-    "rioxarray (>=0.20.0,<0.21.0)",
-    "localtileserver (>=0.10.6,<0.11.0)",
-    "geopy (>=2.4.1,<3.0.0)",
-    "geopandas (>=1.1.1,<2.0.0)",
-    "shapely (>=2.1.2,<3.0.0)"
-]
+package-mode = false   # 👈 this is now in the right place
 
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = ">=1.51.0,<2.0.0"
+rasterio = ">=1.4.3,<2.0.0"
+matplotlib = ">=3.10.7,<4.0.0"
+pip = ">=25.3,<26.0"
+leafmap = ">=0.57.9,<0.58.0"
+streamlit-folium = ">=0.25.3,<0.26.0"
+rioxarray = ">=0.20.0,<0.21.0"
+localtileserver = ">=0.10.6,<0.11.0"
+geopy = ">=2.4.1,<3.0.0"
+geopandas = ">=1.1.1,<2.0.0"
+shapely = ">=2.1.2,<3.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
