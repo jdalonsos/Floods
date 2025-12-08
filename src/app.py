@@ -13,7 +13,7 @@ st.set_page_config(page_title="Flood events dashboard", layout="wide")
 st.title("🌊 Flood events dashboard")
 
 # ------------------ DATA: LIST TIF FILES -------------------
-flood_dir = Path("data/floods")
+flood_dir = Path("data/events_filtered")
 tif_files = sorted(flood_dir.glob("*.tif"))
 
 if not tif_files:
