@@ -128,33 +128,63 @@ This is how Google Maps works.
 
 ---
 
-## 7. Why we use 3 steps instead of 1
+## 7. Why a 3-step workflow?
 
-A **proper COG** must have a very specific internal structure.
+A correct COG must contain: 1. data 2. zoom levels 3. correct internal
+ordering
 
-If we:
-- create a COG first
-- then add zoom levels later
+Therefore: - overviews must be created **before** final COG creation
 
- the file becomes **sub-optimal**.
+------------------------------------------------------------------------
 
-### Correct professional workflow:
-1. Prepare the data
-2. Build zoom levels
-3. Package everything as a COG
+#  FINAL WORKFLOW
 
----
+## Step 1 --- Warp to temporary GeoTIFF (NOT COG)
 
-#  THE COMPLETE WORKFLOW (EXPLAINED LINE BY LINE)
-
----
-
-## STEP 1 — Convert to a temporary display-friendly GeoTIFF
-
-```bat
+``` bat
 for %f in (*.tif) do gdalwarp -t_srs EPSG:3857 ^
   -tr 60 60 -r bilinear -dstnodata 9999 -ot UInt16 ^
   -multi -wo NUM_THREADS=ALL_CPUS ^
   -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER ^
   "%f" "%~nf_3857_60m_tmp.tif"
+```
 
+This step: - converts to web-map coordinates - reduces resolution for
+speed - preserves flood depth values - creates temporary files
+
+------------------------------------------------------------------------
+
+## Step 2 --- Build overviews (zoom levels)
+
+``` bat
+for %f in (*_3857_60m_tmp.tif) do gdaladdo -r average "%f" 2 4 8 16 32
+```
+
+Overviews are smaller internal copies used when zooming out.
+
+------------------------------------------------------------------------
+
+## Step 3 --- Convert to final COG
+
+``` bat
+for %f in (*_3857_60m_tmp.tif) do gdal_translate "%f" "%~nf_cog.tif" ^
+  -of COG -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER
+```
+
+This produces the final, web-ready files.
+
+------------------------------------------------------------------------
+
+## 8. Result
+
+✔ Small file size\
+✔ Fast pan & zoom\
+✔ Smooth dashboards\
+✔ Original data preserved
+
+------------------------------------------------------------------------
+
+## 9. Final takeaway
+
+> We keep the scientific data intact and create a fast, optimized
+> version for interactive web maps.
