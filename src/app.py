@@ -1,4 +1,3 @@
-# app.py
 import numpy as np
 from pathlib import Path
 
@@ -13,7 +12,7 @@ st.set_page_config(page_title="Flood events dashboard", layout="wide")
 st.title(" Flood events dashboard")
 
 # ------------------ DATA: LIST TIF FILES -------------------
-flood_dir = Path("data/one")
+flood_dir = Path("JRC_flood_depth_maps/2024")
 tif_files = sorted(flood_dir.glob("*.tif"))
 
 if not tif_files:
@@ -27,29 +26,48 @@ selected_file = next(f for f in tif_files if f.name == selected_label)
 st.sidebar.write("Selected file:")
 st.sidebar.code(str(selected_file), language="bash")
 
-# ------------------ READ RASTER WITH RIOXARRAY -------------
-# Open raster (assumed single band)
-da = rioxarray.open_rasterio(selected_file)
-da = da.squeeze("band", drop=True)  # remove band dimension
+# ------------------ READ RASTER (LAZY + CHUNKS) ------------
+# 1. Open with chunks so it doesn't load full raster in RAM
+# 2. masked=True to handle nodata cleanly
+da = rioxarray.open_rasterio(
+    selected_file,
+    masked=True,
+    chunks={"x": 2048, "y": 2048},  # <-- VERY IMPORTANT
+)
 
-# If CRS is missing, set it manually (your EFAS files are in EPSG:27704)
+# Remove band dimension
+da = da.squeeze("band", drop=True)
+
+# If CRS is missing, set it manually (EFAS uses EPSG:27704)
 if da.rio.crs is None:
     da = da.rio.write_crs("EPSG:27704")
 
-# Optional: light downsampling for faster display if very large
-max_size = 3000  # maximum pixels in width/height
+# ------------------ COMPUTE TARGET SIZE --------------------
+max_size = 3000  # maximum pixels in width/height for display
+
 ny, nx = da.sizes["y"], da.sizes["x"]
 scale = max(ny, nx) / max_size
+
 if scale > 1:
-    factor = int(np.ceil(scale))
-    da = da.coarsen(y=factor, x=factor, boundary="trim").mean()
+    out_height = int(ny / scale)
+    out_width = int(nx / scale)
+else:
+    out_height = ny
+    out_width = nx
 
-# ------------------ REPROJECT TO WGS84 (LAT/LON) -----------
-da_ll = da.rio.reproject("EPSG:4326")
+# ------------------ REPROJECT + DOWNSAMPLE IN ONE STEP -----
+# This uses GDAL internally to reproject straight into a small grid.
+# We never materialize the HUGE original in memory.
+da_ll = da.rio.reproject(
+    "EPSG:4326",
+    shape=(out_height, out_width),
+)
 
-# Get data as float, apply nodata mask
+# ------------------ GET ARRAY & MASK -----------------------
 nodata = da_ll.rio.nodata
-arr = da_ll.values.astype(float)
+
+# .values is now only ~3000x3000 => OK for RAM
+arr = da_ll.values.astype("float32")
 
 if nodata is not None:
     arr[arr == nodata] = np.nan
@@ -63,19 +81,15 @@ if valid.size == 0:
     st.warning("This raster has no valid (non-nodata) flood pixels.")
     st.stop()
 
-# Percentile stretch to enhance contrast
 vmin = float(np.nanpercentile(valid, 2))
 vmax = float(np.nanpercentile(valid, 98))
 
-# Normalise to 0–1
 norm = (arr - vmin) / (vmax - vmin)
 norm = np.clip(norm, 0, 1)
 
-# Choose a multicolour intensity colormap (similar to your example)
-cmap = cm.get_cmap("turbo")  # try 'jet', 'plasma', 'viridis' if you prefer
-rgba = cmap(norm)            # shape (ny, nx, 4), values in [0,1]
+cmap = cm.get_cmap("turbo")
+rgba = cmap(norm)  # (ny, nx, 4)
 
-# Alpha: 0 where no flood (nan), 1 where flooded
 alpha_mask = ~np.isnan(arr)
 rgba[..., 3] = np.where(alpha_mask, rgba[..., 3], 0.0)
 
@@ -84,7 +98,6 @@ minx, miny, maxx, maxy = da_ll.rio.bounds()
 center_lat = (miny + maxy) / 2
 center_lon = (minx + maxx) / 2
 
-# Opacity slider in the UI
 default_opacity = 0.8
 overlay_opacity = st.sidebar.slider(
     "Flood overlay opacity", 0.0, 1.0, default_opacity, 0.05
@@ -92,16 +105,14 @@ overlay_opacity = st.sidebar.slider(
 
 st.subheader("Flood intensity in European context")
 
-# Create the base map (Leaflet)
 m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
 folium.TileLayer("OpenStreetMap").add_to(m)
 
-# Add flood intensity overlay (only flood pixels visible)
 image_overlay = folium.raster_layers.ImageOverlay(
     name="Flood intensity",
-    image=rgba,  # RGBA array with transparency
-    bounds=[[miny, minx], [maxy, maxx]],  # south-west, north-east (lat, lon)
-    opacity=overlay_opacity,  # global opacity multiplier
+    image=rgba,
+    bounds=[[miny, minx], [maxy, maxx]],
+    opacity=overlay_opacity,
     interactive=True,
     cross_origin=False,
 )
@@ -109,7 +120,6 @@ image_overlay = folium.raster_layers.ImageOverlay(
 image_overlay.add_to(m)
 folium.LayerControl().add_to(m)
 
-# Display map in Streamlit
 st_folium(m, width=1000, height=700)
 
 # ------------------ SIDEBAR: RASTER STATS ------------------

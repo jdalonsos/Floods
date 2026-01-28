@@ -1,0 +1,33 @@
+Event_ID: 001
+Event_Type: Flood
+Date: 2021-07
+Country: Belgium
+City: Rochefort (Jemelle)
+Site_Name: Jemelle Sports Hall
+Address: Rue des Jardins 44 Z, 5580 Rochefort
+Latitude: 50.15891380977145
+Longitude: 5.246305872452204
+Source: Press reports
+---
+Event_ID: 002
+Event_Type: Flood
+Date: 2024-01
+Country: France
+City: Saint-Étienne-au-Mont
+Site_Name: Raclot Bakery & Pastry Shop
+Address: 45 Rue du Docteur Brousse, 62360 Saint-Étienne-au-Mont
+Latitude: 50.680747429069655
+Longitude: 1.629404533017451
+Source: Press reports
+Commune code : 62746
+---
+Event_ID: 003
+Event_Type: Flood
+Date: 2024-10-17
+Country: France
+City: Givors
+Site_Name: Shopping Center
+Address: 2 Rue de la Paix, 69700 Givors
+Latitude: 45.5859221
+Longitude: 4.7526672
+Commune code : 69091

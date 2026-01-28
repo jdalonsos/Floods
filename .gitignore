@@ -4,3 +4,6 @@ ne_countries
 data/events_merged
 data/ne_110m_admin_0_countries
 data/JRC_flood_depth_maps
+data/events
+data/events_filtered
+data/events_viz_merged
