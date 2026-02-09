@@ -7,7 +7,7 @@ REM 1) Load GDAL/PROJ/Python env (NON-interactive)
 call "%OSGEO4W_ROOT%\bin\o4w_env.bat"
 
 REM 2) Go to the folder with your .tif files
-cd /d "D:\M2_MoSEF\Acclim\DataCollection\data\JRC_flood_depth_maps\2021\events_touched"
+cd /d "D:\M2_MoSEF\Acclim\DataCollection\data\JRC_flood_depth_maps\2024_filtered"
 REM 3) Quick check
 gdalinfo --version
 

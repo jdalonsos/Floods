@@ -31,10 +31,8 @@ for f in inputs:
         "gdalwarp",
         "-t_srs", "EPSG:3857",
         "-tr", "60", "60",
-        "-tap",
         "-r", "max",
-        "-srcnodata", "9999",         # treat 9999 as nodata in input
-        "-dstnodata", "9999",         # write 9999 as nodata
+        "-dstnodata", "9999",
         "-ot", "UInt16",
         "-multi",
         "-wo", "NUM_THREADS=ALL_CPUS",
@@ -44,7 +42,7 @@ for f in inputs:
         f, tmp
     ])
 
-    run(["gdaladdo", "-r", "max", tmp, "2", "4", "8", "16", "32"])
+    run(["gdaladdo", "-r", "average", tmp, "2", "4", "8", "16", "32"])
 
     run([
         "gdal_translate",

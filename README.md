@@ -158,3 +158,11 @@ for %f in (*.tif) do gdalwarp -t_srs EPSG:3857 ^
   -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER ^
   "%f" "%~nf_3857_60m_tmp.tif"
 
+
+
+
+_____________________________________________
+
+Communes File
+
+https://www.data.gouv.fr/datasets/admin-express-cog-simplifiee-metropole-drom-saint-martin-saint-barthelemy?utm_source=chatgpt.com
