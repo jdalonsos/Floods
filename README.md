@@ -1,3 +1,36 @@
+# Floods Project
+
+This repository includes the full pipeline for the analysis of Satellite-derived flood depth maps for Europe
+
+---
+
+# 1. Scrapping.py
+
+This script automatically **scrapes and downloads satellite-derived flood depth maps (`.tif`) from the JRC CEMS-EFAS server** and stores them locally by year.
+
+## Inputs
+BASE_URL = "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-EFAS/European_Satellite-Derived_Flood_Depth_Maps/maps/"
+This is the online folder that contains subfolders like 2015/, 2016/, … 2024/
+Years to download
+YEARS = list(range(2015, 2025))
+OUTPUT_DIR = "JRC_flood_depth_maps"
+
+## Output 
+
+JRC_flood_depth_maps/
+├── 2015/
+│   ├── *.tif
+├── 2016/
+│   ├── *.tif
+...
+└── 2024/
+    ├── *.tif
+
+Each .tif is a raster map of flood depth, usable in QGIS, ArcGIS, or Python (rasterio).
+
+
+
+---
 # DataCollection
 
 Streamlit app for flood events dashboard.
