@@ -22,6 +22,8 @@ OUTPUT_DIR = "JRC_flood_depth_maps"
 
 ## Output 
 
+It creates all folders by year of floods
+
 JRC_flood_depth_maps/
 ├── 2015/
 │   ├── *.tif
@@ -33,7 +35,74 @@ JRC_flood_depth_maps/
 
 Each .tif is a raster map of flood depth, usable in QGIS, ArcGIS, or Python (rasterio).
 
+---
 
+# 2. FilteringCountries.py
+
+
+This script filters JRC flood depth rasters by country and by flood event. It keeps only events that intersect France, Belgium, Italy, or Luxembourg. If at least one tile of an event touches these countries, all tiles of that event are preserved.
+
+## Inputs
+
+- Path: data/JRC_flood_depth_maps/
+
+Expected structure:
+data/JRC_flood_depth_maps/
+  2015/
+  2016/
+  ...
+  2024/
+
+Each year folder contains multiple .tif flood depth rasters.
+
+- Country shapefile
+
+Path: data/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp.
+This Natural Earth file provides national boundaries used to define the target area.
+
+
+- Target countries [List]
+
+France, Belgium, Italy, Luxembourg
+
+
+## PROCESSING LOGIC
+
+
+Step 1 – Build target geometry
+- Load the country shapefile with GeoPandas.
+- Reproject to EPSG:4326 (WGS84).
+- Select the four target countries.
+- Dissolve them into one single polygon (target_geom).
+
+Step 2 – Group rasters by flood event
+Each filename is parsed using the pattern before \"_cluster_\".
+All rasters sharing the same cluster are treated as one flood event.
+
+Step 3 – Detect events to keep
+For each raster tile:
+- Read its bounding box with rasterio.
+- Reproject bounds to EPSG:4326.
+- Convert bounds to a polygon.
+- Test spatial intersection with target_geom.
+
+If any tile of an event intersects the target area, the whole event is kept.
+
+
+
+## Output
+
+
+For each year YYYY, the script creates:
+data/JRC_flood_depth_maps/YYYY_filtered/
+
+Inside, it copies all rasters belonging to the kept events, for example:
+2018_filtered/
+  WD_MERGE_2018-10-01_..._cluster_245_A0.tif
+  WD_MERGE_2018-10-01_..._cluster_245_A1.tif
+  WD_MERGE_2018-10-01_..._cluster_245_A2.tif
+
+Even tiles outside the four countries are included if they belong to a kept event.
 
 ---
 # DataCollection
