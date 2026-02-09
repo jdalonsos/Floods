@@ -1,3 +1,36 @@
+# Floods Project
+
+This repository includes the full pipeline for the analysis of Satellite-derived flood depth maps for Europe
+
+---
+
+# 1. Scrapping.py
+
+This script automatically **scrapes and downloads satellite-derived flood depth maps (`.tif`) from the JRC CEMS-EFAS server** and stores them locally by year.
+
+## Inputs
+BASE_URL = "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-EFAS/European_Satellite-Derived_Flood_Depth_Maps/maps/"
+This is the online folder that contains subfolders like 2015/, 2016/, … 2024/
+Years to download
+YEARS = list(range(2015, 2025))
+OUTPUT_DIR = "JRC_flood_depth_maps"
+
+## Output 
+
+JRC_flood_depth_maps/
+├── 2015/
+│   ├── *.tif
+├── 2016/
+│   ├── *.tif
+...
+└── 2024/
+    ├── *.tif
+
+Each .tif is a raster map of flood depth, usable in QGIS, ArcGIS, or Python (rasterio).
+
+
+
+---
 # DataCollection
 
 Streamlit app for flood events dashboard.
@@ -29,7 +62,7 @@ When we try to display them directly:
 - Files become extremely large
 - Computers run out of memory
 
-👉 **Goal:**  
+ **Goal:**  
 Create a **display-optimized copy** of the data that is:
 - fast to load
 - smooth to zoom
@@ -77,7 +110,7 @@ Without it:
 - projections may fail
 - results may be inconsistent
 
-👉 **All commands below must be run in OSGeo4W Shell**
+ **All commands below must be run in OSGeo4W Shell**
 
 ---
 
@@ -94,7 +127,7 @@ Maps are drawn using **mathematical coordinate systems**.
 
 Web maps **only work natively in EPSG:3857**.
 
-👉 That’s why we must convert.
+ That’s why we must convert.
 
 ---
 
@@ -113,10 +146,10 @@ It’s like a photo, **but every pixel knows where it is**.
 
 A **COG** is a special type of GeoTIFF that is:
 
-- 🧱 **Tiled** (stored in small blocks instead of long rows)
-- 🗜 **Compressed** (smaller size)
-- 🔍 **Multi-resolution** (contains zoom levels inside)
-- ⚡ **Fast to read partially**
+-  **Tiled** (stored in small blocks instead of long rows)
+-  **Compressed** (smaller size)
+-  **Multi-resolution** (contains zoom levels inside)
+-  **Fast to read partially**
 
 ### Why COGs are fast
 When you zoom on a map:
@@ -128,41 +161,63 @@ This is how Google Maps works.
 
 ---
 
-## 7. Why we use 3 steps instead of 1
+## 7. Why a 3-step workflow?
 
-A **proper COG** must have a very specific internal structure.
+A correct COG must contain: 1. data 2. zoom levels 3. correct internal
+ordering
 
-If we:
-- create a COG first
-- then add zoom levels later
+Therefore: - overviews must be created **before** final COG creation
 
-👉 the file becomes **sub-optimal**.
+------------------------------------------------------------------------
 
-### Correct professional workflow:
-1. Prepare the data
-2. Build zoom levels
-3. Package everything as a COG
+#  FINAL WORKFLOW
 
----
+## Step 1 --- Warp to temporary GeoTIFF (NOT COG)
 
-# ✅ THE COMPLETE WORKFLOW (EXPLAINED LINE BY LINE)
-
----
-
-## STEP 1 — Convert to a temporary display-friendly GeoTIFF
-
-```bat
+``` bat
 for %f in (*.tif) do gdalwarp -t_srs EPSG:3857 ^
   -tr 60 60 -r bilinear -dstnodata 9999 -ot UInt16 ^
   -multi -wo NUM_THREADS=ALL_CPUS ^
   -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER ^
   "%f" "%~nf_3857_60m_tmp.tif"
+```
 
+This step: - converts to web-map coordinates - reduces resolution for
+speed - preserves flood depth values - creates temporary files
 
+------------------------------------------------------------------------
 
+## Step 2 --- Build overviews (zoom levels)
 
-_____________________________________________
+``` bat
+for %f in (*_3857_60m_tmp.tif) do gdaladdo -r average "%f" 2 4 8 16 32
+```
 
-Communes File
+Overviews are smaller internal copies used when zooming out.
 
-https://www.data.gouv.fr/datasets/admin-express-cog-simplifiee-metropole-drom-saint-martin-saint-barthelemy?utm_source=chatgpt.com
+------------------------------------------------------------------------
+
+## Step 3 --- Convert to final COG
+
+``` bat
+for %f in (*_3857_60m_tmp.tif) do gdal_translate "%f" "%~nf_cog.tif" ^
+  -of COG -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER
+```
+
+This produces the final, web-ready files.
+
+------------------------------------------------------------------------
+
+## 8. Result
+
+✔ Small file size\
+✔ Fast pan & zoom\
+✔ Smooth dashboards\
+✔ Original data preserved
+
+------------------------------------------------------------------------
+
+## 9. Final takeaway
+
+> We keep the scientific data intact and create a fast, optimized
+> version for interactive web maps.
