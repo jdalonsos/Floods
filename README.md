@@ -10,10 +10,15 @@ This script automatically **scrapes and downloads satellite-derived flood depth 
 
 ## Inputs
 BASE_URL = "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-EFAS/European_Satellite-Derived_Flood_Depth_Maps/maps/"
+
 This is the online folder that contains subfolders like 2015/, 2016/, … 2024/
+
 Years to download
+
 YEARS = list(range(2015, 2025))
+
 OUTPUT_DIR = "JRC_flood_depth_maps"
+
 
 ## Output 
 
