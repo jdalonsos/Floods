@@ -105,6 +105,17 @@ Inside, it copies all rasters belonging to the kept events, for example:
 Even tiles outside the four countries are included if they belong to a kept event.
 
 ---
+
+# 3. Tabularization.py
+
+
+Input
+IGN ADMIN EXPRESS COG (commune boundaries + INSEE codes) file -> Admin Express COG simplifiée
+https://www.data.gouv.fr/datasets/admin-express-cog-simplifiee-metropole-drom-saint-martin-saint-barthelemy?utm_source=chatgpt.com
+
+
+
+
 # DataCollection
 
 Streamlit app for flood events dashboard.
