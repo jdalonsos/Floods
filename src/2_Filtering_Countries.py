@@ -78,7 +78,7 @@ for year in sorted(os.listdir(DATA_ROOT)):
                 keep_events.add(event_id)
                 break
 
-    print(f"  ✔ Events kept: {len(keep_events)} / {len(event_to_files)}")
+    print(f"   Events kept: {len(keep_events)} / {len(event_to_files)}")
 
     # -------------------------
     # create output folder
