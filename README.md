@@ -306,3 +306,33 @@ This produces the final, web-ready files.
 
 > We keep the scientific data intact and create a fast, optimized
 > version for interactive web maps.
+> 
+
+-------------------------------------------------------------------------------
+
+# FAQ
+
+## What is EPSG:4326? Why?
+- A coordinate system that uses **latitude / longitude** (like **GPS**).
+- Units are **degrees**, not meters.
+
+## Why people often convert to EPSG:4326
+### 1) Universal / interoperable
+- Many tools, datasets, APIs, and “location” formats assume **lat/long**.
+- It reduces CRS mismatch issues when you combine many sources.
+
+### 2) Easy to share
+- Like exporting to **PDF**: most people can open/use it without special setup.
+
+### 3) Web mapping friendliness
+- Many online mapping workflows handle WGS84 lat/long smoothly.
+
+## The big downside (important)
+- **Degrees ≠ meters**
+- In EPSG:4326, distances/areas are not measured in meters and vary by latitude.
+- So calculations like:
+  - **area (km²)**
+  - **distance**
+  - **buffers**
+  - **spatial statistics that assume constant scale**
+  can be **wrong or inconsistent** in EPSG:4326.
