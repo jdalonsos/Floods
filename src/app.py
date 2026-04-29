@@ -156,7 +156,7 @@ def main() -> None:
         exact_native_pixel_limit = st.slider(
             "Exact native pixel cap",
             1000,
-            50000,
+            100000,
             12000,
             1000,
         )

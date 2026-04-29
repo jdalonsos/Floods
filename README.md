@@ -1,6 +1,126 @@
 # Floods Project
 
-This repository includes the full pipeline for the analysis of Satellite-derived flood depth maps for Europe
+This repository contains a full workflow for working with the Copernicus / JRC European Satellite-Derived Flood Depth Maps:
+
+- event-based tabularization for Europe with Eurostat `LAU + NUTS`
+- France harmonization from `LAU -> current INSEE commune`
+- historical `old INSEE -> current INSEE` update tables
+- efficient TIFF visualization in both notebook and Streamlit dashboard form
+
+## Current Recommended Components
+
+- Europe pipeline: `src/granular_tabularization.py`
+- France harmonization: `src/france_lau_to_insee.py`
+- Single-raster notebook inspection: `src/5_Visualize_Flood_TIFF_Map.ipynb`
+- Interactive raster browser: `src/app.py`
+- Shared dashboard / notebook preview engine: `src/flood_preview.py`
+
+## Very Important Visualization Note
+
+The flood TIFFs are **not** stored in ordinary web-map coordinates.
+
+They are stored in an **Azimuthal Equidistant projected CRS** that is equivalent in practice to `EPSG:27704` for this dataset version.
+
+That means:
+
+- the raster is correct in its own projected coordinate system
+- but a web map usually expects `EPSG:4326` / `EPSG:3857` logic
+- if you place a projected raster directly on a web map using only a latitude/longitude bounding box, the image can be visually shifted
+- this is especially noticeable near coastlines, where flood cells can appear falsely "in the sea"
+
+### What was wrong in the old dashboard logic
+
+The original dashboard fallback overlay used a simple image box on the web map.
+
+That is **not sufficient** for a raster whose pixels come from a projected flood grid.
+
+So the issue was:
+
+- **not necessarily the TIFF**
+- **not necessarily the flood data**
+- but the **web overlay placement logic**
+
+### What the fix does
+
+The corrected dashboard logic now:
+
+1. finds the flood area with a coarse raster scan
+2. reads only a detailed crop of the source TIFF
+3. keeps exact native pixel rendering when the event is small enough
+4. when raster overlay mode is needed, **reprojects the crop to `EPSG:4326` before drawing it on the web map**
+
+This is the key reason the dashboard now aligns much better with external viewers such as Felt.
+
+## Why this matters for data scientists
+
+If you are not used to geospatial data, the important idea is:
+
+- a TIFF can be perfectly valid
+- but still look wrong on a web map
+- if the application displays it without the right reprojection step
+
+So in this project, we separate:
+
+- **scientific raster storage CRS**
+- **analysis CRS handling**
+- **web visualization CRS**
+
+That separation is necessary for both correct analytics and correct map display.
+
+## How to Run the Dashboard
+
+From the project root:
+
+```bash
+streamlit run src/app.py
+```
+
+If `streamlit` is not recognized:
+
+```bash
+python -m streamlit run src/app.py
+```
+
+The dashboard lets you:
+
+- browse official TIFF rasters by year
+- filter filenames
+- inspect one raster quickly without loading the whole file at full resolution
+- switch between `auto`, `pixels`, and `raster` rendering modes
+
+## How to Run the Main Europe Pipeline
+
+```bash
+python src/granular_tabularization.py \
+  --lau data/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
+  --flood-dir data/JRC_flood_depth_maps \
+  --out-dir data/_outputs_eurostat_full
+```
+
+## How to Run the France Harmonization
+
+```bash
+python src/france_lau_to_insee.py \
+  --tabular-file data/_outputs_eurostat_full/events_lau_long.csv \
+  --lau data/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
+  --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
+  --commune-history data/insee_history/v_commune_depuis_1943.csv \
+  --commune-movements data/insee_history/v_mvt_commune_2025.csv \
+  --out-dir data/france_lau_insee_documentation
+```
+
+## TIFFs and Git
+
+Flood TIFFs should **not** be pushed to GitHub from this project workflow.
+
+The repository is configured to ignore:
+
+- `*.tif`
+- large tabular exports such as `*.parquet`, `*.xlsx`, `*.csv`
+
+That keeps the code repository light and prevents accidental pushes of heavy raster data.
 
 ---
 

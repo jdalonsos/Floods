@@ -584,6 +584,7 @@ Instead it uses:
 3. Two display modes:
    - raster overlay for broad floods
    - exact native 20 m cells for sparse floods
+4. When a web-map raster overlay is used, the cropped preview is first reprojected to `EPSG:4326` before display.
 
 The dashboard does not use a different map algorithm.
 
@@ -600,6 +601,8 @@ So the structure is:
 If you draw every native 20 m cell for a large flood, the notebook and browser become slow.
 
 If you draw only a full-raster image overlay, tiny floods become hard to see.
+
+If you place a projected raster preview directly on a web map without reprojection, coastal pixels can appear shifted offshore. That is why the shared preview engine now reprojects the crop to web-map coordinates before building the overlay.
 
 So the notebook balances:
 

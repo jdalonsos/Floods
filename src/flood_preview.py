@@ -22,6 +22,8 @@ import numpy as np
 import rasterio
 from pyproj import Transformer
 from rasterio.enums import Resampling
+from rasterio.transform import array_bounds
+from rasterio.warp import calculate_default_transform, reproject
 from rasterio.windows import Window
 
 
@@ -381,6 +383,94 @@ def preview_to_rgba(preview: FloodPreview, cmap_name: str = "turbo") -> np.ndarr
     return (rgba * 255).astype(np.uint8)
 
 
+def reproject_preview_rgba_to_web(
+    preview: FloodPreview,
+    cmap_name: str = "turbo",
+) -> tuple[np.ndarray, list[list[float]]]:
+    """Reproject the preview crop to EPSG:4326 before drawing an image overlay.
+
+    Folium ImageOverlay assumes the image is axis-aligned in the map CRS.
+    For these flood rasters, that assumption is wrong unless we first warp the
+    preview from the projected flood CRS into EPSG:4326.
+    """
+
+    src_crs = rasterio.CRS.from_string(preview.crs)
+    src_h, src_w = preview.display_shape
+    src_left, src_bottom, src_right, src_top = array_bounds(
+        src_h,
+        src_w,
+        preview.display_transform,
+    )
+
+    dst_transform, dst_w, dst_h = calculate_default_transform(
+        src_crs,
+        "EPSG:4326",
+        src_w,
+        src_h,
+        left=src_left,
+        bottom=src_bottom,
+        right=src_right,
+        top=src_top,
+    )
+    dst_h = max(int(dst_h), 1)
+    dst_w = max(int(dst_w), 1)
+
+    sentinel = np.float32(-9999.0)
+    src_data = preview.values.filled(sentinel).astype(np.float32, copy=False)
+    src_valid = (~preview.values.mask).astype(np.uint8)
+
+    dst_data = np.full((dst_h, dst_w), sentinel, dtype=np.float32)
+    dst_valid = np.zeros((dst_h, dst_w), dtype=np.uint8)
+
+    reproject(
+        source=src_data,
+        destination=dst_data,
+        src_transform=preview.display_transform,
+        src_crs=src_crs,
+        dst_transform=dst_transform,
+        dst_crs="EPSG:4326",
+        src_nodata=sentinel,
+        dst_nodata=sentinel,
+        resampling=Resampling.nearest,
+    )
+    reproject(
+        source=src_valid,
+        destination=dst_valid,
+        src_transform=preview.display_transform,
+        src_crs=src_crs,
+        dst_transform=dst_transform,
+        dst_crs="EPSG:4326",
+        src_nodata=0,
+        dst_nodata=0,
+        resampling=Resampling.nearest,
+    )
+
+    dst_mask = (dst_valid == 0) | (dst_data == sentinel)
+    dst_preview = FloodPreview(
+        tif_path=preview.tif_path,
+        values=np.ma.masked_array(dst_data, mask=dst_mask),
+        display_transform=dst_transform,
+        bounds_latlon=[
+            [float(dst_transform.f + dst_transform.e * dst_h), float(dst_transform.c)],
+            [float(dst_transform.f), float(dst_transform.c + dst_transform.a * dst_w)],
+        ],
+        full_bounds_latlon=preview.full_bounds_latlon,
+        coarse_shape=preview.coarse_shape,
+        display_shape=(dst_h, dst_w),
+        source_window_shape=preview.source_window_shape,
+        src_height=preview.src_height,
+        src_width=preview.src_width,
+        crs="EPSG:4326",
+        nodata=None,
+        vmin=preview.vmin,
+        vmax=preview.vmax,
+        active_pixel_count=int((~dst_mask).sum()),
+        source_window=preview.source_window,
+        coarse_active_pixels=preview.coarse_active_pixels,
+    )
+    return preview_to_rgba(dst_preview, cmap_name=cmap_name), dst_preview.bounds_latlon
+
+
 def create_static_preview_figure(
     preview: FloodPreview,
     cmap_name: str = "turbo",
@@ -515,10 +605,13 @@ def build_folium_map(
             chosen_mode = "raster_fallback"
 
     if chosen_mode != "pixels":
-        rgba = preview_to_rgba(preview, cmap_name=cmap_name)
+        rgba, overlay_bounds = reproject_preview_rgba_to_web(
+            preview,
+            cmap_name=cmap_name,
+        )
         folium.raster_layers.ImageOverlay(
             image=rgba,
-            bounds=preview.bounds_latlon,
+            bounds=overlay_bounds,
             opacity=1.0,
             name="Flood depth preview",
             interactive=True,
