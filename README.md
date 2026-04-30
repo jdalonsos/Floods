@@ -133,6 +133,32 @@ The repository is configured to ignore:
 
 That keeps the code repository light and prevents accidental pushes of heavy raster data.
 
+## How to Compare France JRC vs Gaspar
+
+Use the France commune-event output from `src/france_lau_to_insee.py` together
+with the cleaned first sheet of `data/processed/Gaspar_2015_2024.xlsx`.
+
+The comparison script:
+
+- normalizes INSEE commune codes on both sources
+- uses a flexible date rule on both start and end dates
+- matches on:
+  - same commune code
+  - `abs(jrc_start - gaspar_start) <= 7 days`
+  - `abs(jrc_end - gaspar_end) <= 7 days`
+- defines the Gaspar event grain as:
+  - `cod_nat_catnat + dat_deb + dat_fin`
+  - because one `cod_nat_catnat` can contain multiple date pairs
+
+```bash
+python src/compare_france_jrc_gaspar.py \
+  --jrc-file data/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
+  --sheet-name Gaspar20152024FloodsClean \
+  --date-window-days 7 \
+  --out-dir data/processed/flood_outputs/jrc_gaspar_comparison_7d
+```
+
 ---
 
 # 1. Scrapping.py

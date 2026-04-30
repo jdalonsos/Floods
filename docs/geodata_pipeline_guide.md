@@ -735,7 +735,54 @@ The dashboard:
 - lets you download the current interactive map as HTML
 - replaces the old scratch `app.py` logic with the notebook-based workflow
 
-## 16. Final Mental Model
+## 16. Compare France JRC vs Gaspar
+
+Script:
+
+- `src/compare_france_jrc_gaspar.py`
+
+Purpose:
+
+- compare the France JRC commune-event table with the cleaned Gaspar flood table
+- match at commune level using normalized INSEE commune codes
+- allow a flexible `7` day window on both start and end dates
+
+Why the Gaspar event key is not just `cod_nat_catnat`:
+
+- in the cleaned Gaspar sheet, one `cod_nat_catnat` can appear with multiple
+  `dat_deb` / `dat_fin` pairs
+- for comparison with JRC time intervals, the script therefore defines:
+  - `gaspar_event_uid = cod_nat_catnat + dat_deb + dat_fin`
+
+Primary matching rule:
+
+- same normalized commune code
+- `abs(jrc_start_date - gaspar_dat_deb) <= 7`
+- `abs(jrc_end_date - gaspar_dat_fin) <= 7`
+
+Main outputs:
+
+- `commune_event_matches_window7.csv`
+- `event_match_scores.csv`
+- `best_gaspar_match_per_jrc_event.csv`
+- `best_jrc_match_per_gaspar_event.csv`
+- `unmatched_jrc_commune_events.csv`
+- `unmatched_gaspar_commune_events.csv`
+- `jrc_gaspar_comparison.xlsx`
+- `comparison_diagnostics.json`
+
+Run:
+
+```bash
+python src/compare_france_jrc_gaspar.py \
+  --jrc-file data/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
+  --sheet-name Gaspar20152024FloodsClean \
+  --date-window-days 7 \
+  --out-dir data/processed/flood_outputs/jrc_gaspar_comparison_7d
+```
+
+## 17. Final Mental Model
 
 The simplest way to think about the project is:
 

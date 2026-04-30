@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "date_window_days": 7,
+    "jrc_canonical_rows": 64327,
+    "jrc_unique_events": 288,
+    "jrc_unique_communes": 9829,
+    "gaspar_canonical_rows": 19017,
+    "gaspar_unique_event_uids": 3451,
+    "gaspar_unique_decrees": 164,
+    "gaspar_unique_communes": 12430,
+    "commune_level_matches": 462,
+    "matched_jrc_commune_events": 434,
+    "matched_gaspar_commune_events": 462,
+    "matched_jrc_events": 18,
+    "matched_gaspar_event_uids": 65,
+    "unmatched_jrc_commune_events": 63893,
+    "unmatched_gaspar_commune_events": 18555,
+    "unmatched_jrc_events": 270,
+    "unmatched_gaspar_event_uids": 3386,
+    "reciprocal_best_event_pairs": 18
+  },
+  "jrc_diagnostics": {
+    "raw_rows": 64420,
+    "rows_after_insee_match_filter": 64420,
+    "invalid_rows_dropped": 0,
+    "duplicate_event_commune_rows_dropped": 93,
+    "canonical_rows": 64327,
+    "unique_jrc_events": 288,
+    "unique_jrc_communes": 9829
+  },
+  "gaspar_diagnostics": {
+    "raw_rows": 19021,
+    "invalid_rows_dropped": 0,
+    "duplicate_event_commune_rows_dropped": 4,
+    "canonical_rows": 19017,
+    "unique_gaspar_event_uids": 3451,
+    "unique_gaspar_decrees": 164,
+    "unique_gaspar_communes": 12430,
+    "gaspar_decrees_with_multiple_date_pairs": 149,
+    "max_unique_date_pairs_within_one_decree": 84
+  },
+  "parquet_outputs": {
+    "commune_event_matches_window7": "data\\processed\\flood_outputs\\jrc_gaspar_comparison_7d\\commune_event_matches_window7.parquet",
+    "event_match_scores": "data\\processed\\flood_outputs\\jrc_gaspar_comparison_7d\\event_match_scores.parquet"
+  },
+  "excel_status": {
+    "summary": "written_rows_18",
+    "best_gaspar_per_jrc": "written_rows_18",
+    "best_jrc_per_gaspar": "written_rows_65",
+    "event_match_scores": "written_rows_65",
+    "commune_matches": "written_rows_462",
+    "unmatched_jrc_events": "written_rows_270",
+    "unmatched_gaspar_events": "written_rows_3386"
+  },
+  "notes": {
+    "gaspar_event_uid_definition": "cod_nat_catnat + dat_deb + dat_fin",
+    "primary_match_rule": "same normalized INSEE commune code AND abs(start difference) <= window AND abs(end difference) <= window"
+  }
+}
