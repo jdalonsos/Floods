@@ -373,7 +373,22 @@ def build_france_event_table(
         on=["lau_code", "lau_code_local"],
         how="left",
         validate="m:1",
+        suffixes=("", "_lookup"),
     )
+
+    # The Europe event table can already contain NUTS attributes. Keep those as
+    # the canonical event-table columns and use the France lookup values only as
+    # a fallback when the event table is missing them.
+    for col in FRANCE_OUTPUT_APPEND_COLUMNS:
+        lookup_col = f"{col}_lookup"
+        if lookup_col not in matched.columns:
+            continue
+        if col in france_events.columns:
+            matched[col] = matched[col].combine_first(matched[lookup_col])
+            matched = matched.drop(columns=[lookup_col])
+        elif col not in matched.columns:
+            matched = matched.rename(columns={lookup_col: col})
+
     matched["insee_match_found"] = matched["insee_com"].notna()
     ordered_columns = list(events_df.columns)
     for col in FRANCE_OUTPUT_APPEND_COLUMNS + ["insee_match_found"]:

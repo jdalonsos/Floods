@@ -100,6 +100,17 @@ python src/granular_tabularization.py \
 
 ## How to Run the France Harmonization
 
+This command reads the canonical Europe output `events_lau_long.csv` and
+creates the France-specific commune table `events_fr_insee_long.csv`.
+
+Important implementation note:
+
+- the Europe table already contains `nuts0` to `nuts3`
+- the France lookup adds another `nuts3` mapping for documentation and fallback
+- the script now resolves that merge safely, keeping the event-table `nuts3_*`
+  columns as canonical and only using lookup values when the event table is
+  missing them
+
 ```bash
 python src/france_lau_to_insee.py \
   --tabular-file data/_outputs_eurostat_full/events_lau_long.csv \

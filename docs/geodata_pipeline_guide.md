@@ -554,6 +554,21 @@ python src/france_lau_to_insee.py \
 
 If you want the France event table too, provide the Europe canonical output:
 
+This is the normal production path when you want a France event table that is
+directly comparable with French commune-based datasets such as Gaspar.
+
+Important note about the internal logic:
+
+- `events_lau_long.csv` from the Europe pipeline already contains
+  `nuts0_code` to `nuts3_name`
+- the France lookup also carries `nuts3_code` and `nuts3_name`
+- the script now merges these safely by keeping the Europe event-table NUTS
+  columns as canonical and using France lookup values only as fallback
+
+Expected main output:
+
+- `data/france_lau_insee_documentation/events_fr_insee_long.csv`
+
 ```bash
 python src/france_lau_to_insee.py \
   --tabular-file data/_outputs_eurostat_full/events_lau_long.csv \
