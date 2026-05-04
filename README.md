@@ -40,16 +40,31 @@ So the issue was:
 - **not necessarily the flood data**
 - but the **web overlay placement logic**
 
-### What the fix does
+### What the current dashboard logic does
 
-The corrected dashboard logic now:
+The current dashboard logic now:
 
 1. finds the flood area with a coarse raster scan
 2. reads only a detailed crop of the source TIFF
-3. keeps exact native pixel rendering when the event is small enough
-4. when raster overlay mode is needed, **reprojects the crop to `EPSG:4326` before drawing it on the web map**
+3. uses three rendering strategies depending on the event size and the selected mode
+4. keeps polygon-based rendering available for alignment-sensitive inspection
+5. uses raster overlay only as a fast approximate view
 
-This is the key reason the dashboard now aligns much better with external viewers such as Felt.
+Those rendering strategies are:
+
+- exact native source pixels for sparse events
+- preview-grid polygon pixels for medium-size events
+- raster overlay for broad qualitative previews
+
+Important clarification:
+
+- reprojecting the crop before overlay is necessary
+- but it is **not always sufficient** to make a rectangular image overlay line up perfectly with external viewers such as Felt
+- polygon-based rendering is still the more trustworthy option when spatial alignment matters
+
+So the issue was never simply "the TIFF is wrong".
+
+The main difference is how the web app draws the flood cells.
 
 ## Why this matters for data scientists
 
@@ -86,7 +101,13 @@ The dashboard lets you:
 - browse official TIFF rasters by year
 - filter filenames
 - inspect one raster quickly without loading the whole file at full resolution
-- switch between `auto`, `pixels`, and `raster` rendering modes
+- switch between `auto`, `Polygon pixels`, and `Raster overlay` rendering modes
+
+Recommended interpretation of those modes:
+
+- `Polygon pixels` is the most spatially faithful mode
+- `Raster overlay` is the fastest mode, but also the most approximate
+- `Auto` is the best default for routine browsing
 
 ## How to Run the Main Europe Pipeline
 

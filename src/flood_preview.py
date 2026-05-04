@@ -216,6 +216,27 @@ def build_mask(
     return mask
 
 
+def build_mask_from_masked(
+    data: np.ma.MaskedArray,
+    threshold_cm: float = 0.0,
+    mask_values: tuple[float, ...] = (9999,),
+) -> np.ndarray:
+    """Build a flood mask while preserving nodata that GDAL already masked.
+
+    The coarse scan and downsampled preview need flood-preserving resampling.
+    A masked read with ``Resampling.average`` keeps nodata masked while making
+    any output cell positive whenever any positive flood depth contributes to
+    that destination footprint.
+    """
+
+    filled = np.ma.filled(data, fill_value=threshold_cm)
+    mask = np.ma.getmaskarray(data).copy()
+    for value in mask_values:
+        mask |= filled == value
+    mask |= filled <= threshold_cm
+    return mask
+
+
 def find_source_window(
     src: rasterio.io.DatasetReader,
     coarse_max_size: int = 1200,
@@ -230,12 +251,11 @@ def find_source_window(
     coarse_data = src.read(
         1,
         out_shape=(coarse_h, coarse_w),
-        resampling=Resampling.nearest,
-        masked=False,
+        resampling=Resampling.average,
+        masked=True,
     ).astype(np.float32, copy=False)
-    coarse_mask = build_mask(
+    coarse_mask = build_mask_from_masked(
         coarse_data,
-        src.nodata,
         threshold_cm=threshold_cm,
         mask_values=mask_values,
     )
@@ -285,11 +305,11 @@ def read_window_preview(
         1,
         window=window,
         out_shape=(out_h, out_w),
-        resampling=Resampling.nearest,
-        masked=False,
+        resampling=Resampling.average,
+        masked=True,
     ).astype(np.float32, copy=False)
 
-    mask = build_mask(data, src.nodata, threshold_cm=threshold_cm, mask_values=mask_values)
+    mask = build_mask_from_masked(data, threshold_cm=threshold_cm, mask_values=mask_values)
     masked = np.ma.masked_array(data, mask=mask)
     valid = masked.compressed()
     if valid.size == 0:
@@ -574,19 +594,95 @@ def add_pixel_polygons(
     return True
 
 
+def add_preview_pixel_polygons(
+    flood_map: folium.Map,
+    preview: FloodPreview,
+    cmap_name: str = "turbo",
+    max_cells: int = 20000,
+    color_bins: int = 48,
+) -> bool:
+    """Draw polygons from the downsampled preview grid itself.
+
+    This is a good compromise when exact native pixels would be too many for the
+    browser, but an image overlay would introduce visible placement drift on the
+    web map.
+    """
+
+    if preview.active_pixel_count > max_cells:
+        return False
+
+    active_mask = ~preview.values.mask
+    value_range = preview.vmax - preview.vmin
+    if value_range <= 0:
+        value_range = 1.0
+
+    transformer = Transformer.from_crs(preview.crs, "EPSG:4326", always_xy=True)
+    cmap = _get_colormap(cmap_name)
+    palette = [
+        mpl.colors.to_hex(cmap(bin_idx / max(color_bins - 1, 1)))
+        for bin_idx in range(color_bins)
+    ]
+    normalized = np.clip((preview.values.data - preview.vmin) / value_range, 0.0, 1.0)
+    binned_values = np.full(preview.values.shape, -1, dtype=np.int16)
+    binned_values[active_mask] = np.minimum(
+        (normalized[active_mask] * max(color_bins - 1, 1)).astype(np.int16),
+        color_bins - 1,
+    )
+
+    active_rows = np.flatnonzero(active_mask.any(axis=1))
+    for row in active_rows.tolist():
+        cols = np.flatnonzero(active_mask[row])
+        row_bins = binned_values[row, cols]
+        run_start = 0
+        for idx in range(1, cols.size + 1):
+            run_break = (
+                idx == cols.size
+                or cols[idx] != cols[idx - 1] + 1
+                or row_bins[idx] != row_bins[idx - 1]
+            )
+            if not run_break:
+                continue
+
+            col_start = int(cols[run_start])
+            col_end = int(cols[idx - 1])
+            color = palette[int(row_bins[run_start])]
+
+            left, top = preview.display_transform * (col_start, row)
+            right, bottom = preview.display_transform * (col_end + 1, row + 1)
+            corners_x = [left, right, right, left]
+            corners_y = [top, top, bottom, bottom]
+            lons, lats = transformer.transform(corners_x, corners_y)
+            polygon = list(zip(lats, lons))
+
+            folium.Polygon(
+                locations=polygon,
+                stroke=False,
+                fill=True,
+                fill_color=color,
+                fill_opacity=0.8,
+            ).add_to(flood_map)
+            run_start = idx
+    return True
+
+
 def build_folium_map(
     preview: FloodPreview,
     cmap_name: str = "turbo",
     tiles: str = "CartoDB positron",
     mode: str = "auto",
-    pixel_mode_max_cells: int = 4000,
+    pixel_mode_max_cells: int = 15000,
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
     exact_native_pixel_limit: int = 12000,
 ) -> folium.Map:
     lat_center = (preview.bounds_latlon[0][0] + preview.bounds_latlon[1][0]) / 2
     lon_center = (preview.bounds_latlon[0][1] + preview.bounds_latlon[1][1]) / 2
-    flood_map = folium.Map(location=[lat_center, lon_center], zoom_start=9, tiles=tiles)
+    flood_map = folium.Map(
+        location=[lat_center, lon_center],
+        zoom_start=9,
+        tiles=tiles,
+        prefer_canvas=True,
+    )
 
     chosen_mode = mode
     if mode == "auto":
@@ -602,21 +698,28 @@ def build_folium_map(
             max_cells=exact_native_pixel_limit,
         )
         if not pixels_added:
-            chosen_mode = "raster_fallback"
+            preview_pixels_added = add_preview_pixel_polygons(
+                flood_map,
+                preview,
+                cmap_name=cmap_name,
+                max_cells=pixel_mode_max_cells,
+            )
+            chosen_mode = "preview_pixels" if preview_pixels_added else "raster_fallback"
 
     if chosen_mode != "pixels":
-        rgba, overlay_bounds = reproject_preview_rgba_to_web(
-            preview,
-            cmap_name=cmap_name,
-        )
-        folium.raster_layers.ImageOverlay(
-            image=rgba,
-            bounds=overlay_bounds,
-            opacity=1.0,
-            name="Flood depth preview",
-            interactive=True,
-            cross_origin=False,
-        ).add_to(flood_map)
+        if chosen_mode in {"raster", "raster_fallback"}:
+            rgba, overlay_bounds = reproject_preview_rgba_to_web(
+                preview,
+                cmap_name=cmap_name,
+            )
+            folium.raster_layers.ImageOverlay(
+                image=rgba,
+                bounds=overlay_bounds,
+                opacity=1.0,
+                name="Flood depth preview",
+                interactive=True,
+                cross_origin=False,
+            ).add_to(flood_map)
 
     folium.LayerControl(collapsed=False).add_to(flood_map)
     flood_map.fit_bounds(preview.bounds_latlon)

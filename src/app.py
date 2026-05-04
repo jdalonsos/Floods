@@ -22,6 +22,7 @@ DEFAULT_ROOTS = {
     "Raw official archive": PROJECT_ROOT / "data" / "JRC_flood_depth_maps",
     "Filtered working tree": PROJECT_ROOT / "data" / "Filtered",
 }
+PREVIEW_CACHE_VERSION = "preview-polygon-fallback-v3"
 
 
 st.set_page_config(page_title="Flood TIFF Explorer", layout="wide")
@@ -45,7 +46,10 @@ def load_preview(
     source_padding_pixels: int,
     threshold_cm: float,
     upper_quantile: float,
+    preview_cache_version: str,
 ) -> object:
+    # Keep the cache key tied to preview-algorithm changes in helper modules.
+    _ = preview_cache_version
     return read_flood_preview(
         tif_path=tif_path,
         coarse_max_size=coarse_max_size,
@@ -135,7 +139,7 @@ def main() -> None:
         options=["auto", "pixels", "raster"],
         format_func=lambda value: {
             "auto": "Auto",
-            "pixels": "Exact native pixels",
+            "pixels": "Polygon pixels",
             "raster": "Raster overlay",
         }[value],
         index=0,
@@ -152,7 +156,7 @@ def main() -> None:
         source_padding_pixels = st.slider("Source padding (pixels)", 0, 2500, 600, 100)
         threshold_cm = st.slider("Flood threshold (cm)", 0.0, 20.0, 0.0, 0.5)
         upper_quantile = st.slider("Upper display quantile", 0.90, 1.00, 0.995, 0.001)
-        pixel_mode_max_cells = st.slider("Auto pixel-mode cutoff", 250, 20000, 4000, 250)
+        pixel_mode_max_cells = st.slider("Auto pixel-mode cutoff", 250, 25000, 15000, 250)
         exact_native_pixel_limit = st.slider(
             "Exact native pixel cap",
             1000,
@@ -187,6 +191,7 @@ def main() -> None:
             source_padding_pixels=source_padding_pixels,
             threshold_cm=threshold_cm,
             upper_quantile=upper_quantile,
+            preview_cache_version=PREVIEW_CACHE_VERSION,
         )
 
     preview_info = preview_summary(preview)
@@ -230,7 +235,7 @@ def main() -> None:
 
     with tabs[1]:
         fig = create_static_preview_figure(preview, cmap_name="turbo")
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width="stretch")
         fig.clear()
 
     with tabs[2]:
@@ -247,7 +252,7 @@ def main() -> None:
 
     with tabs[3]:
         st.write("Official raster counts discovered in the selected source tree.")
-        st.dataframe(year_counts, use_container_width=True, hide_index=True)
+        st.dataframe(year_counts, width="stretch", hide_index=True)
         st.write("Files currently visible under the selected year and filename filter.")
         table_cols = [
             "start_date",
@@ -258,7 +263,7 @@ def main() -> None:
             "enhanced_extent_km2",
             "raster_file",
         ]
-        st.dataframe(year_df[table_cols], use_container_width=True, hide_index=True)
+        st.dataframe(year_df[table_cols], width="stretch", hide_index=True)
 
 
 if __name__ == "__main__":

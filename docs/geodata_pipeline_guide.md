@@ -596,10 +596,11 @@ Instead it uses:
 
 1. A coarse scan of the whole raster to locate flood cells.
 2. A detailed local crop around the flood.
-3. Two display modes:
-   - raster overlay for broad floods
+3. Three interactive display paths:
    - exact native 20 m cells for sparse floods
-4. When a web-map raster overlay is used, the cropped preview is first reprojected to `EPSG:4326` before display.
+   - preview-grid polygon cells for medium-size floods
+   - raster overlay for broad qualitative previews
+4. When a web-map raster overlay is used, the cropped preview is reprojected before display, but the result is still an approximation.
 
 The dashboard does not use a different map algorithm.
 
@@ -617,7 +618,9 @@ If you draw every native 20 m cell for a large flood, the notebook and browser b
 
 If you draw only a full-raster image overlay, tiny floods become hard to see.
 
-If you place a projected raster preview directly on a web map without reprojection, coastal pixels can appear shifted offshore. That is why the shared preview engine now reprojects the crop to web-map coordinates before building the overlay.
+If you place a projected raster preview directly on a web map without reprojection, coastal pixels can appear shifted offshore.
+
+Even after reprojection, a simple image overlay can still drift visually on a web map over large extents, because the browser stretches one rectangular image in map space instead of drawing each flood cell as its own geometry.
 
 So the notebook balances:
 
@@ -625,14 +628,74 @@ So the notebook balances:
 - speed
 - map readability
 
-### Important caveat for coastal pixels
+### Streamlit rendering modes
 
-If a few flooded cells appear slightly offshore:
+The Streamlit dashboard now exposes three user-facing choices:
+
+- `Auto`
+- `Polygon pixels`
+- `Raster overlay`
+
+Internally, the shared engine in `src/flood_preview.py` can use three rendering strategies:
+
+- `pixels`: exact native source cells when the event is sparse enough
+- `preview_pixels`: polygons built from the downsampled preview grid when exact native cells would be too many for the browser
+- `raster`: one image overlay for the preview crop
+
+#### Exact native pixels
+
+This mode reads real source cells from the TIFF and converts each visible cell corner from the flood CRS into latitude/longitude before drawing the polygon.
+
+Advantages:
+
+- best spatial faithfulness
+- safest choice for coastlines and detailed inspection
+
+Tradeoff:
+
+- can be slow when the event contains many flooded cells
+
+#### Preview-grid polygon pixels
+
+This mode uses the already computed preview crop instead of the full native raster.
+
+Each visible preview cell is still drawn as a polygon, so the browser sees real map geometry rather than one stretched image.
+
+This is now the main compromise mode in the dashboard because it keeps the good alignment of polygon rendering while staying much faster than drawing all native 20 m cells.
+
+Implementation note:
+
+- adjacent preview cells with the same color bin are merged into row runs before drawing
+- the Leaflet map is configured with canvas-preferred vector rendering to reduce browser overhead
+
+#### Raster overlay
+
+This mode converts the preview crop into one colored image and places that image on the web map.
+
+Advantages:
+
+- fastest to draw
+- smallest browser workload
+
+Tradeoff:
+
+- it is the least trustworthy mode for exact alignment
+- over large projected extents it can look slightly shifted north/south or offshore compared with polygon-based rendering and external viewers such as Felt
+
+So the practical recommendation is:
+
+- use `Auto` for general browsing
+- use `Polygon pixels` when spatial alignment matters
+- use `Raster overlay` only for fast qualitative overview
+
+### Important caveat for coastal pixels and broad extents
+
+If a few flooded cells appear slightly offshore or slightly north/south of the expected location:
 
 - that can be a visualization artifact if the display method is too coarse
 - but it can also come from the raster source itself or from basemap shoreline generalization
 
-That is why the notebook has a pixel mode based on exact native source cells.
+That is why the notebook and dashboard keep polygon-based modes based on actual source or preview cells.
 
 ## 13. Common Pitfalls
 
@@ -731,9 +794,16 @@ The dashboard:
 - lists only official JRC TIFFs that match the README naming convention
 - groups browsing by year
 - uses the same two-stage preview logic as the notebook through `src/flood_preview.py`
-- supports `auto`, `pixels`, and `raster` rendering modes
+- supports `auto`, `Polygon pixels`, and `Raster overlay` rendering modes
+- uses polygon-based rendering as the safer default path for many coastal and medium-size events
 - lets you download the current interactive map as HTML
 - replaces the old scratch `app.py` logic with the notebook-based workflow
+
+Recommended use:
+
+- keep `Auto` for most browsing sessions
+- switch to `Polygon pixels` for coastlines, estuaries, and alignment checks against Felt or other viewers
+- switch to `Raster overlay` only when you need the lightest possible browser rendering and can accept approximate placement
 
 ## 16. Compare France JRC vs Gaspar
 
