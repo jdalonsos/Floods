@@ -723,8 +723,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--out-dir",
-        required=True,
-        help="Output directory for the France event table, lookup, and diagnostics.",
+        default="data/processed/france_lau_insee_documentation",
+        help=(
+            "Output directory for the France event table, lookup, and diagnostics. "
+            "Default: data/processed/france_lau_insee_documentation"
+        ),
     )
     parser.add_argument(
         "--commune-history",

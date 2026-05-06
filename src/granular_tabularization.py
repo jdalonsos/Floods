@@ -735,6 +735,150 @@ def aggregate_level(lau_df: pd.DataFrame, level: int) -> pd.DataFrame:
     return aggregated
 
 
+def build_nuts3_coverage_outputs(
+    lau_df: pd.DataFrame,
+    lookup_df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    lookup_nuts3 = lookup_df.dropna(subset=["nuts3_code"]).copy()
+    if lookup_nuts3.empty:
+        empty_detail = pd.DataFrame(
+            columns=[
+                "country_code",
+                "country_name",
+                "nuts1_code",
+                "nuts1_name",
+                "nuts2_code",
+                "nuts2_name",
+                "nuts3_code",
+                "nuts3_name",
+                "lookup_lau_count",
+                "lookup_population_2024",
+                "n_event_ids_hit",
+                "event_lau_rows",
+                "event_unique_lau_hit",
+                "total_flooded_pixels",
+                "total_flooded_area_m2",
+                "first_event_start_date",
+                "last_event_end_date",
+                "has_flood_events",
+            ]
+        )
+        empty_country = pd.DataFrame(
+            columns=[
+                "country_code",
+                "country_name",
+                "lookup_nuts3_count",
+                "hit_nuts3_count",
+                "unhit_nuts3_count",
+                "nuts3_hit_share",
+            ]
+        )
+        return empty_detail, empty_country, empty_detail.copy()
+
+    if "population_2024" in lookup_nuts3.columns:
+        lookup_nuts3["population_2024"] = pd.to_numeric(
+            lookup_nuts3["population_2024"],
+            errors="coerce",
+        )
+    else:
+        lookup_nuts3["population_2024"] = np.nan
+    group_cols = [
+        "country_code",
+        "country_name",
+        "nuts1_code",
+        "nuts1_name",
+        "nuts2_code",
+        "nuts2_name",
+        "nuts3_code",
+        "nuts3_name",
+    ]
+    lookup_nuts3_summary = (
+        lookup_nuts3.groupby(group_cols, dropna=False)
+        .agg(
+            lookup_lau_count=("lau_code", "nunique"),
+            lookup_population_2024=("population_2024", "sum"),
+        )
+        .reset_index()
+    )
+
+    if lau_df.empty:
+        event_nuts3_summary = pd.DataFrame(columns=group_cols)
+    else:
+        event_nuts3 = lau_df.dropna(subset=["nuts3_code"]).copy()
+        event_nuts3_summary = (
+            event_nuts3.groupby(group_cols, dropna=False)
+            .agg(
+                n_event_ids_hit=("event_id", "nunique"),
+                event_lau_rows=("lau_code", "size"),
+                event_unique_lau_hit=("lau_code", "nunique"),
+                total_flooded_pixels=("flooded_pixels", "sum"),
+                total_flooded_area_m2=("flooded_area_m2", "sum"),
+                first_event_start_date=("start_date", "min"),
+                last_event_end_date=("end_date", "max"),
+            )
+            .reset_index()
+        )
+
+    nuts3_coverage = lookup_nuts3_summary.merge(
+        event_nuts3_summary,
+        on=group_cols,
+        how="left",
+        validate="1:1",
+    )
+    for numeric_col in [
+        "n_event_ids_hit",
+        "event_lau_rows",
+        "event_unique_lau_hit",
+        "total_flooded_pixels",
+        "total_flooded_area_m2",
+    ]:
+        nuts3_coverage[numeric_col] = pd.to_numeric(
+            nuts3_coverage[numeric_col],
+            errors="coerce",
+        ).fillna(0)
+    nuts3_coverage["has_flood_events"] = nuts3_coverage["n_event_ids_hit"].gt(0)
+    nuts3_coverage = nuts3_coverage.sort_values(
+        ["country_code", "nuts3_code"],
+        na_position="last",
+    ).reset_index(drop=True)
+
+    country_nuts3_summary = (
+        nuts3_coverage.groupby(["country_code", "country_name"], dropna=False)
+        .agg(
+            lookup_nuts3_count=("nuts3_code", "nunique"),
+            hit_nuts3_count=("has_flood_events", "sum"),
+        )
+        .reset_index()
+    )
+    country_nuts3_summary["lookup_nuts3_count"] = pd.to_numeric(
+        country_nuts3_summary["lookup_nuts3_count"],
+        errors="coerce",
+    ).fillna(0)
+    country_nuts3_summary["hit_nuts3_count"] = pd.to_numeric(
+        country_nuts3_summary["hit_nuts3_count"],
+        errors="coerce",
+    ).fillna(0)
+    country_nuts3_summary["unhit_nuts3_count"] = (
+        country_nuts3_summary["lookup_nuts3_count"]
+        - country_nuts3_summary["hit_nuts3_count"]
+    )
+    country_nuts3_summary["nuts3_hit_share"] = 0.0
+    valid_country_mask = country_nuts3_summary["lookup_nuts3_count"].gt(0)
+    country_nuts3_summary.loc[valid_country_mask, "nuts3_hit_share"] = (
+        country_nuts3_summary.loc[valid_country_mask, "hit_nuts3_count"]
+        / country_nuts3_summary.loc[valid_country_mask, "lookup_nuts3_count"]
+    )
+    country_nuts3_summary = country_nuts3_summary.sort_values(
+        ["country_code"],
+        na_position="last",
+    ).reset_index(drop=True)
+
+    nuts3_without_events = nuts3_coverage.loc[
+        ~nuts3_coverage["has_flood_events"]
+    ].copy()
+    return nuts3_coverage, country_nuts3_summary, nuts3_without_events
+
+
 def sort_outputs(
     lau_df: pd.DataFrame,
     summary_df: pd.DataFrame,
@@ -805,6 +949,11 @@ def write_outputs(
     nuts1_df = aggregate_level(lau_df, 1)
     nuts2_df = aggregate_level(lau_df, 2)
     nuts3_df = aggregate_level(lau_df, 3)
+    (
+        nuts3_coverage_df,
+        country_nuts3_summary_df,
+        nuts3_without_events_df,
+    ) = build_nuts3_coverage_outputs(lau_df, lookup_df)
 
     write_csv(out_path / "events_lau_long.csv", lau_df)
     write_csv(out_path / "events_summary.csv", summary_df)
@@ -813,6 +962,9 @@ def write_outputs(
     write_csv(out_path / "events_nuts1.csv", nuts1_df)
     write_csv(out_path / "events_nuts2.csv", nuts2_df)
     write_csv(out_path / "events_nuts3.csv", nuts3_df)
+    write_csv(out_path / "nuts3_event_coverage.csv", nuts3_coverage_df)
+    write_csv(out_path / "country_nuts3_event_coverage.csv", country_nuts3_summary_df)
+    write_csv(out_path / "nuts3_without_flood_events.csv", nuts3_without_events_df)
 
     parquet_paths = {
         "events_lau_long_parquet": maybe_write_parquet(out_path / "events_lau_long.parquet", lau_df),
@@ -828,6 +980,9 @@ def write_outputs(
             ("events_nuts1", nuts1_df),
             ("events_nuts2", nuts2_df),
             ("events_nuts3", nuts3_df),
+            ("nuts3_coverage", nuts3_coverage_df),
+            ("country_nuts3_cov", country_nuts3_summary_df),
+            ("nuts3_without_evt", nuts3_without_events_df),
             ("lau_nuts_lookup", lookup_df),
         ],
     )
@@ -843,7 +998,19 @@ def write_outputs(
             "events_nuts1": int(len(nuts1_df)),
             "events_nuts2": int(len(nuts2_df)),
             "events_nuts3": int(len(nuts3_df)),
+            "nuts3_event_coverage": int(len(nuts3_coverage_df)),
+            "country_nuts3_event_coverage": int(len(country_nuts3_summary_df)),
+            "nuts3_without_flood_events": int(len(nuts3_without_events_df)),
             "lau_nuts_lookup": int(len(lookup_df)),
+        },
+        "nuts3_coverage_diagnostics": {
+            "lookup_nuts3_total": int(nuts3_coverage_df["nuts3_code"].nunique())
+            if not nuts3_coverage_df.empty
+            else 0,
+            "hit_nuts3_total": int(nuts3_coverage_df["has_flood_events"].sum())
+            if not nuts3_coverage_df.empty
+            else 0,
+            "unhit_nuts3_total": int(len(nuts3_without_events_df)),
         },
         "parquet_outputs": parquet_paths,
         "excel_status": excel_status,

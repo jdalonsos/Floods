@@ -116,8 +116,16 @@ python src/granular_tabularization.py \
   --lau data/LAU_RG_01M_2024_4326.gpkg \
   --nuts data/NUTS_RG_01M_2024_4326.gpkg \
   --flood-dir data/JRC_flood_depth_maps \
-  --out-dir data/_outputs_eurostat_full
+  --out-dir data/processed/_outputs_eurostat_full
 ```
+
+The tabularization now also writes NUTS3 coverage diagnostics so you can check
+which official NUTS3 regions exist in the Eurostat lookup versus which ones
+actually appear in flood-event outputs:
+
+- `nuts3_event_coverage.csv`
+- `country_nuts3_event_coverage.csv`
+- `nuts3_without_flood_events.csv`
 
 ## How to Run the France Harmonization
 
@@ -134,13 +142,13 @@ Important implementation note:
 
 ```bash
 python src/france_lau_to_insee.py \
-  --tabular-file data/_outputs_eurostat_full/events_lau_long.csv \
+  --tabular-file data/processed/_outputs_eurostat_full/events_lau_long.csv \
   --lau data/LAU_RG_01M_2024_4326.gpkg \
   --nuts data/NUTS_RG_01M_2024_4326.gpkg \
   --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
   --commune-history data/insee_history/v_commune_depuis_1943.csv \
   --commune-movements data/insee_history/v_mvt_commune_2025.csv \
-  --out-dir data/france_lau_insee_documentation
+  --out-dir data/processed/france_lau_insee_documentation
 ```
 
 ## TIFFs and Git
@@ -170,14 +178,23 @@ The comparison script:
 - defines the Gaspar event grain as:
   - `cod_nat_catnat + dat_deb + dat_fin`
   - because one `cod_nat_catnat` can contain multiple date pairs
+- writes a small top-level result pack:
+  - `comparison_guide.md`
+  - `comparison_summary.csv`
+  - `comparison_summary.xlsx`
+  - `coverage_overview.csv`
+  - `coverage_overview.xlsx`
+  - `best_match_overview_commune.csv`
+  - `best_match_overview_commune.xlsx`
+- keeps the long audit tables inside `details/`
 
 ```bash
 python src/compare_france_jrc_gaspar.py \
-  --jrc-file data/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --jrc-file data/processed/france_lau_insee_documentation/events_fr_insee_long.csv \
   --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
   --sheet-name Gaspar20152024FloodsClean \
   --date-window-days 7 \
-  --out-dir data/processed/flood_outputs/jrc_gaspar_comparison_7d
+  --out-dir data/processed/jrc_gaspar_comparison_7d
 ```
 
 ---

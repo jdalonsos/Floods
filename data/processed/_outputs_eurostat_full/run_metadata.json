@@ -1,0 +1,74 @@
+{
+  "config": {
+    "lau": "D:\\M2_MoSEF\\DataCollection\\data\\LAU_RG_01M_2024_4326.gpkg",
+    "nuts": "D:\\M2_MoSEF\\DataCollection\\data\\NUTS_RG_01M_2024_4326.gpkg",
+    "flood_dir": "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps",
+    "out_dir": "D:\\M2_MoSEF\\DataCollection\\data\\processed\\_outputs_eurostat_full",
+    "year_from": null,
+    "year_to": null,
+    "countries": null,
+    "threshold_cm": 0.0,
+    "all_touched": false,
+    "max_files": null
+  },
+  "inventory": {
+    "root": "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps",
+    "candidate_directories": [
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2015",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2016",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2017",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2018",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2019",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2020",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2021",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2022",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2023",
+      "D:\\M2_MoSEF\\DataCollection\\data\\JRC_flood_depth_maps\\2024"
+    ],
+    "all_tif_seen": 3280,
+    "accepted_official_event_files": 3280,
+    "rejected_non_official_tif": 0,
+    "duplicate_event_ids_skipped": 0,
+    "duplicate_examples": [],
+    "events_selected_after_limit": 3280
+  },
+  "join_diagnostics": {
+    "missing_nuts0_code": 0,
+    "missing_nuts1_code": 3,
+    "missing_nuts2_code": 3,
+    "missing_nuts3_code": 3
+  },
+  "row_counts": {
+    "events_lau_long": 205135,
+    "events_summary": 3280,
+    "events_nuts0": 3795,
+    "events_nuts1": 6456,
+    "events_nuts2": 10699,
+    "events_nuts3": 25466,
+    "nuts3_event_coverage": 1254,
+    "country_nuts3_event_coverage": 34,
+    "nuts3_without_flood_events": 125,
+    "lau_nuts_lookup": 97987
+  },
+  "nuts3_coverage_diagnostics": {
+    "lookup_nuts3_total": 1254,
+    "hit_nuts3_total": 1129,
+    "unhit_nuts3_total": 125
+  },
+  "parquet_outputs": {
+    "events_lau_long_parquet": "data\\processed\\_outputs_eurostat_full\\events_lau_long.parquet",
+    "events_summary_parquet": "data\\processed\\_outputs_eurostat_full\\events_summary.parquet"
+  },
+  "excel_status": {
+    "events_summary": "written_rows_3280",
+    "events_lau_long": "written_rows_205135",
+    "events_nuts0": "written_rows_3795",
+    "events_nuts1": "written_rows_6456",
+    "events_nuts2": "written_rows_10699",
+    "events_nuts3": "written_rows_25466",
+    "nuts3_coverage": "written_rows_1254",
+    "country_nuts3_cov": "written_rows_34",
+    "nuts3_without_evt": "written_rows_125",
+    "lau_nuts_lookup": "written_rows_97987"
+  }
+}

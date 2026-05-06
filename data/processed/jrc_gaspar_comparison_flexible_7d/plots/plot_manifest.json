@@ -1,0 +1,15 @@
+{
+  "comparison_dir": "data\\processed\\jrc_gaspar_comparison_flexible_7d",
+  "plots": {
+    "overview": "data\\processed\\jrc_gaspar_comparison_flexible_7d\\plots\\comparison_overview.png",
+    "commune_level": "data\\processed\\jrc_gaspar_comparison_flexible_7d\\plots\\commune_level_summary.png",
+    "department_level": "data\\processed\\jrc_gaspar_comparison_flexible_7d\\plots\\department_level_summary.png",
+    "commune_events": "data\\processed\\jrc_gaspar_comparison_flexible_7d\\plots\\commune_event_summary.png",
+    "department_events": "data\\processed\\jrc_gaspar_comparison_flexible_7d\\plots\\department_event_summary.png"
+  },
+  "plot_basis": {
+    "overview": "coverage_overview top-level table",
+    "row_level": "detailed match rows and detailed event score tables",
+    "event_level": "best_match_overview top-level tables (best Gaspar per JRC event)"
+  }
+}

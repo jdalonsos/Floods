@@ -1,0 +1,126 @@
+﻿country_code,country_name,nuts1_code,nuts1_name,nuts2_code,nuts2_name,nuts3_code,nuts3_name,lookup_lau_count,lookup_population_2024,n_event_ids_hit,event_lau_rows,event_unique_lau_hit,total_flooded_pixels,total_flooded_area_m2,first_event_start_date,last_event_end_date,has_flood_events
+BE,Belgique/België,BE1,Région de Bruxelles-Capitale/Brussels Hoofdstedelijk Gewest,BE10,Région de Bruxelles-Capitale/ Brussels Hoofdstedelijk Gewest,BE100,Arr. de Bruxelles-Capitale/Arr. Brussel-Hoofdstad,19,1249597.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE329,Arr. La Louvière,4,142019.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32B,Arr. Charleroi,12,399742.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32C,Arr. Soignies,6,108487.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE336,Bezirk Verviers — Deutschsprachige Gemeinschaft,9,79479.0,0.0,0.0,0.0,0.0,0.0,,,False
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG424,Смолян,10,92107.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH031,Basel-Stadt,3,196786.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH032,Basel-Landschaft,86,294417.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH033,Aargau,199,711232.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH053,Appenzell Ausserrhoden,20,55759.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH054,Appenzell Innerrhoden,5,16416.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH055,St. Gallen,78,525967.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH064,Obwalden,9,38700.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH066,Zug,13,131164.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE111,"Stuttgart, Stadtkreis",1,633484.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE112,Böblingen,26,401318.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE113,Esslingen,44,542582.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE117,"Heilbronn, Stadtkreis",1,130093.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE118,"Heilbronn, Landkreis",46,355359.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE121,"Baden-Baden, Stadtkreis",1,57420.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE125,"Heidelberg, Stadtkreis",1,162960.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE127,Neckar-Odenwald-Kreis,27,146070.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE129,"Pforzheim, Stadtkreis",1,128992.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE131,"Freiburg im Breisgau, Stadtkreis",1,237244.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE139,Lörrach,35,234909.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE143,Zollernalbkreis,25,193712.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE144,"Ulm, Stadtkreis",1,129942.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE213,"Rosenheim, Kreisfreie Stadt",1,65192.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE222,"Passau, Kreisfreie Stadt",1,54401.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE225,Freyung-Grafenau,36,79603.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE229,Regen,24,77940.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE241,"Bamberg, Kreisfreie Stadt",1,80580.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE249,"Hof, Landkreis",31,94333.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE254,"Nürnberg, Kreisfreie Stadt",1,526091.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE255,"Schwabach, Kreisfreie Stadt",1,41380.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE261,"Aschaffenburg, Kreisfreie Stadt",1,72918.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE263,"Würzburg, Kreisfreie Stadt",1,128246.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE271,"Augsburg, Kreisfreie Stadt",1,303150.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE272,"Kaufbeuren, Kreisfreie Stadt",1,46386.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE711,"Darmstadt, Kreisfreie Stadt",1,164792.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE713,"Offenbach am Main, Kreisfreie Stadt",1,135490.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE718,Hochtaunuskreis,13,241449.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71A,Main-Taunus-Kreis,12,243307.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71B,Odenwaldkreis,12,97182.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE731,"Kassel, Kreisfreie Stadt",1,204687.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE944,"Osnabrück, Kreisfreie Stadt",1,166960.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA18,"Remscheid, Kreisfreie Stadt",1,112970.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1A,"Wuppertal, Kreisfreie Stadt",1,358938.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA31,"Bottrop, Kreisfreie Stadt",1,118705.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA32,"Gelsenkirchen, Kreisfreie Stadt",1,265885.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA55,"Herne, Kreisfreie Stadt",1,157896.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA5A,Siegen-Wittgenstein,11,276625.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB11,"Koblenz, Kreisfreie Stadt",1,115298.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB15,Birkenfeld,96,81918.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB1D,Rhein-Hunsrück-Kreis,137,106227.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB24,Vulkaneifel,109,61912.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB33,"Landau in der Pfalz, Kreisfreie Stadt",1,48341.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB36,"Neustadt an der Weinstraße, Kreisfreie Stadt",1,53920.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB37,"Pirmasens, Kreisfreie Stadt",1,40941.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3A,"Zweibrücken, Kreisfreie Stadt",1,34613.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC04,Saarlouis,13,195945.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC06,St. Wendel,8,86988.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED41,"Chemnitz, Kreisfreie Stadt",1,250681.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED44,Vogtlandkreis,37,221953.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL301,Βόρειος Τομέας Αθηνών,20,601163.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL302,Δυτικός Τομέας Αθηνών,8,478883.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL303,Κεντρικός Τομέας Αθηνών,10,1002212.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL304,Νότιος Τομέας Αθηνών,10,529455.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL306,Δυτική Αττική,13,165540.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL307,"Πειραιάς, Νήσοι",44,518056.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL41,Βόρειο Αιγαίο,EL413,Χίος,60,51692.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL42,Νότιο Αιγαίο,EL422,"Άνδρος, Θήρα, Κέα - Κύθνος, Μήλος, Μύκονος, Νάξος, Πάρος, Σύρος, Τήνος",120,120989.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL431,Ηράκλειο,194,305017.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL432,Λασίθι,88,77819.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL433,Ρέθυμνο,133,84866.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL434,Χανιά,163,156706.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL53,Δυτική Μακεδονία,EL532,Καστοριά,69,45929.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL643,Ευρυτανία,83,17428.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES5,Este,ES53,Illes Balears,ES531,Eivissa y Formentera,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES5,Este,ES53,Illes Balears,ES532,Mallorca,53,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES5,Este,ES53,Illes Balears,ES533,Menorca,8,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES6,Sur,ES63,Ciudad de Ceuta,ES630,Ceuta,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES6,Sur,ES64,Ciudad de Melilla,ES640,Melilla,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES703,El Hierro,3,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES704,Fuerteventura,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES705,Gran Canaria,21,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES706,La Gomera,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES707,La Palma,14,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES708,Lanzarote,7,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES709,Tenerife,31,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR101,Paris,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR105,Hauts-de-Seine ,36,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR106,Seine-Saint-Denis ,40,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR107,Val-de-Marne,47,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRM,Corse,FRM0,Corse,FRM01,Corse-du-Sud,124,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRM,Corse,FRM0,Corse,FRM02,Haute-Corse,236,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY1,Guadeloupe,FRY10,Guadeloupe,33,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY2,Martinique ,FRY20,Martinique ,34,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY3,Guyane,FRY30,Guyane,22,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY4,La Réunion ,FRY40,La Réunion,24,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY5,Mayotte,FRY50,Mayotte ,17,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC31,Imperia,66,208844.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC32,Savona,69,267584.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC34,La Spezia,32,215159.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC4D,Monza e della Brianza,55,877680.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF2,Molise,ITF21,Isernia,52,79385.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF62,Crotone,27,161733.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF64,Vibo Valentia,50,150564.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF65,Reggio Calabria,97,515046.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG11,Trapani,25,412976.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG13,Messina,108,598165.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2E,Nuoro,74,197003.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2F,Cagliari,17,418761.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITH,Nord-Est,ITH4,Friuli-Venezia Giulia,ITH44,Trieste,6,228952.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI11,Massa-Carrara,17,187064.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI31,Pesaro e Urbino,50,350335.0,0.0,0.0,0.0,0.0,0.0,,,False
+MT,Malta,MT0,Malta,MT00,Malta,MT001,Malta,54,522517.0,0.0,0.0,0.0,0.0,0.0,,,False
+MT,Malta,MT0,Malta,MT00,Malta,MT002,Gozo and Comino/Għawdex u Kemmuna,14,40926.0,0.0,0.0,0.0,0.0,0.0,,,False
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL22A,Katowicki,6,690200.0,0.0,0.0,0.0,0.0,0.0,,,False
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL711,Miasto Łódź,1,652015.0,0.0,0.0,0.0,0.0,0.0,,,False
+PT,Portugal,PT1,Continente,PT11,Norte,PT11E,Terras de Trás-os-Montes,195,107272.0,0.0,0.0,0.0,0.0,0.0,,,False
+PT,Portugal,PT2,Região Autónoma dos Açores,PT20,Região Autónoma dos Açores,PT200,Região Autónoma dos Açores,156,236413.0,0.0,0.0,0.0,0.0,0.0,,,False
+PT,Portugal,PT3,Região Autónoma da Madeira,PT30,Região Autónoma da Madeira,PT300,Região Autónoma da Madeira,54,250744.0,0.0,0.0,0.0,0.0,0.0,,,False
+RO,România,RO3,Macroregiunea Trei,RO32,Bucureşti-Ilfov,RO321,Bucureşti,1,2142929.0,0.0,0.0,0.0,0.0,0.0,,,False
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI035,Zasavska,4,57243.0,0.0,0.0,0.0,0.0,0.0,,,False

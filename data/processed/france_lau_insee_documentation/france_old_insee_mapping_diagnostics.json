@@ -1,0 +1,395 @@
+{
+  "historical_commune_states_total": 7394,
+  "historical_output_rows_total": 8010,
+  "unique_current_match_states": 5853,
+  "multiple_current_match_states": 323,
+  "no_current_match_states": 1218,
+  "update_ready_rows_total": 5853,
+  "distinct_new_communes_referenced": 3513,
+  "example_unique_updates": [
+    {
+      "old_insee_com": "01003",
+      "old_commune_name": "Amareins",
+      "new_insee_com": "01165",
+      "new_commune_name": "Francheleins",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01004",
+      "old_commune_name": "Ambérieu",
+      "new_insee_com": "01004",
+      "new_commune_name": "Ambérieu-en-Bugey",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01015",
+      "old_commune_name": "Arbignieu",
+      "new_insee_com": "01015",
+      "new_commune_name": "Arboys en Bugey",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01021",
+      "old_commune_name": "Ars",
+      "new_insee_com": "01021",
+      "new_commune_name": "Ars-sur-Formans",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01025",
+      "old_commune_name": "Bâgé-la-Ville",
+      "new_insee_com": "01025",
+      "new_commune_name": "Bâgé-Dommartin",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01031",
+      "old_commune_name": "Bélignat",
+      "new_insee_com": "01031",
+      "new_commune_name": "Bellignat",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01033",
+      "old_commune_name": "Bellegarde",
+      "new_insee_com": "01033",
+      "new_commune_name": "Valserhône",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01033",
+      "old_commune_name": "Bellegarde-sur-Valserine",
+      "new_insee_com": "01033",
+      "new_commune_name": "Valserhône",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01036",
+      "old_commune_name": "Belmont",
+      "new_insee_com": "01036",
+      "new_commune_name": "Valromey-sur-Séran",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01036",
+      "old_commune_name": "Belmont-Luthézieu",
+      "new_insee_com": "01036",
+      "new_commune_name": "Valromey-sur-Séran",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01039",
+      "old_commune_name": "Béon",
+      "new_insee_com": "01138",
+      "new_commune_name": "Culoz-Béon",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01048",
+      "old_commune_name": "Bohas",
+      "new_insee_com": "01245",
+      "new_commune_name": "Bohas-Meyriat-Rignat",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01053",
+      "old_commune_name": "Bourg",
+      "new_insee_com": "01053",
+      "new_commune_name": "Bourg-en-Bresse",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01059",
+      "old_commune_name": "Brénaz",
+      "new_insee_com": "01453",
+      "new_commune_name": "Arvière-en-Valromey",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01070",
+      "old_commune_name": "Cesseins",
+      "new_insee_com": "01165",
+      "new_commune_name": "Francheleins",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01077",
+      "old_commune_name": "Challes",
+      "new_insee_com": "01077",
+      "new_commune_name": "Challes-la-Montagne",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01079",
+      "old_commune_name": "Champagne",
+      "new_insee_com": "01079",
+      "new_commune_name": "Champagne-en-Valromey",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01080",
+      "old_commune_name": "Champdor",
+      "new_insee_com": "01080",
+      "new_commune_name": "Champdor-Corcelles",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01088",
+      "old_commune_name": "Charnoz",
+      "new_insee_com": "01088",
+      "new_commune_name": "Charnoz-sur-Ain",
+      "new_nuts3_code": "FRK21"
+    },
+    {
+      "old_insee_com": "01091",
+      "old_commune_name": "Châtillon-de-Michaille",
+      "new_insee_com": "01033",
+      "new_commune_name": "Valserhône",
+      "new_nuts3_code": "FRK21"
+    }
+  ],
+  "example_multiple_updates": [
+    {
+      "old_insee_com": "04009",
+      "old_commune_name": "Archail",
+      "new_insee_com": "04009",
+      "new_commune_name": "Archail",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "04009",
+      "old_commune_name": "Archail",
+      "new_insee_com": "04072",
+      "new_commune_name": "Draix",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "04072",
+      "old_commune_name": "Draix",
+      "new_insee_com": "04009",
+      "new_commune_name": "Archail",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "04072",
+      "old_commune_name": "Draix",
+      "new_insee_com": "04072",
+      "new_commune_name": "Draix",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "04072",
+      "old_commune_name": "Archail-Draix",
+      "new_insee_com": "04009",
+      "new_commune_name": "Archail",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "04072",
+      "old_commune_name": "Archail-Draix",
+      "new_insee_com": "04072",
+      "new_commune_name": "Draix",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08047",
+      "old_commune_name": "Barbaise",
+      "new_insee_com": "08047",
+      "new_commune_name": "Barbaise",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08047",
+      "old_commune_name": "Barbaise",
+      "new_insee_com": "08352",
+      "new_commune_name": "Raillicourt",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08119",
+      "old_commune_name": "Cheveuges",
+      "new_insee_com": "08119",
+      "new_commune_name": "Cheveuges",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08119",
+      "old_commune_name": "Cheveuges",
+      "new_insee_com": "08377",
+      "new_commune_name": "Saint-Aignan",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08119",
+      "old_commune_name": "Cheveuges-Saint-Aignan",
+      "new_insee_com": "08119",
+      "new_commune_name": "Cheveuges",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08119",
+      "old_commune_name": "Cheveuges-Saint-Aignan",
+      "new_insee_com": "08377",
+      "new_commune_name": "Saint-Aignan",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08125",
+      "old_commune_name": "Cliron",
+      "new_insee_com": "08125",
+      "new_commune_name": "Cliron",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08125",
+      "old_commune_name": "Cliron",
+      "new_insee_com": "08297",
+      "new_commune_name": "Montcornet",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08125",
+      "old_commune_name": "Montcornet-en-Ardenne",
+      "new_insee_com": "08125",
+      "new_commune_name": "Cliron",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08125",
+      "old_commune_name": "Montcornet-en-Ardenne",
+      "new_insee_com": "08297",
+      "new_commune_name": "Montcornet",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08297",
+      "old_commune_name": "Montcornet",
+      "new_insee_com": "08125",
+      "new_commune_name": "Cliron",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08297",
+      "old_commune_name": "Montcornet",
+      "new_insee_com": "08297",
+      "new_commune_name": "Montcornet",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08352",
+      "old_commune_name": "Raillicourt",
+      "new_insee_com": "08047",
+      "new_commune_name": "Barbaise",
+      "current_match_count": 2
+    },
+    {
+      "old_insee_com": "08352",
+      "old_commune_name": "Raillicourt",
+      "new_insee_com": "08352",
+      "new_commune_name": "Raillicourt",
+      "current_match_count": 2
+    }
+  ],
+  "example_no_match_updates": [
+    {
+      "old_insee_com": "01018",
+      "old_commune_name": "Arlod",
+      "old_date_fin": "1971-01-01"
+    },
+    {
+      "old_insee_com": "01020",
+      "old_commune_name": "Arnans",
+      "old_date_fin": "1964-06-04"
+    },
+    {
+      "old_insee_com": "01055",
+      "old_commune_name": "Bouvent",
+      "old_date_fin": "1973-01-01"
+    },
+    {
+      "old_insee_com": "01086",
+      "old_commune_name": "Charancin",
+      "old_date_fin": "1974-01-01"
+    },
+    {
+      "old_insee_com": "01120",
+      "old_commune_name": "Cordieux",
+      "old_date_fin": "1973-01-01"
+    },
+    {
+      "old_insee_com": "01126",
+      "old_commune_name": "Coupy",
+      "old_date_fin": "1966-03-23"
+    },
+    {
+      "old_insee_com": "01161",
+      "old_commune_name": "Fitignieu",
+      "old_date_fin": "1974-01-01"
+    },
+    {
+      "old_insee_com": "01201",
+      "old_commune_name": "Lacoux",
+      "old_date_fin": "1964-09-01"
+    },
+    {
+      "old_insee_com": "01217",
+      "old_commune_name": "Lilignod",
+      "old_date_fin": "1973-01-01"
+    },
+    {
+      "old_insee_com": "01222",
+      "old_commune_name": "Longecombe",
+      "old_date_fin": "1964-09-01"
+    },
+    {
+      "old_insee_com": "01270",
+      "old_commune_name": "Napt",
+      "old_date_fin": "1974-01-01"
+    },
+    {
+      "old_insee_com": "01287",
+      "old_commune_name": "Passin",
+      "old_date_fin": "1973-01-01"
+    },
+    {
+      "old_insee_com": "01315",
+      "old_commune_name": "Proulieu",
+      "old_date_fin": "1965-01-10"
+    },
+    {
+      "old_insee_com": "01316",
+      "old_commune_name": "Pugieu",
+      "old_date_fin": "2017-01-01"
+    },
+    {
+      "old_insee_com": "01330",
+      "old_commune_name": "Ruffieu",
+      "old_date_fin": "2025-01-01"
+    },
+    {
+      "old_insee_com": "01341",
+      "old_commune_name": "Saint-Champ",
+      "old_date_fin": "2019-01-01"
+    },
+    {
+      "old_insee_com": "01377",
+      "old_commune_name": "Saint-Maurice-d'Échazeaux",
+      "old_date_fin": "1943-08-01"
+    },
+    {
+      "old_insee_com": "01438",
+      "old_commune_name": "Vésenex-Crassy",
+      "old_date_fin": "1965-02-15"
+    },
+    {
+      "old_insee_com": "01440",
+      "old_commune_name": "Veyziat",
+      "old_date_fin": "1973-01-01"
+    },
+    {
+      "old_insee_com": "02092",
+      "old_commune_name": "Blérancourdelle",
+      "old_date_fin": "1969-01-01"
+    }
+  ]
+}

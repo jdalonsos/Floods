@@ -25,6 +25,15 @@ from typing import Any
 
 import pandas as pd
 
+from comparison_report_utils import (
+    build_best_match_overview,
+    build_coverage_overview,
+    build_output_guide_markdown,
+    relocate_existing_detail_files,
+    write_markdown,
+    write_single_sheet_excel,
+)
+
 
 EXCEL_ROW_LIMIT = 1_000_000
 JRC_REQUIRED_COLUMNS = {
@@ -535,10 +544,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--jrc-file",
-        default="data/france_lau_insee_documentation/events_fr_insee_long.csv",
+        default="data/processed/france_lau_insee_documentation/events_fr_insee_long.csv",
         help=(
             "Path to the France JRC commune-event table from france_lau_to_insee.py. "
-            "Default: data/france_lau_insee_documentation/events_fr_insee_long.csv"
+            "Default: data/processed/france_lau_insee_documentation/events_fr_insee_long.csv"
         ),
     )
     parser.add_argument(
@@ -559,10 +568,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--out-dir",
-        default="data/processed/flood_outputs/jrc_gaspar_comparison_7d",
+        default="data/processed/jrc_gaspar_comparison_7d",
         help=(
             "Output directory for canonical tables, match tables, workbook, and diagnostics. "
-            "Default: data/processed/flood_outputs/jrc_gaspar_comparison_7d"
+            "Default: data/processed/jrc_gaspar_comparison_7d"
         ),
     )
     return parser
@@ -574,6 +583,8 @@ def main() -> None:
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    details_dir = out_dir / "details"
+    details_dir.mkdir(parents=True, exist_ok=True)
 
     print("Reading JRC France commune-event table...")
     jrc_df, jrc_meta = prepare_jrc_commune_events(args.jrc_file)
@@ -638,35 +649,128 @@ def main() -> None:
         ) if not event_scores_ranked.empty else 0,
     }
     summary_table = build_summary_table(summary)
+    coverage_overview = build_coverage_overview(
+        [
+            {
+                "level": "commune",
+                "measurement": "unique_events",
+                "jrc_matched": int(summary["matched_jrc_events"]),
+                "jrc_total": int(summary["jrc_unique_events"]),
+                "jrc_match_share": (
+                    float(summary["matched_jrc_events"]) / float(summary["jrc_unique_events"])
+                    if summary["jrc_unique_events"]
+                    else 0.0
+                ),
+                "gaspar_matched": int(summary["matched_gaspar_event_uids"]),
+                "gaspar_total": int(summary["gaspar_unique_event_uids"]),
+                "gaspar_match_share": (
+                    float(summary["matched_gaspar_event_uids"])
+                    / float(summary["gaspar_unique_event_uids"])
+                    if summary["gaspar_unique_event_uids"]
+                    else 0.0
+                ),
+            },
+            {
+                "level": "commune",
+                "measurement": "canonical_rows",
+                "jrc_matched": int(len(jrc_df) - len(unmatched_jrc)),
+                "jrc_total": int(len(jrc_df)),
+                "jrc_match_share": (
+                    float(len(jrc_df) - len(unmatched_jrc)) / float(len(jrc_df))
+                    if len(jrc_df)
+                    else 0.0
+                ),
+                "gaspar_matched": int(len(gaspar_df) - len(unmatched_gaspar)),
+                "gaspar_total": int(len(gaspar_df)),
+                "gaspar_match_share": (
+                    float(len(gaspar_df) - len(unmatched_gaspar)) / float(len(gaspar_df))
+                    if len(gaspar_df)
+                    else 0.0
+                ),
+            },
+        ]
+    )
+    best_match_overview = build_best_match_overview(
+        best_matches=best_gaspar_per_jrc,
+        ranked_scores=event_scores_ranked,
+        matched_col="matched_communes",
+        exact_col="exact_date_commune_matches",
+    )
+    comparison_guide = build_output_guide_markdown(
+        title="France JRC vs Gaspar Comparison (7-day baseline)",
+        window_days=args.date_window_days,
+        top_level_files=[
+            "comparison_guide.md",
+            "comparison_summary.csv",
+            "comparison_summary.xlsx",
+            "coverage_overview.csv",
+            "coverage_overview.xlsx",
+            "best_match_overview_commune.csv",
+            "best_match_overview_commune.xlsx",
+            "jrc_gaspar_comparison.xlsx",
+            "details/",
+        ],
+        details_dir_name="details",
+        coverage_overview=coverage_overview,
+    )
+    detail_file_names = [
+        "jrc_france_commune_events_canonical.csv",
+        "gaspar_commune_events_canonical.csv",
+        "commune_event_matches_window7.csv",
+        "event_match_scores.csv",
+        "best_gaspar_match_per_jrc_event.csv",
+        "best_jrc_match_per_gaspar_event.csv",
+        "unmatched_jrc_commune_events.csv",
+        "unmatched_gaspar_commune_events.csv",
+        "unmatched_jrc_events.csv",
+        "unmatched_gaspar_event_uids.csv",
+        "commune_event_matches_window7.parquet",
+        "event_match_scores.parquet",
+        "comparison_diagnostics.json",
+    ]
 
     print("Writing outputs...")
-    write_csv(out_dir / "jrc_france_commune_events_canonical.csv", jrc_df)
-    write_csv(out_dir / "gaspar_commune_events_canonical.csv", gaspar_df)
-    write_csv(out_dir / "commune_event_matches_window7.csv", commune_matches)
-    write_csv(out_dir / "event_match_scores.csv", event_scores_ranked)
-    write_csv(out_dir / "best_gaspar_match_per_jrc_event.csv", best_gaspar_per_jrc)
-    write_csv(out_dir / "best_jrc_match_per_gaspar_event.csv", best_jrc_per_gaspar)
-    write_csv(out_dir / "unmatched_jrc_commune_events.csv", unmatched_jrc)
-    write_csv(out_dir / "unmatched_gaspar_commune_events.csv", unmatched_gaspar)
-    write_csv(out_dir / "unmatched_jrc_events.csv", unmatched_jrc_events)
-    write_csv(out_dir / "unmatched_gaspar_event_uids.csv", unmatched_gaspar_events)
+    relocate_existing_detail_files(out_dir, details_dir, detail_file_names)
     write_csv(out_dir / "comparison_summary.csv", summary_table)
+    write_csv(out_dir / "coverage_overview.csv", coverage_overview)
+    write_csv(out_dir / "best_match_overview_commune.csv", best_match_overview)
+    write_single_sheet_excel(out_dir / "comparison_summary.xlsx", "summary", summary_table)
+    write_single_sheet_excel(out_dir / "coverage_overview.xlsx", "coverage", coverage_overview)
+    write_single_sheet_excel(
+        out_dir / "best_match_overview_commune.xlsx",
+        "best_match_commune",
+        best_match_overview,
+    )
+    write_markdown(out_dir / "comparison_guide.md", comparison_guide)
+
+    write_csv(details_dir / "jrc_france_commune_events_canonical.csv", jrc_df)
+    write_csv(details_dir / "gaspar_commune_events_canonical.csv", gaspar_df)
+    write_csv(details_dir / "commune_event_matches_window7.csv", commune_matches)
+    write_csv(details_dir / "event_match_scores.csv", event_scores_ranked)
+    write_csv(details_dir / "best_gaspar_match_per_jrc_event.csv", best_gaspar_per_jrc)
+    write_csv(details_dir / "best_jrc_match_per_gaspar_event.csv", best_jrc_per_gaspar)
+    write_csv(details_dir / "unmatched_jrc_commune_events.csv", unmatched_jrc)
+    write_csv(details_dir / "unmatched_gaspar_commune_events.csv", unmatched_gaspar)
+    write_csv(details_dir / "unmatched_jrc_events.csv", unmatched_jrc_events)
+    write_csv(details_dir / "unmatched_gaspar_event_uids.csv", unmatched_gaspar_events)
 
     parquet_outputs = {
-        "commune_event_matches_window7": maybe_write_parquet(out_dir / "commune_event_matches_window7.parquet", commune_matches),
-        "event_match_scores": maybe_write_parquet(out_dir / "event_match_scores.parquet", event_scores_ranked),
+        "commune_event_matches_window7": maybe_write_parquet(
+            details_dir / "commune_event_matches_window7.parquet",
+            commune_matches,
+        ),
+        "event_match_scores": maybe_write_parquet(
+            details_dir / "event_match_scores.parquet",
+            event_scores_ranked,
+        ),
     }
 
     excel_status = write_excel_workbook(
         out_dir / "jrc_gaspar_comparison.xlsx",
         [
             ("summary", summary_table),
-            ("best_gaspar_per_jrc", best_gaspar_per_jrc),
-            ("best_jrc_per_gaspar", best_jrc_per_gaspar),
-            ("event_match_scores", event_scores_ranked),
-            ("commune_matches", commune_matches),
-            ("unmatched_jrc_events", unmatched_jrc_events),
-            ("unmatched_gaspar_events", unmatched_gaspar_events),
+            ("coverage", coverage_overview),
+            ("best_match_commune", best_match_overview),
         ],
     )
 
@@ -681,12 +785,14 @@ def main() -> None:
             "primary_match_rule": "same normalized INSEE commune code AND abs(start difference) <= window AND abs(end difference) <= window",
         },
     }
-    (out_dir / "comparison_diagnostics.json").write_text(
+    (details_dir / "comparison_diagnostics.json").write_text(
         json.dumps(diagnostics, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
     print("Done.")
+    print(f"Top-level guide: {out_dir / 'comparison_guide.md'}")
+    print(f"Detailed audit tables: {details_dir}")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 

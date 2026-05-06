@@ -12,3 +12,7 @@ data/events_viz_merged
 *.xlsx
 *.parquet
 *.tif
+__pycache__/
+*.pyc
+tmp_docx_render/
+data/processed/~$*.docx

@@ -1,0 +1,5 @@
+﻿level,measurement,jrc_matched,jrc_total,jrc_match_share,gaspar_matched,gaspar_total,gaspar_match_share
+commune,unique_events,66,288,0.22916666666666666,499,3505,0.14236804564907277
+commune,canonical_rows,2501,64327,0.03887947518149455,1983,19217,0.10318988395691316
+department,unique_events,125,288,0.4340277777777778,1488,3505,0.4245363766048502
+department,canonical_rows,691,2642,0.2615442846328539,1902,5426,0.3505344636933284

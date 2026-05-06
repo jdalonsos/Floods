@@ -1,0 +1,35 @@
+﻿country_code,country_name,lookup_nuts3_count,hit_nuts3_count,unhit_nuts3_count,nuts3_hit_share
+AL,Shqipëria,12,12,0,1.0
+AT,Österreich,35,35,0,1.0
+BE,Belgique/België,44,39,5,0.8863636363636364
+BG,България ,28,27,1,0.9642857142857143
+CH,Schweiz/Suisse/Svizzera,26,18,8,0.6923076923076923
+CY,Κύπρος ,1,1,0,1.0
+CZ,Česko,14,14,0,1.0
+DE,Deutschland,400,350,50,0.875
+DK,Danmark,11,11,0,1.0
+EE,Eesti,5,5,0,1.0
+EL,Ελλάδα ,52,38,14,0.7307692307692307
+ES,España,59,47,12,0.7966101694915254
+FI,Suomi/Finland,19,19,0,1.0
+FR,France,101,90,11,0.8910891089108911
+HR,Hrvatska,21,21,0,1.0
+HU,Magyarország,20,20,0,1.0
+IE,Éire/Ireland,8,8,0,1.0
+IS,Ísland,2,2,0,1.0
+IT,Italia,107,92,15,0.8598130841121495
+LI,Liechtenstein,1,1,0,1.0
+LT,Lietuva,10,10,0,1.0
+LU,Luxembourg,1,1,0,1.0
+LV,Latvija,5,5,0,1.0
+MK,Северна Македонија,8,8,0,1.0
+MT,Malta,2,0,2,0.0
+NL,Nederland,40,40,0,1.0
+NO,Norge,15,15,0,1.0
+PL,Polska,73,71,2,0.9726027397260274
+PT,Portugal,26,23,3,0.8846153846153846
+RO,România,42,41,1,0.9761904761904762
+RS,Srbija/Сpбија,25,25,0,1.0
+SE,Sverige,21,21,0,1.0
+SI,Slovenija,12,11,1,0.9166666666666666
+SK,Slovensko,8,8,0,1.0

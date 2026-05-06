@@ -330,12 +330,15 @@ The script writes:
 - `events_nuts1.csv`
 - `events_nuts2.csv`
 - `events_nuts3.csv`
+- `nuts3_event_coverage.csv`
+- `country_nuts3_event_coverage.csv`
+- `nuts3_without_flood_events.csv`
 - `flood_event_tables.xlsx`
 - `run_metadata.json`
 
 In the current workspace, the main full output folder is:
 
-- `data/_outputs_eurostat_full/`
+- `data/processed/_outputs_eurostat_full/`
 
 ## 7. How to Run the Europe Pipeline
 
@@ -350,7 +353,7 @@ python src/granular_tabularization.py \
   --lau data/LAU_RG_01M_2024_4326.gpkg \
   --nuts data/NUTS_RG_01M_2024_4326.gpkg \
   --flood-dir data/JRC_flood_depth_maps \
-  --out-dir data/_outputs_eurostat_full
+  --out-dir data/processed/_outputs_eurostat_full
 ```
 
 ### From PowerShell
@@ -362,7 +365,7 @@ python src\granular_tabularization.py `
   --lau data\LAU_RG_01M_2024_4326.gpkg `
   --nuts data\NUTS_RG_01M_2024_4326.gpkg `
   --flood-dir data\JRC_flood_depth_maps `
-  --out-dir data\_outputs_eurostat_full
+  --out-dir data\processed\_outputs_eurostat_full
 ```
 
 ### Useful options
@@ -432,6 +435,34 @@ This happens because the flood archive covers "Europe and surroundings", while t
 One row per LAU with its NUTS hierarchy.
 
 This is useful for documentation and sanity checks.
+
+### `nuts3_event_coverage.csv`
+
+One row per official NUTS3 region present in the Eurostat lookup.
+
+Useful columns:
+
+- `lookup_lau_count`
+- `n_event_ids_hit`
+- `has_flood_events`
+
+This is the easiest way to check whether a region such as Corsica, Madeira,
+the Azores, the Canary Islands, or the French overseas NUTS3 codes exists in
+the official geography but simply does not appear in the current flood-event
+outputs.
+
+### `country_nuts3_event_coverage.csv`
+
+One row per country summarizing:
+
+- how many NUTS3 regions exist in the lookup
+- how many were hit by at least one event
+- how many were not hit
+
+### `nuts3_without_flood_events.csv`
+
+This is the direct audit table for NUTS3 regions that exist in the lookup but
+do not appear in the current flood-event outputs.
 
 ## 9. Countries Included in the LAU File
 
@@ -528,7 +559,7 @@ This is useful when old national datasets contain historical commune codes.
 
 Folder:
 
-- `data/france_lau_insee_documentation/`
+- `data/processed/france_lau_insee_documentation/`
 
 Main files:
 
@@ -549,7 +580,7 @@ python src/france_lau_to_insee.py \
   --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
   --commune-history data/insee_history/v_commune_depuis_1943.csv \
   --commune-movements data/insee_history/v_mvt_commune_2025.csv \
-  --out-dir data/france_lau_insee_documentation
+  --out-dir data/processed/france_lau_insee_documentation
 ```
 
 If you want the France event table too, provide the Europe canonical output:
@@ -567,17 +598,17 @@ Important note about the internal logic:
 
 Expected main output:
 
-- `data/france_lau_insee_documentation/events_fr_insee_long.csv`
+- `data/processed/france_lau_insee_documentation/events_fr_insee_long.csv`
 
 ```bash
 python src/france_lau_to_insee.py \
-  --tabular-file data/_outputs_eurostat_full/events_lau_long.csv \
+  --tabular-file data/processed/_outputs_eurostat_full/events_lau_long.csv \
   --lau data/LAU_RG_01M_2024_4326.gpkg \
   --nuts data/NUTS_RG_01M_2024_4326.gpkg \
   --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
   --commune-history data/insee_history/v_commune_depuis_1943.csv \
   --commune-movements data/insee_history/v_mvt_commune_2025.csv \
-  --out-dir data/france_lau_insee_documentation
+  --out-dir data/processed/france_lau_insee_documentation
 ```
 
 ## 12. TIFF Visualization Logic
@@ -830,26 +861,131 @@ Primary matching rule:
 - `abs(jrc_start_date - gaspar_dat_deb) <= 7`
 - `abs(jrc_end_date - gaspar_dat_fin) <= 7`
 
-Main outputs:
+Top-level outputs to open first:
 
-- `commune_event_matches_window7.csv`
-- `event_match_scores.csv`
-- `best_gaspar_match_per_jrc_event.csv`
-- `best_jrc_match_per_gaspar_event.csv`
-- `unmatched_jrc_commune_events.csv`
-- `unmatched_gaspar_commune_events.csv`
+- `comparison_guide.md`
+- `comparison_summary.csv`
+- `comparison_summary.xlsx`
+- `coverage_overview.csv`
+- `coverage_overview.xlsx`
+- `best_match_overview_commune.csv`
+- `best_match_overview_commune.xlsx`
 - `jrc_gaspar_comparison.xlsx`
-- `comparison_diagnostics.json`
+
+Detailed audit outputs:
+
+- all canonical tables, raw match tables, unmatched tables, parquet files, and diagnostics are written to `details/`
+- this keeps the comparison folder readable while preserving the full audit trail
 
 Run:
 
 ```bash
 python src/compare_france_jrc_gaspar.py \
-  --jrc-file data/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --jrc-file data/processed/france_lau_insee_documentation/events_fr_insee_long.csv \
   --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
   --sheet-name Gaspar20152024FloodsClean \
   --date-window-days 7 \
-  --out-dir data/processed/flood_outputs/jrc_gaspar_comparison_7d
+  --out-dir data/processed/jrc_gaspar_comparison_7d
+```
+
+### Flexible 30-day variant with department outputs
+
+Script:
+
+- `src/compare_france_jrc_gaspar_flexible.py`
+
+Purpose:
+
+- keep the same JRC France commune-event input and the same cleaned Gaspar input
+- use a broader default date window of `30` days
+- keep commune-level matching outputs
+- add department-level rollups and department-level match outputs
+
+Why this second script exists:
+
+- the strict `7` day script is useful when you want a conservative commune-event match
+- but some JRC and Gaspar records can still describe the same flood episode with more timing drift
+- a broader comparison is useful for exploratory matching and event-family review
+
+Flexible commune-level date logic:
+
+- same normalized commune code
+- and at least one of the following:
+  - `abs(jrc_start_date - gaspar_start_date) <= 30` and `abs(jrc_end_date - gaspar_end_date) <= 30`
+  - `abs(jrc_start_date - gaspar_end_date) <= 30` and `abs(gaspar_start_date - jrc_end_date) <= 30`
+  - the two date intervals still overlap after both sides are expanded by the same `30` day window
+
+Important interpretation:
+
+- the first rule is the original aligned start/start and end/end comparison, just with a larger window
+- the second rule is the new cross-date condition
+- the third rule keeps events that are still close once the intervals are buffered
+
+Department-level logic:
+
+- department codes are derived from commune INSEE codes
+- JRC department outputs aggregate the France commune-event table by:
+  - `jrc_event_id`
+  - `department_code`
+  - `jrc_start_date`
+  - `jrc_end_date`
+- Gaspar department outputs aggregate by:
+  - `gaspar_event_uid`
+  - `department_code`
+  - `gaspar_start_date`
+  - `gaspar_end_date`
+- Gaspar department rows receive `dept_ref_nuts3_code` and `dept_ref_nuts3_name`
+  from the full France LAU -> INSEE lookup, so departments such as `2A` and `2B`
+  keep their NUTS3 labels even when no JRC event rows exist there
+
+Top-level outputs to open first:
+
+- `comparison_guide.md`
+- `comparison_summary.csv`
+- `comparison_summary.xlsx`
+- `coverage_overview.csv`
+- `coverage_overview.xlsx`
+- `best_match_overview_commune.csv`
+- `best_match_overview_commune.xlsx`
+- `best_match_overview_department.csv`
+- `best_match_overview_department.xlsx`
+- `jrc_gaspar_comparison_flexible.xlsx`
+- `plots/`
+
+Detailed audit outputs:
+
+- all canonical tables, raw match tables, unmatched tables, parquet files, department reference tables, and diagnostics are written to `details/`
+- the plotting script reads those detailed files automatically, so the top-level folder can stay concise
+
+Plotting script:
+
+- `src/plot_france_jrc_gaspar_comparison.py`
+
+Plot outputs:
+
+- `plots/comparison_overview.png`
+- `plots/commune_level_summary.png`
+- `plots/department_level_summary.png`
+- `plots/commune_event_summary.png`
+- `plots/department_event_summary.png`
+- `plots/plot_manifest.json`
+
+Run plotting:
+
+```bash
+python src/plot_france_jrc_gaspar_comparison.py \
+  --comparison-dir data/processed/jrc_gaspar_comparison_flexible_30d
+```
+
+Run:
+
+```bash
+python src/compare_france_jrc_gaspar_flexible.py \
+  --jrc-file data/processed/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
+  --sheet-name Gaspar20152024FloodsClean \
+  --date-window-days 30 \
+  --out-dir data/processed/jrc_gaspar_comparison_flexible_30d
 ```
 
 ## 17. Final Mental Model
