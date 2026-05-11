@@ -2,8 +2,8 @@
 Flexible France JRC vs Gaspar comparison with broader date rules and
 department-level rollups.
 
-This script keeps the commune-level comparison logic from
-``compare_france_jrc_gaspar.py`` as the strict baseline, but adds:
+This script is self-contained and keeps the earlier commune-level comparison
+logic as the strict baseline, while adding:
 
 - a default 30-day date window
 - an additional cross-date condition based on comparing one source's start
@@ -29,26 +29,434 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from comparison_report_utils import (
-    build_best_match_overview,
-    build_coverage_overview,
-    build_output_guide_markdown,
-    relocate_existing_detail_files,
-    write_markdown,
-    write_single_sheet_excel,
-)
 
-from compare_france_jrc_gaspar import (
-    build_summary_table,
-    compute_interval_overlap_days,
-    maybe_write_parquet,
-    normalize_insee_code_series,
-    prepare_gaspar_commune_events,
-    prepare_jrc_commune_events,
-    read_table,
-    write_csv,
-    write_excel_workbook,
-)
+EXCEL_ROW_LIMIT = 1_000_000
+JRC_REQUIRED_COLUMNS = {
+    "event_id",
+    "start_date",
+    "end_date",
+    "insee_com",
+}
+GASPAR_REQUIRED_COLUMNS = {
+    "cod_nat_catnat",
+    "cod_commune",
+    "lib_commune",
+    "dat_deb",
+    "dat_fin",
+}
+
+
+def write_markdown(path: Path, text: str) -> None:
+    path.write_text(text, encoding="utf-8")
+
+
+def write_single_sheet_excel(path: Path, sheet_name: str, df: pd.DataFrame) -> None:
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name=sheet_name[:31], index=False)
+
+
+def relocate_existing_detail_files(
+    out_dir: Path,
+    details_dir: Path,
+    file_names: list[str],
+) -> None:
+    details_dir.mkdir(parents=True, exist_ok=True)
+    for file_name in file_names:
+        legacy_path = out_dir / file_name
+        target_path = details_dir / file_name
+        if not legacy_path.exists() or legacy_path == target_path:
+            continue
+        if target_path.exists():
+            target_path.unlink()
+        legacy_path.replace(target_path)
+
+
+def build_coverage_overview(rows: list[dict[str, Any]]) -> pd.DataFrame:
+    return pd.DataFrame(rows)
+
+
+def build_best_match_overview(
+    best_matches: pd.DataFrame,
+    ranked_scores: pd.DataFrame,
+    matched_col: str,
+    exact_col: str,
+) -> pd.DataFrame:
+    if best_matches.empty:
+        return pd.DataFrame(
+            columns=[
+                "jrc_event_id",
+                "gaspar_event_uid",
+                "cod_nat_catnat",
+                "jrc_start_date",
+                "jrc_end_date",
+                "gaspar_start_date",
+                "gaspar_end_date",
+                matched_col,
+                exact_col,
+                "jrc_match_share",
+                "gaspar_match_share",
+                "min_total_abs_date_diff_days",
+                "mean_total_abs_date_diff_days",
+                "max_interval_overlap_days",
+                "reciprocal_best_match",
+            ]
+        )
+
+    reciprocal = pd.DataFrame(
+        columns=["jrc_event_id", "gaspar_event_uid", "reciprocal_best_match"]
+    )
+    if not ranked_scores.empty and "reciprocal_best_match" in ranked_scores.columns:
+        reciprocal = ranked_scores[
+            ["jrc_event_id", "gaspar_event_uid", "reciprocal_best_match"]
+        ].drop_duplicates()
+
+    overview = best_matches.merge(
+        reciprocal,
+        on=["jrc_event_id", "gaspar_event_uid"],
+        how="left",
+        validate="1:1",
+    )
+    overview["reciprocal_best_match"] = overview["reciprocal_best_match"].fillna(False)
+
+    keep_cols = [
+        "jrc_event_id",
+        "gaspar_event_uid",
+        "cod_nat_catnat",
+        "jrc_start_date",
+        "jrc_end_date",
+        "gaspar_start_date",
+        "gaspar_end_date",
+        matched_col,
+        exact_col,
+        "jrc_match_share",
+        "gaspar_match_share",
+        "min_total_abs_date_diff_days",
+        "mean_total_abs_date_diff_days",
+        "max_interval_overlap_days",
+        "reciprocal_best_match",
+    ]
+    keep_cols = [col for col in keep_cols if col in overview.columns]
+    return overview[keep_cols].copy()
+
+
+def build_output_guide_markdown(
+    *,
+    title: str,
+    window_days: int,
+    top_level_files: list[str],
+    details_dir_name: str,
+    coverage_overview: pd.DataFrame,
+) -> str:
+    lines = [
+        f"# {title}",
+        "",
+        f"This comparison used a date window of **{window_days} days**.",
+        "",
+        "## Open These First",
+        "",
+    ]
+    for file_name in top_level_files:
+        lines.append(f"- `{file_name}`")
+
+    lines.extend(
+        [
+            "",
+            "## How To Read The Numbers",
+            "",
+            "- `unique events` means unique `jrc_event_id` or unique `gaspar_event_uid`.",
+            "- `canonical rows` means one comparison row at the chosen level.",
+            "- for commune level, one canonical row is one commune-event row.",
+            "- for department level, one canonical row is one department-event row.",
+            "- unmatched row tables can be much larger than unmatched unique event counts because one event can be unmatched in many communes or departments.",
+            "",
+            "## Detailed Audit Tables",
+            "",
+            f"- all detailed raw match tables, canonical tables, unmatched tables, parquet files, and diagnostics are stored in `{details_dir_name}/`.",
+            "",
+            "## Coverage Overview",
+            "",
+        ]
+    )
+
+    if coverage_overview.empty:
+        lines.append("No coverage overview rows available.")
+    else:
+        for _, row in coverage_overview.iterrows():
+            lines.append(
+                f"- {row['level']} / {row['measurement']}: "
+                f"JRC matched {row['jrc_matched']} of {row['jrc_total']}, "
+                f"Gaspar matched {row['gaspar_matched']} of {row['gaspar_total']}."
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Quick Reading Path",
+            "",
+            "1. Start with `comparison_summary.csv` for the headline counts.",
+            "2. Open `coverage_overview.csv` to distinguish unique event counts from row counts.",
+            "3. Open the best-match overview table(s) to review the strongest suggested event pairings.",
+            "4. Use the workbook and the detailed tables only when you need deeper audit or debugging.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def normalize_insee_code_series(series: pd.Series) -> pd.Series:
+    normalized = series.astype("string").str.strip().str.upper()
+    normalized = normalized.replace(
+        {
+            "": pd.NA,
+            "NAN": pd.NA,
+            "NONE": pd.NA,
+            "<NA>": pd.NA,
+        }
+    )
+    normalized = normalized.str.replace(r"\.0$", "", regex=True)
+    numeric_mask = normalized.str.fullmatch(r"\d+").fillna(False)
+    normalized.loc[numeric_mask] = normalized.loc[numeric_mask].str.zfill(5)
+    return normalized
+
+
+def read_table(path: str | Path) -> pd.DataFrame:
+    table_path = Path(path)
+    suffix = table_path.suffix.lower()
+    if suffix == ".parquet":
+        return pd.read_parquet(table_path)
+    if suffix in {".csv", ".txt"}:
+        return pd.read_csv(table_path, low_memory=False)
+    raise ValueError(f"Unsupported input format for {table_path}. Use CSV or parquet.")
+
+
+def write_csv(path: Path, df: pd.DataFrame) -> None:
+    df.to_csv(path, index=False, encoding="utf-8-sig")
+
+
+def maybe_write_parquet(path: Path, df: pd.DataFrame) -> str | None:
+    try:
+        df.to_parquet(path, index=False)
+        return str(path)
+    except Exception:
+        return None
+
+
+def write_excel_workbook(
+    path: Path,
+    tables: list[tuple[str, pd.DataFrame]],
+) -> dict[str, str]:
+    status: dict[str, str] = {}
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        for sheet_name, df in tables:
+            if df.empty:
+                status[sheet_name] = "empty"
+                continue
+            if len(df) > EXCEL_ROW_LIMIT:
+                status[sheet_name] = f"skipped_rows_{len(df)}"
+                continue
+            df.to_excel(writer, sheet_name=sheet_name[:31], index=False)
+            status[sheet_name] = f"written_rows_{len(df)}"
+    return status
+
+
+def prepare_jrc_commune_events(jrc_path: str | Path) -> tuple[pd.DataFrame, dict[str, Any]]:
+    raw = read_table(jrc_path)
+    missing = JRC_REQUIRED_COLUMNS - set(raw.columns)
+    if missing:
+        raise KeyError(f"JRC input is missing required columns: {sorted(missing)}")
+
+    df = raw.copy()
+    if "insee_match_found" in df.columns:
+        df = df[df["insee_match_found"].fillna(False)].copy()
+
+    df["insee_com"] = normalize_insee_code_series(df["insee_com"])
+    df["jrc_start_date"] = pd.to_datetime(df["start_date"], errors="coerce").dt.normalize()
+    df["jrc_end_date"] = pd.to_datetime(df["end_date"], errors="coerce").dt.normalize()
+    df["jrc_event_id"] = df["event_id"].astype(str).str.strip()
+    df["jrc_commune_name"] = (
+        df.get(
+            "commune_name_adminexpress",
+            df.get("lau_name", pd.Series(pd.NA, index=df.index)),
+        )
+        .astype("string")
+        .str.strip()
+    )
+
+    invalid_mask = (
+        df["insee_com"].isna()
+        | df["jrc_start_date"].isna()
+        | df["jrc_end_date"].isna()
+        | df["jrc_event_id"].eq("")
+    )
+    invalid_rows = int(invalid_mask.sum())
+    df = df.loc[~invalid_mask].copy()
+
+    key_cols = ["jrc_event_id", "insee_com", "jrc_start_date", "jrc_end_date"]
+    duplicate_rows = int(df.duplicated(subset=key_cols).sum())
+    df = (
+        df.sort_values(key_cols, kind="stable")
+        .drop_duplicates(subset=key_cols)
+        .reset_index(drop=True)
+    )
+
+    keep_cols = [
+        "jrc_event_id",
+        "event_id",
+        "raster_file",
+        "source_year_folder",
+        "jrc_start_date",
+        "jrc_end_date",
+        "duration_days",
+        "flood_id",
+        "gfm_extent_km2",
+        "enhanced_extent_km2",
+        "insee_com",
+        "jrc_commune_name",
+        "nuts3_code",
+        "nuts3_name",
+        "max_depth_cm",
+        "flooded_pixels",
+        "flooded_area_m2",
+    ]
+    keep_cols = [col for col in keep_cols if col in df.columns]
+    df = df[keep_cols].copy()
+
+    event_stats = (
+        df.groupby("jrc_event_id", dropna=False)
+        .agg(
+            jrc_event_start_date=("jrc_start_date", "first"),
+            jrc_event_end_date=("jrc_end_date", "first"),
+            jrc_total_communes=("insee_com", "nunique"),
+            jrc_total_nuts3=("nuts3_code", "nunique"),
+        )
+        .reset_index()
+    )
+
+    diagnostics = {
+        "raw_rows": int(len(raw)),
+        "rows_after_insee_match_filter": int(len(df) + invalid_rows + duplicate_rows),
+        "invalid_rows_dropped": invalid_rows,
+        "duplicate_event_commune_rows_dropped": duplicate_rows,
+        "canonical_rows": int(len(df)),
+        "unique_jrc_events": int(df["jrc_event_id"].nunique()),
+        "unique_jrc_communes": int(df["insee_com"].nunique()),
+    }
+    return df, {"diagnostics": diagnostics, "event_stats": event_stats}
+
+
+def prepare_gaspar_commune_events(
+    gaspar_path: str | Path,
+    sheet_name: str | int = 0,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    raw = pd.read_excel(gaspar_path, sheet_name=sheet_name, dtype={"cod_commune": "string"})
+    missing = GASPAR_REQUIRED_COLUMNS - set(raw.columns)
+    if missing:
+        raise KeyError(f"Gaspar input is missing required columns: {sorted(missing)}")
+
+    df = raw.copy()
+    df["insee_com"] = normalize_insee_code_series(df["cod_commune"])
+    df["gaspar_start_date"] = pd.to_datetime(df["dat_deb"], errors="coerce").dt.normalize()
+    df["gaspar_end_date"] = pd.to_datetime(df["dat_fin"], errors="coerce").dt.normalize()
+    df["cod_nat_catnat"] = df["cod_nat_catnat"].astype("string").str.strip()
+    df["gaspar_commune_name"] = df["lib_commune"].astype("string").str.strip()
+
+    invalid_mask = (
+        df["cod_nat_catnat"].isna()
+        | df["insee_com"].isna()
+        | df["gaspar_start_date"].isna()
+        | df["gaspar_end_date"].isna()
+    )
+    invalid_rows = int(invalid_mask.sum())
+    df = df.loc[~invalid_mask].copy()
+
+    df["gaspar_event_uid"] = (
+        df["cod_nat_catnat"]
+        + "__"
+        + df["gaspar_start_date"].dt.strftime("%Y%m%d")
+        + "__"
+        + df["gaspar_end_date"].dt.strftime("%Y%m%d")
+    )
+
+    key_cols = ["gaspar_event_uid", "insee_com", "gaspar_start_date", "gaspar_end_date"]
+    duplicate_rows = int(df.duplicated(subset=key_cols).sum())
+    df = (
+        df.sort_values(key_cols, kind="stable")
+        .drop_duplicates(subset=key_cols)
+        .reset_index(drop=True)
+    )
+
+    keep_cols = [
+        "gaspar_event_uid",
+        "cod_nat_catnat",
+        "insee_com",
+        "gaspar_commune_name",
+        "num_risque_jo",
+        "lib_risque_jo",
+        "gaspar_start_date",
+        "gaspar_end_date",
+    ]
+    keep_cols = [col for col in keep_cols if col in df.columns]
+    df = df[keep_cols].copy()
+
+    date_pair_counts = (
+        raw.assign(
+            dat_deb=pd.to_datetime(raw["dat_deb"], errors="coerce").dt.normalize(),
+            dat_fin=pd.to_datetime(raw["dat_fin"], errors="coerce").dt.normalize(),
+        )
+        .dropna(subset=["cod_nat_catnat", "dat_deb", "dat_fin"])
+        .groupby("cod_nat_catnat", dropna=False)[["dat_deb", "dat_fin"]]
+        .apply(lambda g: g.drop_duplicates().shape[0])
+        .rename("unique_date_pairs")
+        .reset_index()
+    )
+
+    event_stats = (
+        df.groupby("gaspar_event_uid", dropna=False)
+        .agg(
+            cod_nat_catnat=("cod_nat_catnat", "first"),
+            gaspar_event_start_date=("gaspar_start_date", "first"),
+            gaspar_event_end_date=("gaspar_end_date", "first"),
+            gaspar_total_communes=("insee_com", "nunique"),
+        )
+        .reset_index()
+    )
+
+    diagnostics = {
+        "raw_rows": int(len(raw)),
+        "invalid_rows_dropped": invalid_rows,
+        "duplicate_event_commune_rows_dropped": duplicate_rows,
+        "canonical_rows": int(len(df)),
+        "unique_gaspar_event_uids": int(df["gaspar_event_uid"].nunique()),
+        "unique_gaspar_decrees": int(df["cod_nat_catnat"].nunique()),
+        "unique_gaspar_communes": int(df["insee_com"].nunique()),
+        "gaspar_decrees_with_multiple_date_pairs": int(
+            (date_pair_counts["unique_date_pairs"] > 1).sum()
+        ),
+        "max_unique_date_pairs_within_one_decree": int(
+            date_pair_counts["unique_date_pairs"].max()
+        ),
+    }
+    return df, {
+        "diagnostics": diagnostics,
+        "event_stats": event_stats,
+        "date_pair_counts": date_pair_counts,
+    }
+
+
+def compute_interval_overlap_days(
+    start_left: pd.Series,
+    end_left: pd.Series,
+    start_right: pd.Series,
+    end_right: pd.Series,
+) -> pd.Series:
+    overlap_start = start_left.where(start_left >= start_right, start_right)
+    overlap_end = end_left.where(end_left <= end_right, end_right)
+    overlap_days = (overlap_end - overlap_start).dt.days + 1
+    return overlap_days.clip(lower=0)
+
+
+def build_summary_table(summary: dict[str, Any]) -> pd.DataFrame:
+    rows = [{"metric": key, "value": value} for key, value in summary.items()]
+    return pd.DataFrame(rows)
 
 
 def join_unique_strings(series: pd.Series) -> str | pd.NA:
