@@ -12,6 +12,8 @@ data/events_viz_merged
 *.xlsx
 *.parquet
 *.tif
+!data/raw/insee_history/
+!data/raw/insee_history/*.csv
 __pycache__/
 *.pyc
 tmp_docx_render/
