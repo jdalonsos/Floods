@@ -233,6 +233,22 @@ That can inflate counts near boundaries.
 
 Using `all_touched=False` is more conservative and generally more defensible for impact tabularization.
 
+Important clarification:
+
+- this is whole-pixel logic, not fractional area weighting
+- the workflow does not assign `10%` of a pixel to a polygon just because `10%` of the pixel overlaps the boundary
+- in practice, for polygon masking, `all_touched=False` behaves like a center-based rule:
+  a pixel is typically counted only if its center falls inside the polygon
+- `all_touched=True` is broader:
+  a pixel can be counted even if the polygon only touches a small part of that pixel
+
+Example with the default `20 m` JRC pixels:
+
+- if Commune A overlaps only a small corner of a flood pixel, for example roughly `2 m` along the edge, that pixel will usually **not** be counted for Commune A when `all_touched=False`
+- the same pixel **would** be counted for Commune A when `all_touched=True`
+
+This matters mainly for communes that sit along flood boundaries or administrative borders.
+
 ### Choice 6. Count flooded pixels only where depth > threshold
 
 Why:
@@ -658,6 +674,13 @@ It uses two stages:
    - inspect a local circular buffer around the point, default `2 km`
 
 This makes the script scalable when the point list grows from a few examples to hundreds of addresses.
+
+Boundary caveat:
+
+- the administrative prefilter depends on the processed JRC LAU event table
+- that table was created with the conservative default `all_touched=False`
+- therefore, a border pixel that only lightly overlaps a LAU may be absent from that LAU in the precomputed table
+- in those cases, the point workflow may skip a TIFF that is geographically close to the point but not recorded under the point's own LAU
 
 ### Local flood indicators
 

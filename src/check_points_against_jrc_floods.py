@@ -90,6 +90,10 @@ def detect_header_row(
     max_scan_rows: int = 25,
 ) -> int:
     preview = pd.read_excel(workbook_path, sheet_name=sheet_name, header=None, nrows=max_scan_rows)
+    if isinstance(preview, dict):
+        if not preview:
+            raise ValueError(f"No sheets found in workbook: {workbook_path}")
+        preview = next(iter(preview.values()))
     for idx, row in preview.iterrows():
         labels = {normalize_label(value) for value in row.tolist() if normalize_label(value)}
         if "latitude" in labels and "longitude" in labels:
@@ -124,6 +128,10 @@ def load_points_table(
 ) -> tuple[pd.DataFrame, PointColumns]:
     header_row = detect_header_row(workbook_path, sheet_name)
     df = pd.read_excel(workbook_path, sheet_name=sheet_name, header=header_row)
+    if isinstance(df, dict):
+        if not df:
+            raise ValueError(f"No sheets found in workbook: {workbook_path}")
+        df = next(iter(df.values()))
     df = df.dropna(how="all").copy()
     df.columns = [str(col).strip() for col in df.columns]
     df["excel_row_number"] = np.arange(len(df)) + header_row + 2
@@ -413,9 +421,9 @@ def inspect_candidate_events(
         raster_path = Path(str(raster_path_value))
         with rasterio.open(raster_path) as src:
             transformer = Transformer.from_crs(4326, src.crs, always_xy=True)
-            for row in group.itertuples(index=False):
-                lon = float(getattr(row, point_columns.longitude))
-                lat = float(getattr(row, point_columns.latitude))
+            for row in group.to_dict("records"):
+                lon = float(row[point_columns.longitude])
+                lat = float(row[point_columns.latitude])
                 x, y = transformer.transform(lon, lat)
 
                 exact_depth_cm: float | None = None
@@ -428,8 +436,8 @@ def inspect_candidate_events(
                 buffer_stats = compute_buffer_stats(src, x, y, radius_m, threshold_cm)
                 results.append(
                     {
-                        "point_id": getattr(row, point_columns.point_id),
-                        "event_id": getattr(row, "event_id"),
+                        "point_id": row[point_columns.point_id],
+                        "event_id": row["event_id"],
                         "hit_at_point": hit_at_point,
                         "exact_point_depth_cm": exact_depth_cm if exact_depth_cm is not None else np.nan,
                         "buffer_radius_km": buffer_km,
