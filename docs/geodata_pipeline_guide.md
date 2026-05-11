@@ -350,8 +350,8 @@ From the project root:
 cd "/d/M2_MoSEF/DataCollection"
 
 python src/granular_tabularization.py \
-  --lau data/LAU_RG_01M_2024_4326.gpkg \
-  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
   --flood-dir data/JRC_flood_depth_maps \
   --out-dir data/processed/_outputs_eurostat_full
 ```
@@ -362,8 +362,8 @@ python src/granular_tabularization.py \
 Set-Location D:\M2_MoSEF\DataCollection
 
 python src\granular_tabularization.py `
-  --lau data\LAU_RG_01M_2024_4326.gpkg `
-  --nuts data\NUTS_RG_01M_2024_4326.gpkg `
+  --lau data\raw\LAU_RG_01M_2024_4326.gpkg `
+  --nuts data\raw\NUTS_RG_01M_2024_4326.gpkg `
   --flood-dir data\JRC_flood_depth_maps `
   --out-dir data\processed\_outputs_eurostat_full
 ```
@@ -575,11 +575,11 @@ From the project root:
 
 ```bash
 python src/france_lau_to_insee.py \
-  --lau data/LAU_RG_01M_2024_4326.gpkg \
-  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
-  --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
-  --commune-history data/insee_history/v_commune_depuis_1943.csv \
-  --commune-movements data/insee_history/v_mvt_commune_2025.csv \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
+  --adminexpress data/raw/adminexpress-cog-simpl-000-2025.gpkg \
+  --commune-history data/raw/insee_history/v_commune_depuis_1943.csv \
+  --commune-movements data/raw/insee_history/v_mvt_commune_2025.csv \
   --out-dir data/processed/france_lau_insee_documentation
 ```
 
@@ -603,15 +603,199 @@ Expected main output:
 ```bash
 python src/france_lau_to_insee.py \
   --tabular-file data/processed/_outputs_eurostat_full/events_lau_long.csv \
-  --lau data/LAU_RG_01M_2024_4326.gpkg \
-  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
-  --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
-  --commune-history data/insee_history/v_commune_depuis_1943.csv \
-  --commune-movements data/insee_history/v_mvt_commune_2025.csv \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
+  --adminexpress data/raw/adminexpress-cog-simpl-000-2025.gpkg \
+  --commune-history data/raw/insee_history/v_commune_depuis_1943.csv \
+  --commune-movements data/raw/insee_history/v_mvt_commune_2025.csv \
   --out-dir data/processed/france_lau_insee_documentation
 ```
 
-## 12. TIFF Visualization Logic
+## 12. Point-Level Flood Check Against JRC Events
+
+Script:
+
+- `src/check_points_against_jrc_floods.py`
+
+Purpose:
+
+- start from an Excel workbook of latitude / longitude points
+- map each point to a LAU polygon
+- use the processed JRC LAU event table as a fast prefilter
+- inspect only the relevant official TIFF rasters for those candidate events
+- return a clear point-level flood flag plus event-specific local flood metrics
+
+This is the recommended workflow for:
+
+- city-centre test points
+- insured assets
+- customer locations
+- large address portfolios after geocoding
+
+### Default inputs
+
+- `data/raw/france_20_gps_google_maps.xlsx`
+- `data/raw/LAU_RG_01M_2024_4326.gpkg`
+- `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
+- `data/processed/france_lau_insee_documentation/fr_lau_insee_lookup.csv`
+- `data/JRC_flood_depth_maps/`
+
+### Why the workflow is fast
+
+The script does not compare every point against every TIFF.
+
+It uses two stages:
+
+1. Administrative prefilter
+   - detect the Excel header row
+   - read latitude / longitude points
+   - map each point to its official Eurostat LAU polygon
+   - enrich French points with INSEE / department / NUTS3 fields when available
+2. Local flood check
+   - keep only JRC events whose `lau_code` matches the point's LAU
+   - open only those candidate rasters
+   - sample the exact point pixel
+   - inspect a local circular buffer around the point, default `2 km`
+
+This makes the script scalable when the point list grows from a few examples to hundreds of addresses.
+
+### Local flood indicators
+
+For each `point x candidate event`, the script can derive:
+
+- exact point depth in cm
+- whether a flood hit exists exactly at the point
+- whether a flood hit exists within the local buffer
+- flooded pixel count in the buffer
+- flooded area in the buffer
+- maximum, median, and mean flood depth in the buffer
+- start and end dates of the matching JRC event
+- raster filename used for the check
+
+The script ignores:
+
+- raster `nodata`
+- the JRC permanent / seasonal water value `9999`
+- flood cells at or below the chosen threshold
+
+### Output workbook
+
+Default output:
+
+- `data/processed/france_points_jrc_flood_check.xlsx`
+
+The workbook contains three sheets:
+
+- `point_summary`
+- `candidate_events`
+- `event_hits`
+
+#### `point_summary`
+
+One row per input point.
+
+Important fields:
+
+- original point columns from the source Excel
+- `lau_matched`
+- `lau_touched_by_any_jrc_event`
+- `jrc_flood_hit`
+- `jrc_flood_flag`
+- `candidate_event_count`
+- `hit_event_count`
+- `max_exact_point_depth_cm`
+- `max_buffer_depth_cm`
+- `max_buffer_median_depth_cm`
+- `max_buffer_mean_depth_cm`
+- `first_hit_start_date`
+- `last_hit_end_date`
+- `decision_path`
+- `notes`
+
+Interpretation:
+
+- `lau_matched = False` means the point does not fall inside any supplied LAU polygon
+- `lau_touched_by_any_jrc_event = False` means the point has a valid LAU but that LAU never appears in the processed JRC event table
+- `jrc_flood_hit = False` means candidate events existed for that LAU but no flooded pixel above threshold was found at the point or in the local buffer
+- `jrc_flood_hit = True` means at least one JRC event produced flooded pixels above threshold at the point or inside the local buffer
+
+#### `candidate_events`
+
+One row per `point x candidate JRC event`.
+
+Useful fields:
+
+- point metadata
+- LAU / INSEE / NUTS3 metadata
+- `event_id`
+- `raster_file`
+- `resolved_raster_path`
+- `start_date`
+- `end_date`
+- `max_depth_cm`
+- `flooded_pixels`
+- `flooded_area_m2`
+- `hit_at_point`
+- `exact_point_depth_cm`
+- `buffer_flood_hit`
+- `buffer_max_depth_cm`
+- `buffer_median_depth_cm`
+- `buffer_mean_depth_cm`
+
+#### `event_hits`
+
+This is the filtered subset of `candidate_events` where:
+
+- `hit_at_point = True`
+- or `buffer_flood_hit = True`
+
+### How to run it
+
+Basic run:
+
+```bash
+python src/check_points_against_jrc_floods.py
+```
+
+Example with a study period and a stricter local flood definition:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --study-start 2018-01-01 \
+  --study-end 2024-12-31 \
+  --buffer-km 2 \
+  --threshold-cm 10 \
+  --out-file data/processed/france_points_jrc_flood_check_2018_2024.xlsx
+```
+
+### Main parameters
+
+- `--points-file`
+- `--sheet-name`
+- `--latitude-col`
+- `--longitude-col`
+- `--point-id-col`
+- `--city-col`
+- `--lau-file`
+- `--lau-country-filter`
+- `--events-file`
+- `--flood-dir`
+- `--france-lookup-file`
+- `--study-start`
+- `--study-end`
+- `--buffer-km`
+- `--threshold-cm`
+- `--out-file`
+
+### Recommended interpretation
+
+Use the point workflow as a screening layer:
+
+- if the LAU is never touched in the processed JRC table, the point can safely be flagged as no JRC flood hit
+- if the LAU is touched, the raster check is still necessary because the point may sit outside the flooded pixels
+- buffer-based indicators are often more useful than the exact pixel alone because address coordinates and flood masks both contain some positional uncertainty
+
+## 13. TIFF Visualization Logic
 
 Notebook:
 
@@ -728,7 +912,7 @@ If a few flooded cells appear slightly offshore or slightly north/south of the e
 
 That is why the notebook and dashboard keep polygon-based modes based on actual source or preview cells.
 
-## 13. Common Pitfalls
+## 14. Common Pitfalls
 
 ### Pitfall 1. Running `.py` directly in Bash
 
@@ -766,7 +950,7 @@ Historical commune codes can merge, split, or become delegated communes.
 
 That is why the historical update table exists.
 
-## 14. Recommended Workflow
+## 15. Recommended Workflow
 
 For Europe:
 
@@ -779,8 +963,9 @@ For France:
 
 1. Run the Europe pipeline first.
 2. Run `src/france_lau_to_insee.py`.
-3. Use `fr_old_insee_to_current_update_ready.csv` for old-code source updating.
-4. Use `france_lau_insee_nuts3_mapping.xlsx` for documentation and manual review.
+3. Use `src/check_points_against_jrc_floods.py` when you want to screen individual coordinates or address portfolios against JRC flood events.
+4. Use `fr_old_insee_to_current_update_ready.csv` for old-code source updating.
+5. Use `france_lau_insee_nuts3_mapping.xlsx` for documentation and manual review.
 
 For visualization:
 
@@ -790,7 +975,7 @@ For visualization:
 4. Switch to exact native pixel mode when you need detailed coastal inspection.
 5. For browsing many rasters by year, run the dashboard with `streamlit run src/app.py`.
 
-## 15. Raster Dashboard
+## 16. Raster Dashboard
 
 The notebook is best when you already know which TIFF you want.
 
@@ -836,7 +1021,7 @@ Recommended use:
 - switch to `Polygon pixels` for coastlines, estuaries, and alignment checks against Felt or other viewers
 - switch to `Raster overlay` only when you need the lightest possible browser rendering and can accept approximate placement
 
-## 16. Compare France JRC vs Gaspar
+## 17. Compare France JRC vs Gaspar
 
 Script:
 
@@ -988,7 +1173,7 @@ python src/compare_france_jrc_gaspar_flexible.py \
   --out-dir data/processed/jrc_gaspar_comparison_flexible_30d
 ```
 
-## 17. Final Mental Model
+## 18. Final Mental Model
 
 The simplest way to think about the project is:
 

@@ -178,7 +178,7 @@ def create_sensitivity_chart(rows: list[tuple[str, float, float]], output_path: 
     title_font = get_font(34, bold=True)
     label_font = get_font(22)
     tick_font = get_font(18)
-    draw.text((90, 28), "Strict 7-day vs flexible 30-day event match shares", fill=ink, font=title_font)
+    draw.text((90, 28), "7-day vs 30-day event match shares", fill=ink, font=title_font)
     draw.text(
         (90, 66),
         "Event-level match rates: stricter dates recover fewer pairs, especially at department level",
@@ -290,7 +290,7 @@ def add_title_page(document: Document, output_root: Path) -> None:
     note.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = note.add_run(
         "This document explains what the comparison outputs mean, how the matching logic works, "
-        "and how to interpret the strict 7-day and flexible 30-day variants."
+        "and how to interpret the 7-day and 30-day flexible-window variants."
     )
     run.italic = True
     run.font.color.rgb = RGBColor(71, 85, 105)
@@ -357,7 +357,7 @@ def add_key_field_table(document: Document, rows: list[tuple[str, str]]) -> None
 
 
 def add_coverage_table(document: Document, cover7: pd.DataFrame, cover30: pd.DataFrame) -> None:
-    document.add_heading("Match coverage: strict 7-day vs flexible 30-day", level=1)
+    document.add_heading("Match coverage: 7-day vs 30-day windows", level=1)
     p = document.add_paragraph()
     p.add_run("How to read this table: ").bold = True
     p.add_run(
@@ -425,7 +425,7 @@ def add_interpretation_section(document: Document) -> None:
         document,
         [
             "Department-level matching is substantially stronger than commune-level matching. This is expected because JRC event footprints and Gaspar recognitions rarely line up commune by commune.",
-            "The flexible 30-day rule is materially more permissive than the strict 7-day rule. It recovers additional matches when the same flood episode is fragmented differently across the two datasets.",
+            "The 30-day window is materially more permissive than the 7-day window. It recovers additional matches when the same flood episode is fragmented differently across the two datasets.",
             "Most department best-match pairs are 'Gaspar full, JRC partial'. In practice, this means a Gaspar recognition-period group is often fully contained inside a broader JRC event footprint or duration, rather than the other way around.",
             "Exact same start and end dates are rare. Spatial overlap plus a tolerant time window is doing most of the matching work.",
         ],
@@ -440,7 +440,7 @@ def add_limitations_section(document: Document, comp30: dict[str, object]) -> No
         f"The 30-day diagnostics show {int(comp30['gaspar_unique_decrees'])} unique decree IDs but {int(comp30['gaspar_unique_event_uids'])} unique Gaspar recognition-period groups, which illustrates how a single decree can branch into many dated groups.",
         "Commune-level row match shares are low by construction because both sources partition the same episode differently across space and time. Department-level metrics are more stable for management reporting.",
         "JRC flood maps cover land only, use 20 m pixels, and encode permanent or seasonal water as dummy value 9999. They are therefore very strong for flood extent and relative timing, but not a direct mirror of compensation or administrative recognition processes.",
-        "Recommended baseline: use the 30-day department-level outputs for the main narrative, keep the 7-day outputs as a stricter sensitivity test, and use commune tables only for local audit or deep dives.",
+        "Recommended baseline: use the 30-day department-level outputs for the main narrative, keep the 7-day outputs as a narrower-window sensitivity test, and use commune tables only for local audit or deep dives.",
     ]
     add_bullet_list(document, bullets)
 
@@ -596,7 +596,7 @@ def build_report(args: argparse.Namespace) -> Path:
 
     executive_bullets = [
         f"The France comparison uses {int(comp30['jrc_unique_events'])} JRC flood events and {int(comp30['gaspar_unique_event_uids'])} Gaspar recognition-period groups derived from {int(comp30['gaspar_unique_decrees'])} CATNAT decree IDs.",
-        f"At the department level, the strict 7-day rule matches {int(comp7['matched_jrc_events_department_level'])} of {int(comp7['jrc_unique_events'])} JRC events ({numeric(cover7[(cover7['level'] == 'department') & (cover7['measurement'] == 'unique_events')]['jrc_match_share'].iloc[0]):.1%}), while the flexible 30-day rule matches {int(comp30['matched_jrc_events_department_level'])} ({numeric(cover30[(cover30['level'] == 'department') & (cover30['measurement'] == 'unique_events')]['jrc_match_share'].iloc[0]):.1%}).",
+        f"At the department level, the 7-day window matches {int(comp7['matched_jrc_events_department_level'])} of {int(comp7['jrc_unique_events'])} JRC events ({numeric(cover7[(cover7['level'] == 'department') & (cover7['measurement'] == 'unique_events')]['jrc_match_share'].iloc[0]):.1%}), while the 30-day window matches {int(comp30['matched_jrc_events_department_level'])} ({numeric(cover30[(cover30['level'] == 'department') & (cover30['measurement'] == 'unique_events')]['jrc_match_share'].iloc[0]):.1%}).",
         f"At the commune level, match rates remain much lower: {int(comp7['matched_jrc_events_commune_level'])} JRC events under the 7-day rule and {int(comp30['matched_jrc_events_commune_level'])} under the 30-day rule.",
         "The department-level comparison is easier to interpret than the commune-level comparison because the two sources break the same flood episode into space and time differently.",
         "The flexible 30-day outputs are the best operational baseline, but event-level Gaspar counts should be read as administrative recognition-period proxies rather than true physical disaster-event IDs.",
@@ -722,10 +722,11 @@ def build_report(args: argparse.Namespace) -> Path:
         [
             "1. JRC rasters are tabularized to LAU, then harmonized to France INSEE communes in data/processed/france_lau_insee_documentation/events_fr_insee_long.csv.",
             "2. Gaspar rows are cleaned, deduplicated, and filtered to flood-related hazards in the preprocessing notebook.",
-            "3. The strict run matches the same commune or department when both start and end dates are within 7 days.",
-            "4. The flexible run uses a 30-day window and also accepts cross start/end proximity and expanded interval overlap inside the same 30-day tolerance.",
-            "5. Department tables are derived from commune INSEE codes; best-match overviews then suggest one strongest Gaspar partner per JRC event.",
-            "6. unmatched_jrc_events_* tables count unique JRC events with no match at the chosen level, whereas unmatched_jrc_*_events tables count every unmatched commune or department row.",
+            "3. Matching is run with src/compare_france_jrc_gaspar_flexible.py twice, once with w = 7 days and once with w = 30 days. At commune level, the script compares every JRC period with every Gaspar period sharing the same INSEE commune code. At department level, commune rows are first aggregated to department-event rows and then compared within the same department code.",
+            "4. The first and most direct rule is start-to-start and end-to-end proximity. If Js and Je are the JRC start and end dates, and Gs and Ge are the Gaspar start and end dates, the pair is kept when |Js - Gs| <= w and |Je - Ge| <= w. In plain language, the two starts must be within w days of each other and the two ends must also be within w days of each other.",
+            "5. The script also keeps broader pairs in two additional cases. First, it applies a cross-endpoint rule written in the code as |Js - Ge| <= w and |Gs - Je| <= w. Second, it applies an interval-proximity rule written as Js <= Ge + w and Gs <= Je + w. This second rule is the easiest to read: the two periods are kept if they overlap, touch, or are separated by no more than w days. For example, JRC 14/03-21/03 and Gaspar 14/03-30/03 do not satisfy the direct start/end rule when w = 7 because the end-date gap is 9 days, but they are still kept because the two periods overlap.",
+            "6. All retained row-level matches are then aggregated by JRC event and Gaspar event. An event is counted as matched if at least one commune or department row matches, but the strength of the overlap is measured separately through matched_communes or matched_departments, together with jrc_match_share and gaspar_match_share.",
+            "7. unmatched_jrc_events_* tables count unique JRC events with no match at the chosen level, whereas unmatched_jrc_*_events tables count every unmatched commune or department row.",
         ],
     )
 
@@ -753,7 +754,7 @@ def build_report(args: argparse.Namespace) -> Path:
     insert_picture_with_caption(
         document,
         sensitivity_chart,
-        "Figure 2. Event-level sensitivity of match rates to the stricter 7-day and more permissive 30-day rules.",
+        "Figure 2. Event-level sensitivity of match rates to the 7-day and 30-day matching windows.",
         6.9,
     )
     insert_picture_with_caption(

@@ -113,8 +113,8 @@ Recommended interpretation of those modes:
 
 ```bash
 python src/granular_tabularization.py \
-  --lau data/LAU_RG_01M_2024_4326.gpkg \
-  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
   --flood-dir data/JRC_flood_depth_maps \
   --out-dir data/processed/_outputs_eurostat_full
 ```
@@ -143,13 +143,70 @@ Important implementation note:
 ```bash
 python src/france_lau_to_insee.py \
   --tabular-file data/processed/_outputs_eurostat_full/events_lau_long.csv \
-  --lau data/LAU_RG_01M_2024_4326.gpkg \
-  --nuts data/NUTS_RG_01M_2024_4326.gpkg \
-  --adminexpress data/adminexpress-cog-simpl-000-2025.gpkg \
-  --commune-history data/insee_history/v_commune_depuis_1943.csv \
-  --commune-movements data/insee_history/v_mvt_commune_2025.csv \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
+  --adminexpress data/raw/adminexpress-cog-simpl-000-2025.gpkg \
+  --commune-history data/raw/insee_history/v_commune_depuis_1943.csv \
+  --commune-movements data/raw/insee_history/v_mvt_commune_2025.csv \
   --out-dir data/processed/france_lau_insee_documentation
 ```
+
+## How to Check Point Locations Against JRC Floods
+
+Use [src/check_points_against_jrc_floods.py](/D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py) when you have one or many latitude / longitude points and want to know whether they were hit by any JRC flood event.
+
+The workflow is intentionally optimized in two stages:
+
+- first map each point to its Eurostat LAU polygon
+- use the processed JRC LAU event table to keep only candidate events touching that LAU
+- open official TIFF rasters only for those candidate events
+- check the exact pixel under the point and also a local search buffer around it
+
+This is much faster than testing every point against every TIFF, especially once you scale from a few example cities to hundreds of addresses.
+
+Default inputs:
+
+- point workbook: `data/raw/france_20_gps_google_maps.xlsx`
+- LAU polygons: `data/raw/LAU_RG_01M_2024_4326.gpkg`
+- processed JRC event table: `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
+- France lookup enrichment: `data/processed/france_lau_insee_documentation/fr_lau_insee_lookup.csv`
+- raw JRC TIFF root: `data/JRC_flood_depth_maps`
+
+Default output:
+
+- `data/processed/france_points_jrc_flood_check.xlsx`
+
+The output workbook contains three sheets:
+
+- `point_summary`: original point columns plus flood flags, LAU / INSEE / NUTS metadata, candidate-event counts, and max local flood indicators
+- `candidate_events`: all candidate JRC events for each mapped point, including the TIFF file, event dates, and local flood metrics
+- `event_hits`: only the positive local hits
+
+Run it with:
+
+```bash
+python src/check_points_against_jrc_floods.py
+```
+
+Example with a study period, 2 km local search radius, and a minimum flood threshold:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --study-start 2018-01-01 \
+  --study-end 2024-12-31 \
+  --buffer-km 2 \
+  --threshold-cm 10 \
+  --out-file data/processed/france_points_jrc_flood_check_2018_2024.xlsx
+```
+
+Interpretation of the main flags:
+
+- `lau_matched = False`: the point did not fall inside any LAU polygon in the supplied LAU layer
+- `lau_touched_by_any_jrc_event = False`: the point was mapped to a LAU, but that LAU never appears in the processed JRC flood-event table
+- `jrc_flood_hit = False`: the LAU was touched by one or more JRC events, but no flooded pixel above threshold was found at the point or inside the local buffer
+- `jrc_flood_hit = True`: at least one JRC event produced flooded pixels above threshold at the point or inside the local buffer
+
+The script is designed so that later you can replace city-centre example points with large address lists converted to latitude / longitude and keep the same flood-check workflow.
 
 ## TIFFs and Git
 
