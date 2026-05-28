@@ -116,6 +116,33 @@ def resolve_optional_named_column(df: pd.DataFrame, requested: str | None, alias
     return resolve_named_column(df, requested, aliases)
 
 
+def normalize_decimal_text(value: Any) -> str | None:
+    if pd.isna(value):
+        return None
+
+    text = str(value).strip().replace("\u00A0", "").replace(" ", "")
+    if not text:
+        return None
+
+    last_comma = text.rfind(",")
+    last_dot = text.rfind(".")
+    if last_comma >= 0 and last_dot >= 0:
+        if last_comma > last_dot:
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            text = text.replace(",", "")
+    elif "," in text:
+        text = text.replace(",", ".")
+    return text
+
+
+def parse_coordinate_series(series: pd.Series) -> pd.Series:
+    direct_numeric = pd.to_numeric(series, errors="coerce")
+    normalized_text = series.map(normalize_decimal_text)
+    normalized_numeric = pd.to_numeric(normalized_text, errors="coerce")
+    return direct_numeric.combine_first(normalized_numeric)
+
+
 def detect_header_row(
     workbook_path: Path,
     sheet_name: str | int | None,
@@ -183,8 +210,8 @@ def load_points_table(
     if point_id_name not in df.columns:
         df[point_id_name] = np.arange(1, len(df) + 1)
 
-    df[latitude_name] = pd.to_numeric(df[latitude_name], errors="coerce")
-    df[longitude_name] = pd.to_numeric(df[longitude_name], errors="coerce")
+    df[latitude_name] = parse_coordinate_series(df[latitude_name])
+    df[longitude_name] = parse_coordinate_series(df[longitude_name])
     df = df[df[latitude_name].notna() & df[longitude_name].notna()].copy()
 
     return df, PointColumns(

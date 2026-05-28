@@ -20,6 +20,7 @@ from check_points_against_jrc_floods import (  # noqa: E402
     build_summary_table,
     build_row_level_study_periods,
     filter_candidate_events_by_row_study_period,
+    parse_coordinate_series,
     resolve_named_column,
 )
 
@@ -28,6 +29,24 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
     def test_longitude_aliases_accept_long(self) -> None:
         df = pd.DataFrame(columns=["LAT", "LONG"])
         self.assertEqual(resolve_named_column(df, None, LONGITUDE_ALIASES), "LONG")
+
+    def test_parse_coordinate_series_accepts_decimal_commas(self) -> None:
+        series = pd.Series(["47,87431063", "-2,13106221", "43,70053124", pd.NA])
+        parsed = parse_coordinate_series(series)
+
+        self.assertAlmostEqual(float(parsed.iloc[0]), 47.87431063)
+        self.assertAlmostEqual(float(parsed.iloc[1]), -2.13106221)
+        self.assertAlmostEqual(float(parsed.iloc[2]), 43.70053124)
+        self.assertTrue(pd.isna(parsed.iloc[3]))
+
+    def test_parse_coordinate_series_handles_mixed_decimal_formats(self) -> None:
+        series = pd.Series(["48.87292437", "2,39401056", "1,234.56", "1.234,56"])
+        parsed = parse_coordinate_series(series)
+
+        self.assertAlmostEqual(float(parsed.iloc[0]), 48.87292437)
+        self.assertAlmostEqual(float(parsed.iloc[1]), 2.39401056)
+        self.assertAlmostEqual(float(parsed.iloc[2]), 1234.56)
+        self.assertAlmostEqual(float(parsed.iloc[3]), 1234.56)
 
     def test_build_row_level_study_periods_uses_fallback_end_date(self) -> None:
         points_df = pd.DataFrame(

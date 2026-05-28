@@ -222,6 +222,17 @@ That is the recommended balance here:
 - fast, because the LAU prefilter avoids opening irrelevant TIFFs
 - robust, because the final flood decision still comes from the raster itself rather than only from the tabular prefilter
 
+Coordinate parsing for the T20-style workbook is handled inside:
+
+- `load_points_table()`
+- via `parse_coordinate_series()`
+- with helper `normalize_decimal_text()`
+
+That is what allows the script to accept both:
+
+- decimal dots like `47.87431063`
+- decimal commas like `47,87431063`
+
 Example command for a `5`-year lookback:
 
 ```bash

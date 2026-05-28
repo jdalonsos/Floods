@@ -110,6 +110,19 @@ The city column is only for readability in the outputs. It does not affect flood
 
 Finally, latitude and longitude are coerced to numeric values. Rows with invalid or missing coordinates are dropped.
 
+The coordinate parsing is handled by:
+
+- `load_points_table()`
+- which calls `parse_coordinate_series()`
+- which uses `normalize_decimal_text()` to accept both decimal dots and decimal commas
+
+So values like:
+
+- `47.87431063`
+- `47,87431063`
+
+are both accepted as valid coordinates.
+
 This means workbook columns like:
 
 - `LAT`
