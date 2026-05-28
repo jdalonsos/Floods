@@ -59,6 +59,17 @@ EVENT_COLUMNS = [
     "flooded_area_m2",
 ]
 
+LATITUDE_ALIASES = ("Latitude", "Lat", "Y")
+LONGITUDE_ALIASES = ("Longitude", "Long", "Lon", "Lng", "X")
+ROW_STUDY_PERIOD_OUTPUT_COLUMNS = [
+    "study_period_anchor_date",
+    "study_period_primary_end_date",
+    "study_period_fallback_end_date",
+    "study_period_start",
+    "study_period_end",
+    "study_period_end_source",
+]
+
 FRANCE_LOOKUP_COLUMNS = [
     "lau_code",
     "insee_com",
@@ -78,10 +89,31 @@ class PointColumns:
     city: str | None
 
 
+@dataclass(frozen=True)
+class RowStudyPeriodColumns:
+    anchor: str | None
+    primary_end: str | None
+    fallback_end: str | None
+
+
 def normalize_label(value: Any) -> str:
     if pd.isna(value):
         return ""
     return "".join(ch.lower() for ch in str(value).strip() if ch.isalnum() or ch == "#")
+
+
+def has_any_normalized_label(labels: set[str], aliases: Iterable[str]) -> bool:
+    return any(normalize_label(alias) in labels for alias in aliases)
+
+
+def empty_datetime_series(index: pd.Index) -> pd.Series:
+    return pd.Series(pd.NaT, index=index, dtype="datetime64[ns]")
+
+
+def resolve_optional_named_column(df: pd.DataFrame, requested: str | None, aliases: Iterable[str]) -> str | None:
+    if not requested:
+        return None
+    return resolve_named_column(df, requested, aliases)
 
 
 def detect_header_row(
@@ -96,7 +128,7 @@ def detect_header_row(
         preview = next(iter(preview.values()))
     for idx, row in preview.iterrows():
         labels = {normalize_label(value) for value in row.tolist() if normalize_label(value)}
-        if "latitude" in labels and "longitude" in labels:
+        if has_any_normalized_label(labels, LATITUDE_ALIASES) and has_any_normalized_label(labels, LONGITUDE_ALIASES):
             return int(idx)
     return 0
 
@@ -136,8 +168,8 @@ def load_points_table(
     df.columns = [str(col).strip() for col in df.columns]
     df["excel_row_number"] = np.arange(len(df)) + header_row + 2
 
-    latitude_name = resolve_named_column(df, latitude_col, ["Latitude", "Lat", "Y"])
-    longitude_name = resolve_named_column(df, longitude_col, ["Longitude", "Lon", "Lng", "X"])
+    latitude_name = resolve_named_column(df, latitude_col, LATITUDE_ALIASES)
+    longitude_name = resolve_named_column(df, longitude_col, LONGITUDE_ALIASES)
     try:
         point_id_name = resolve_named_column(df, point_id_col, ["#", "id", "point_id"])
     except KeyError:
@@ -160,6 +192,103 @@ def load_points_table(
         longitude=longitude_name,
         point_id=point_id_name,
         city=city_name,
+    )
+
+
+def parse_date_series(series: pd.Series, dayfirst: bool = True) -> pd.Series:
+    if pd.api.types.is_datetime64_any_dtype(series):
+        return pd.to_datetime(series, errors="coerce")
+
+    if pd.api.types.is_numeric_dtype(series):
+        numeric_values = pd.to_numeric(series, errors="coerce")
+        return pd.Timestamp("1899-12-30") + pd.to_timedelta(numeric_values, unit="D")
+
+    text = series.astype("string").str.strip()
+    text = text.replace({"": pd.NA, "nan": pd.NA, "NaT": pd.NA, "None": pd.NA})
+    parsed = pd.to_datetime(text, errors="coerce", dayfirst=dayfirst)
+
+    numeric_values = pd.to_numeric(text, errors="coerce")
+    numeric_mask = parsed.isna() & numeric_values.notna()
+    if numeric_mask.any():
+        parsed = parsed.copy()
+        parsed.loc[numeric_mask] = pd.Timestamp("1899-12-30") + pd.to_timedelta(
+            numeric_values.loc[numeric_mask],
+            unit="D",
+        )
+    return parsed
+
+
+def build_row_level_study_periods(
+    points_df: pd.DataFrame,
+    anchor_col: str | None,
+    end_col: str | None,
+    fallback_end_col: str | None,
+    lookback_years: int,
+) -> tuple[pd.DataFrame, RowStudyPeriodColumns | None]:
+    """Add per-row study windows used to filter candidate JRC events.
+
+    For the T20 portfolio, the intended rule is:
+    - start = Reference_Date minus X years
+    - end = Closed_Default_Date
+    - fallback end = Cut_off_Date when Closed_Default_Date is empty
+    """
+    if not any([anchor_col, end_col, fallback_end_col]):
+        return points_df, None
+    if lookback_years < 0:
+        raise ValueError("--row-study-lookback-years must be 0 or greater.")
+
+    result = points_df.copy()
+    resolved_anchor = resolve_optional_named_column(
+        result,
+        anchor_col,
+        [anchor_col, "Reference_Date", "Reference Date"],
+    )
+    resolved_end = resolve_optional_named_column(
+        result,
+        end_col,
+        [end_col, "Closed_Default_Date", "Closed Default Date"],
+    )
+    resolved_fallback_end = resolve_optional_named_column(
+        result,
+        fallback_end_col,
+        [fallback_end_col, "Cut_off_Date", "Cut off Date"],
+    )
+
+    anchor_dates = (
+        parse_date_series(result[resolved_anchor])
+        if resolved_anchor
+        else empty_datetime_series(result.index)
+    )
+    primary_end_dates = (
+        parse_date_series(result[resolved_end])
+        if resolved_end
+        else empty_datetime_series(result.index)
+    )
+    fallback_end_dates = (
+        parse_date_series(result[resolved_fallback_end])
+        if resolved_fallback_end
+        else empty_datetime_series(result.index)
+    )
+
+    study_end = primary_end_dates.combine_first(fallback_end_dates)
+    study_end_source = pd.Series(pd.NA, index=result.index, dtype="object")
+    if resolved_end:
+        study_end_source.loc[primary_end_dates.notna()] = resolved_end
+    if resolved_fallback_end:
+        fallback_mask = primary_end_dates.isna() & fallback_end_dates.notna()
+        study_end_source.loc[fallback_mask] = resolved_fallback_end
+
+    result["study_period_anchor_date"] = anchor_dates
+    result["study_period_primary_end_date"] = primary_end_dates
+    result["study_period_fallback_end_date"] = fallback_end_dates
+    result["study_period_start"] = anchor_dates - pd.DateOffset(years=lookback_years)
+    result["study_period_end"] = study_end
+    result["study_period_end_source"] = study_end_source
+
+    return result, RowStudyPeriodColumns(
+        anchor=resolved_anchor,
+        primary_end=resolved_end,
+        fallback_end=resolved_fallback_end,
     )
 
 
@@ -269,6 +398,27 @@ def filter_events_by_study_period(
     if pd.notna(end_ts):
         result = result[result["start_date"] <= end_ts].copy()
     return result
+
+
+def filter_candidate_events_by_row_study_period(candidate_df: pd.DataFrame) -> pd.DataFrame:
+    """Keep only JRC events whose date interval overlaps each row's study window."""
+    if candidate_df.empty:
+        return candidate_df
+    if "study_period_start" not in candidate_df.columns and "study_period_end" not in candidate_df.columns:
+        return candidate_df
+
+    result = candidate_df.copy()
+    overlap_mask = pd.Series(True, index=result.index)
+
+    # A candidate event is kept when the event interval [start_date, end_date]
+    # overlaps the row-specific study interval [study_period_start, study_period_end].
+    if "study_period_start" in result.columns:
+        overlap_mask &= result["study_period_start"].isna() | result["end_date"].ge(result["study_period_start"])
+    if "study_period_end" in result.columns:
+        overlap_mask &= result["study_period_end"].isna() | result["start_date"].le(result["study_period_end"])
+
+    keep_mask = result["event_id"].isna() | overlap_mask.fillna(False)
+    return result[keep_mask].copy()
 
 
 def resolve_raster_paths(candidate_df: pd.DataFrame, flood_dir: Path) -> pd.DataFrame:
@@ -540,10 +690,30 @@ def build_summary_table(
     summary = summary.merge(candidate_agg, on=point_id_col, how="left")
     summary = summary.merge(inspected_agg, on=point_id_col, how="left")
 
+    expected_summary_columns: dict[str, Any] = {
+        "checked_event_count": np.nan,
+        "hit_at_point_event_count": np.nan,
+        "hit_within_buffer_event_count": np.nan,
+        "max_exact_point_depth_cm": np.nan,
+        "max_buffer_depth_cm": np.nan,
+        "max_buffer_median_depth_cm": np.nan,
+        "max_buffer_mean_depth_cm": np.nan,
+        "max_buffer_flooded_pixels": np.nan,
+        "max_buffer_flooded_area_m2": np.nan,
+        "first_hit_start_date": pd.NaT,
+        "last_hit_end_date": pd.NaT,
+        "hit_event_count": np.nan,
+    }
+    for column, default_value in expected_summary_columns.items():
+        if column not in summary.columns:
+            summary[column] = default_value
+
     summary["buffer_radius_km"] = buffer_km
     summary["flood_threshold_cm"] = threshold_cm
-    summary["study_period_start"] = study_start if study_start else pd.NA
-    summary["study_period_end"] = study_end if study_end else pd.NA
+    if "study_period_start" not in summary.columns:
+        summary["study_period_start"] = study_start if study_start else pd.NA
+    if "study_period_end" not in summary.columns:
+        summary["study_period_end"] = study_end if study_end else pd.NA
     summary["lau_matched"] = summary["lau_code"].notna()
     summary["lau_touched_by_any_jrc_event"] = summary["candidate_event_count"].fillna(0).gt(0)
     summary["jrc_flood_hit"] = summary["hit_event_count"].fillna(0).gt(0)
@@ -588,6 +758,7 @@ def build_candidate_sheet(
     candidate_df: pd.DataFrame,
     point_columns: PointColumns,
     inspected_df: pd.DataFrame,
+    row_study_period_columns: RowStudyPeriodColumns | None = None,
 ) -> pd.DataFrame:
     candidate_only = candidate_df[candidate_df["event_id"].notna()].copy()
     if candidate_only.empty:
@@ -625,6 +796,19 @@ def build_candidate_sheet(
         if column not in candidate_only.columns:
             candidate_only[column] = default_value
 
+    period_cols: list[str] = []
+    if row_study_period_columns:
+        for raw_col in [
+            row_study_period_columns.anchor,
+            row_study_period_columns.primary_end,
+            row_study_period_columns.fallback_end,
+        ]:
+            if raw_col and raw_col in candidate_only.columns and raw_col not in period_cols:
+                period_cols.append(raw_col)
+    for derived_col in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+        if derived_col in candidate_only.columns and derived_col not in period_cols:
+            period_cols.append(derived_col)
+
     ordered_cols = [
         "point_id",
         "point_city",
@@ -637,6 +821,7 @@ def build_candidate_sheet(
         "insee_dep",
         "nuts3_code",
         "nuts3_name",
+        *period_cols,
         "event_id",
         "raster_file",
         "resolved_raster_path",
@@ -709,6 +894,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--france-lookup-file", default=str(DEFAULT_FRANCE_LOOKUP), help="Optional France LAU to INSEE lookup CSV for extra output columns.")
     parser.add_argument("--study-start", default=None, help="Optional study-period start date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--study-end", default=None, help="Optional study-period end date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
+    parser.add_argument("--row-study-anchor-col", default=None, help="Optional workbook column used as the per-row anchor date before subtracting the lookback years.")
+    parser.add_argument("--row-study-end-col", default=None, help="Optional workbook column used as the preferred per-row study-period end date.")
+    parser.add_argument("--row-study-end-fallback-col", default=None, help="Optional fallback workbook column used when the preferred per-row end date is empty.")
+    parser.add_argument("--row-study-lookback-years", type=int, default=0, help="Years to subtract from the per-row anchor date. Default: 0.")
     parser.add_argument("--buffer-km", type=float, default=2.0, help="Buffer radius around each point in kilometers. Default: 2.0.")
     parser.add_argument("--threshold-cm", type=float, default=0.0, help="Minimum depth in cm to count as flooded. Default: 0.0.")
     parser.add_argument("--out-file", default=str(DEFAULT_OUTPUT), help="Output Excel workbook.")
@@ -739,7 +928,22 @@ def main() -> None:
         point_id_col=args.point_id_col,
         city_col=args.city_col,
     )
+    points_df, row_study_period_columns = build_row_level_study_periods(
+        points_df,
+        anchor_col=args.row_study_anchor_col,
+        end_col=args.row_study_end_col,
+        fallback_end_col=args.row_study_end_fallback_col,
+        lookback_years=args.row_study_lookback_years,
+    )
     print(f"Loaded {len(points_df):,} valid points.")
+    if row_study_period_columns:
+        print(
+            "Derived row-level study periods using "
+            f"anchor={row_study_period_columns.anchor!r}, "
+            f"end={row_study_period_columns.primary_end!r}, "
+            f"fallback_end={row_study_period_columns.fallback_end!r}, "
+            f"lookback_years={args.row_study_lookback_years}."
+        )
 
     print("Loading LAU polygons...")
     lau_gdf = load_lau(lau_file, target_countries=target_countries)
@@ -784,9 +988,22 @@ def main() -> None:
         "nuts3_name",
     ]
     mapping_cols = [column for column in mapping_cols if column in points_with_lau.columns]
-    point_base = points_with_lau[point_key_cols + mapping_cols].copy()
+    point_extra_cols: list[str] = []
+    if row_study_period_columns:
+        for raw_col in [
+            row_study_period_columns.anchor,
+            row_study_period_columns.primary_end,
+            row_study_period_columns.fallback_end,
+        ]:
+            if raw_col and raw_col in points_with_lau.columns and raw_col not in point_extra_cols:
+                point_extra_cols.append(raw_col)
+    for derived_col in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+        if derived_col in points_with_lau.columns and derived_col not in point_extra_cols:
+            point_extra_cols.append(derived_col)
+    point_base = points_with_lau[point_key_cols + mapping_cols + point_extra_cols].copy()
 
     candidate_df = point_base.merge(event_df, on="lau_code", how="left", suffixes=("", "_event"))
+    candidate_df = filter_candidate_events_by_row_study_period(candidate_df)
     candidate_df = resolve_raster_paths(candidate_df, flood_dir=flood_dir)
 
     print("Inspecting exact pixels and local buffers only for candidate events...")
@@ -813,6 +1030,7 @@ def main() -> None:
         candidate_df=pd.DataFrame(candidate_df.drop(columns="geometry", errors="ignore")),
         point_columns=point_columns,
         inspected_df=inspected_df,
+        row_study_period_columns=row_study_period_columns,
     )
     hits_sheet = build_hits_sheet(candidate_sheet)
 

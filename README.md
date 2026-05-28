@@ -109,6 +109,8 @@ Recommended interpretation of those modes:
 - `Raster overlay` is the fastest mode, but also the most approximate
 - `Auto` is the best default for routine browsing
 
+For a beginner-friendly deep walkthrough of the whole dashboard display process, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
+
 ## How to Run the Main Europe Pipeline
 
 ```bash
@@ -155,6 +157,8 @@ python src/france_lau_to_insee.py \
 
 Use [src/check_points_against_jrc_floods.py](/D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py) when you have one or many latitude / longitude points and want to know whether they were hit by any JRC flood event.
 
+For a deeper implementation walkthrough, see [docs/check_points_against_jrc_floods_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/check_points_against_jrc_floods_deep_guide.md).
+
 The workflow is intentionally optimized in two stages:
 
 - first map each point to its Eurostat LAU polygon
@@ -198,6 +202,49 @@ python src/check_points_against_jrc_floods.py \
   --threshold-cm 10 \
   --out-file data/processed/france_points_jrc_flood_check_2018_2024.xlsx
 ```
+
+### T20 Portfolio Rule
+
+For `data/processed/T20_Anonymised.xlsx`, the matching logic can be kept simple and still remain correct for this project:
+
+1. map each `LAT` / `LONG` point to its LAU
+2. keep only JRC events already touching that LAU
+3. for each row, build a study window as:
+   - `study_period_start = Reference_Date - X years`
+   - `study_period_end = Closed_Default_Date`
+   - if `Closed_Default_Date` is empty, use `Cut_off_Date` instead
+4. keep only JRC events whose `[start_date, end_date]` interval overlaps that row-specific study window
+5. inspect the remaining TIFFs locally around the exact coordinate
+
+That is the recommended balance here:
+
+- simple, because the time rule is just one interval overlap per row
+- fast, because the LAU prefilter avoids opening irrelevant TIFFs
+- robust, because the final flood decision still comes from the raster itself rather than only from the tabular prefilter
+
+Example command for a `5`-year lookback:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --points-file data/processed/T20_Anonymised.xlsx \
+  --sheet-name Feuil2 \
+  --latitude-col LAT \
+  --longitude-col LONG \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --row-study-lookback-years 5 \
+  --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
+```
+
+The output workbook will also keep the raw T20 date columns and add:
+
+- `study_period_anchor_date`
+- `study_period_primary_end_date`
+- `study_period_fallback_end_date`
+- `study_period_start`
+- `study_period_end`
+- `study_period_end_source`
 
 Interpretation of the main flags:
 

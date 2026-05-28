@@ -844,6 +844,8 @@ The dashboard does not use a different map algorithm.
 
 It calls the same preview engine from `src/flood_preview.py`, which was extracted from the notebook logic.
 
+For a full beginner-friendly walkthrough of the Streamlit display process, including how a `90,000 x 90,000` TIFF becomes a `1,800 x 1,800` preview and what `merged preview polygons` means, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
+
 So the structure is:
 
 - `src/5_Visualize_Flood_TIFF_Map.ipynb` = notebook interface
@@ -1043,6 +1045,8 @@ Recommended use:
 - keep `Auto` for most browsing sessions
 - switch to `Polygon pixels` for coastlines, estuaries, and alignment checks against Felt or other viewers
 - switch to `Raster overlay` only when you need the lightest possible browser rendering and can accept approximate placement
+
+For the full dashboard internals in plain language, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
 
 ## 17. Compare France JRC vs Gaspar
 

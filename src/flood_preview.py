@@ -403,6 +403,52 @@ def preview_to_rgba(preview: FloodPreview, cmap_name: str = "turbo") -> np.ndarr
     return (rgba * 255).astype(np.uint8)
 
 
+def _build_preview_color_bins(
+    preview: FloodPreview,
+    color_bins: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    active_mask = ~preview.values.mask
+    value_range = preview.vmax - preview.vmin
+    if value_range <= 0:
+        value_range = 1.0
+
+    normalized = np.clip((preview.values.data - preview.vmin) / value_range, 0.0, 1.0)
+    binned_values = np.full(preview.values.shape, -1, dtype=np.int16)
+    if active_mask.any():
+        binned_values[active_mask] = np.minimum(
+            (normalized[active_mask] * max(color_bins - 1, 1)).astype(np.int16),
+            color_bins - 1,
+        )
+    return active_mask, binned_values
+
+
+def _count_preview_polygon_runs(
+    active_mask: np.ndarray,
+    binned_values: np.ndarray,
+) -> int:
+    polygon_count = 0
+    active_rows = np.flatnonzero(active_mask.any(axis=1))
+    for row in active_rows.tolist():
+        cols = np.flatnonzero(active_mask[row])
+        row_bins = binned_values[row, cols]
+        for idx in range(1, cols.size + 1):
+            if (
+                idx == cols.size
+                or cols[idx] != cols[idx - 1] + 1
+                or row_bins[idx] != row_bins[idx - 1]
+            ):
+                polygon_count += 1
+    return int(polygon_count)
+
+
+def estimate_preview_polygon_count(
+    preview: FloodPreview,
+    color_bins: int = 48,
+) -> int:
+    active_mask, binned_values = _build_preview_color_bins(preview, color_bins=color_bins)
+    return _count_preview_polygon_runs(active_mask, binned_values)
+
+
 def reproject_preview_rgba_to_web(
     preview: FloodPreview,
     cmap_name: str = "turbo",
@@ -598,7 +644,7 @@ def add_preview_pixel_polygons(
     flood_map: folium.Map,
     preview: FloodPreview,
     cmap_name: str = "turbo",
-    max_cells: int = 20000,
+    max_polygons: int = 20000,
     color_bins: int = 48,
 ) -> bool:
     """Draw polygons from the downsampled preview grid itself.
@@ -608,13 +654,9 @@ def add_preview_pixel_polygons(
     web map.
     """
 
-    if preview.active_pixel_count > max_cells:
+    active_mask, binned_values = _build_preview_color_bins(preview, color_bins=color_bins)
+    if _count_preview_polygon_runs(active_mask, binned_values) > max_polygons:
         return False
-
-    active_mask = ~preview.values.mask
-    value_range = preview.vmax - preview.vmin
-    if value_range <= 0:
-        value_range = 1.0
 
     transformer = Transformer.from_crs(preview.crs, "EPSG:4326", always_xy=True)
     cmap = _get_colormap(cmap_name)
@@ -622,13 +664,6 @@ def add_preview_pixel_polygons(
         mpl.colors.to_hex(cmap(bin_idx / max(color_bins - 1, 1)))
         for bin_idx in range(color_bins)
     ]
-    normalized = np.clip((preview.values.data - preview.vmin) / value_range, 0.0, 1.0)
-    binned_values = np.full(preview.values.shape, -1, dtype=np.int16)
-    binned_values[active_mask] = np.minimum(
-        (normalized[active_mask] * max(color_bins - 1, 1)).astype(np.int16),
-        color_bins - 1,
-    )
-
     active_rows = np.flatnonzero(active_mask.any(axis=1))
     for row in active_rows.tolist():
         cols = np.flatnonzero(active_mask[row])
@@ -670,7 +705,7 @@ def build_folium_map(
     cmap_name: str = "turbo",
     tiles: str = "CartoDB positron",
     mode: str = "auto",
-    pixel_mode_max_cells: int = 15000,
+    pixel_mode_max_cells: int = 20000,
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
     exact_native_pixel_limit: int = 12000,
@@ -684,26 +719,37 @@ def build_folium_map(
         prefer_canvas=True,
     )
 
+    preview_polygon_count = estimate_preview_polygon_count(preview)
+    preview_polygons_feasible = preview_polygon_count <= pixel_mode_max_cells
+    # Every active preview cell implies at least one active native cell.
+    exact_native_maybe_feasible = preview.active_pixel_count <= exact_native_pixel_limit
+
     chosen_mode = mode
     if mode == "auto":
-        chosen_mode = "pixels" if preview.active_pixel_count <= pixel_mode_max_cells else "raster"
+        chosen_mode = "pixels" if (
+            exact_native_maybe_feasible or preview_polygons_feasible
+        ) else "raster"
 
     if chosen_mode == "pixels":
-        pixels_added = add_pixel_polygons(
-            flood_map,
-            preview,
-            cmap_name=cmap_name,
-            threshold_cm=threshold_cm,
-            mask_values=mask_values,
-            max_cells=exact_native_pixel_limit,
-        )
-        if not pixels_added:
-            preview_pixels_added = add_preview_pixel_polygons(
+        pixels_added = False
+        if exact_native_maybe_feasible:
+            pixels_added = add_pixel_polygons(
                 flood_map,
                 preview,
                 cmap_name=cmap_name,
-                max_cells=pixel_mode_max_cells,
+                threshold_cm=threshold_cm,
+                mask_values=mask_values,
+                max_cells=exact_native_pixel_limit,
             )
+        if not pixels_added:
+            preview_pixels_added = False
+            if preview_polygons_feasible:
+                preview_pixels_added = add_preview_pixel_polygons(
+                    flood_map,
+                    preview,
+                    cmap_name=cmap_name,
+                    max_polygons=pixel_mode_max_cells,
+                )
             chosen_mode = "preview_pixels" if preview_pixels_added else "raster_fallback"
 
     if chosen_mode != "pixels":
@@ -730,6 +776,7 @@ def build_folium_map(
         f"<b>{preview.tif_path.name}</b><br>"
         f"Render mode: {chosen_mode}<br>"
         f"Active preview pixels: {preview.active_pixel_count:,}<br>"
+        f"Estimated preview polygons: {preview_polygon_count:,}<br>"
         f"Coarse active pixels: {len(preview.coarse_active_pixels):,}<br>"
         f"Detailed crop preview: {preview.display_shape[1]} x {preview.display_shape[0]} px<br>"
         f"Detailed source window: {preview.source_window_shape[1]} x {preview.source_window_shape[0]} px<br>"
@@ -751,6 +798,7 @@ def preview_summary(preview: FloodPreview) -> dict[str, Any]:
         "source_window_shape": preview.source_window_shape,
         "display_shape": preview.display_shape,
         "active_pixel_count": preview.active_pixel_count,
+        "estimated_preview_polygon_count": estimate_preview_polygon_count(preview),
         "source_window": preview.source_window,
         "bounds_latlon": preview.bounds_latlon,
         "full_bounds_latlon": preview.full_bounds_latlon,

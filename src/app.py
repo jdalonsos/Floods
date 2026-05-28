@@ -156,7 +156,17 @@ def main() -> None:
         source_padding_pixels = st.slider("Source padding (pixels)", 0, 2500, 600, 100)
         threshold_cm = st.slider("Flood threshold (cm)", 0.0, 20.0, 0.0, 0.5)
         upper_quantile = st.slider("Upper display quantile", 0.90, 1.00, 0.995, 0.001)
-        pixel_mode_max_cells = st.slider("Auto pixel-mode cutoff", 250, 25000, 15000, 250)
+        pixel_mode_max_cells = st.slider(
+            "Preview polygon budget",
+            250,
+            40000,
+            20000,
+            250,
+            help=(
+                "Maximum merged preview polygons before the app falls back "
+                "to the approximate raster overlay."
+            ),
+        )
         exact_native_pixel_limit = st.slider(
             "Exact native pixel cap",
             1000,
