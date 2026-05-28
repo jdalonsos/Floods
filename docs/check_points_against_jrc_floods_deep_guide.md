@@ -53,15 +53,17 @@ Important assumptions:
 The execution path inside `main()` is:
 
 1. Load the Excel workbook of points.
-2. Load the LAU polygon layer.
-3. Convert the tabular coordinates into geospatial point geometries.
-4. Spatially join points to LAU polygons.
-5. Optionally enrich French matches with INSEE and NUTS3 fields.
-6. Load the processed LAU event table and keep only events for the mapped LAUs.
-7. Optionally filter those events by study period overlap.
-8. Resolve candidate TIFF file paths.
-9. Open only those candidate TIFFs and inspect the exact point and local buffer.
-10. Build three output sheets and write an Excel workbook.
+2. Optionally derive a row-level study window for each point row.
+3. Load the LAU polygon layer.
+4. Convert the tabular coordinates into geospatial point geometries.
+5. Spatially join points to LAU polygons.
+6. Optionally enrich French matches with INSEE and NUTS3 fields.
+7. Load the processed LAU event table and keep only events for the mapped LAUs.
+8. Optionally filter those events by one global study period.
+9. Expand the points into `point x candidate-event` rows and optionally filter those rows again with row-level date windows.
+10. Resolve candidate TIFF file paths.
+11. Open only those candidate TIFFs and inspect the exact point and local buffer.
+12. Build three output sheets and write an Excel workbook.
 
 ## 4. Step-By-Step Logic
 
@@ -96,7 +98,7 @@ After choosing the header row, the script reads the sheet into a DataFrame and:
 The script then resolves column names using aliases:
 
 - latitude: `Latitude`, `Lat`, `Y`
-- longitude: `Longitude`, `Lon`, `Lng`, `X`
+- longitude: `Longitude`, `Long`, `Lon`, `Lng`, `X`
 - point ID: `#`, `id`, `point_id`
 - optional label column: `City`, `Commune`, `Address`, `Location`
 
@@ -108,7 +110,56 @@ The city column is only for readability in the outputs. It does not affect flood
 
 Finally, latitude and longitude are coerced to numeric values. Rows with invalid or missing coordinates are dropped.
 
-### Step 3. Turn rows into geometries
+This means workbook columns like:
+
+- `LAT`
+- `LONG`
+
+are now accepted directly.
+
+### Step 3. Optionally derive one study window per row
+
+Function: `build_row_level_study_periods()`
+
+The script can now build a separate study window for each workbook row.
+
+This is the important new behavior used for the T20 portfolio logic.
+
+The rule is:
+
+- `study_period_start = anchor_date - lookback_years`
+- `study_period_end = primary_end_date`
+- if the primary end date is missing, use the fallback end date
+
+For the T20 workbook, the intended mapping is:
+
+- anchor date = `Reference_Date`
+- primary end = `Closed_Default_Date`
+- fallback end = `Cut_off_Date`
+
+So for example:
+
+- `Reference_Date = 31/12/2008`
+- `lookback_years = 5`
+- `Closed_Default_Date = 08/10/2013`
+
+becomes:
+
+- `study_period_start = 31/12/2003`
+- `study_period_end = 08/10/2013`
+
+If `Closed_Default_Date` is empty, the same row keeps the same start logic and uses `Cut_off_Date` as the end instead.
+
+The script also stores these derived fields for traceability:
+
+- `study_period_anchor_date`
+- `study_period_primary_end_date`
+- `study_period_fallback_end_date`
+- `study_period_start`
+- `study_period_end`
+- `study_period_end_source`
+
+### Step 4. Turn rows into geometries
 
 Function: `build_points_gdf()`
 
@@ -130,7 +181,7 @@ becomes a geospatial point like:
 
 If latitude and longitude are swapped in the workbook, the mapping will be wrong.
 
-### Step 4. Load the official LAU polygons
+### Step 5. Load the official LAU polygons
 
 Function: `load_lau()` from `src/granular_tabularization.py`
 
@@ -150,7 +201,7 @@ It also:
 
 So by the time point matching happens, the LAU polygons are cleaned and standardized.
 
-### Step 5. Map each point to a LAU polygon
+### Step 6. Map each point to a LAU polygon
 
 Function: `map_points_to_lau()`
 
@@ -184,7 +235,7 @@ Why the fallback exists:
 
 This is still a best-effort assignment. Border points remain inherently delicate.
 
-### Step 6. Attach the France-specific enrichment
+### Step 7. Attach the France-specific enrichment
 
 Function: `attach_france_lookup()`
 
@@ -201,7 +252,7 @@ This adds administrative fields such as:
 
 These fields are for reporting and downstream interpretation. They do not determine the initial point-to-LAU match.
 
-### Step 7. Build the list of target LAUs
+### Step 8. Build the list of target LAUs
 
 After the spatial join, the script collects the set of unique matched `lau_code` values from the points.
 
@@ -209,7 +260,7 @@ This set is the input to the next stage.
 
 If a point has no matched LAU, it does not contribute any `lau_code` to the event prefilter.
 
-### Step 8. Load the processed LAU event table
+### Step 9. Load the processed LAU event table
 
 Function: `load_lau_events()`
 
@@ -232,7 +283,7 @@ The script also:
 - parses `end_date`
 - drops duplicate `(event_id, lau_code)` pairs
 
-### Step 9. Apply optional study-period filtering
+### Step 10. Apply optional global study-period filtering
 
 Function: `filter_events_by_study_period()`
 
@@ -247,7 +298,9 @@ That means:
 
 So events that partially overlap the study period are still retained.
 
-### Step 10. Expand points into point x candidate-event rows
+This filter is still useful when you want one broad time window shared by the entire workbook.
+
+### Step 11. Expand points into point x candidate-event rows
 
 Inside `main()`, the script merges:
 
@@ -265,7 +318,34 @@ At this stage the script has not yet confirmed local flooding at the point. It h
 
 > This event is worth checking because it touched the same LAU.
 
-### Step 11. Resolve the TIFF path for each candidate event
+If row-level study fields exist, they are carried into this candidate table.
+
+### Step 12. Apply optional row-level study-window filtering
+
+Function: `filter_candidate_events_by_row_study_period()`
+
+This is the main new temporal step for the T20 process.
+
+The script checks interval overlap separately for each candidate row.
+
+A candidate event is kept when:
+
+- `event_end >= row_study_period_start`
+- and `event_start <= row_study_period_end`
+
+In plain language:
+
+- floods in the `X` years before default are kept
+- floods during the default period are also kept
+- floods fully outside that row-specific window are dropped
+
+This keeps the logic simple:
+
+1. spatial prefilter by LAU
+2. temporal prefilter by row-specific interval overlap
+3. raster confirmation only for survivors
+
+### Step 13. Resolve the TIFF path for each candidate event
 
 Function: `resolve_raster_paths()`
 
@@ -285,7 +365,7 @@ The result is stored in:
 
 If `raster_path_found = False`, the event stays in the candidate table but cannot be locally inspected in the raster stage.
 
-### Step 12. Inspect only the candidate TIFFs
+### Step 14. Inspect only the candidate TIFFs
 
 Function: `inspect_candidate_events()`
 
@@ -436,6 +516,10 @@ Important summary fields:
 - `jrc_flood_flag`
 - `decision_path`
 - `notes`
+- `study_period_start`
+- `study_period_end`
+
+If row-level study windows are used, `study_period_start` and `study_period_end` are row-specific values derived from the workbook, not one shared CLI date range.
 
 Meaning of the main counters:
 
@@ -460,6 +544,8 @@ It includes:
 
 - point metadata
 - LAU / INSEE / NUTS3 metadata
+- raw workbook date columns when used, for example `Reference_Date`, `Closed_Default_Date`, `Cut_off_Date`
+- derived row-level study fields
 - event metadata
 - resolved raster path
 - whether the raster path was found
@@ -591,6 +677,10 @@ Good tuning levers are:
 - `--lau-country-filter`
 - `--study-start`
 - `--study-end`
+- `--row-study-anchor-col`
+- `--row-study-end-col`
+- `--row-study-end-fallback-col`
+- `--row-study-lookback-years`
 - `--buffer-km`
 - `--threshold-cm`
 
@@ -616,6 +706,21 @@ python src/check_points_against_jrc_floods.py \
   --study-end 2024-12-31
 ```
 
+Run the T20 row-level temporal logic with a 5-year lookback:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --points-file data/processed/T20_Anonymised.xlsx \
+  --sheet-name Feuil2 \
+  --latitude-col LAT \
+  --longitude-col LONG \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --row-study-lookback-years 5 \
+  --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
+```
+
 Change the local search radius and flood threshold:
 
 ```bash
@@ -639,6 +744,8 @@ If you want to jump into the code quickly, these are the most important function
   find the real Excel header row
 - `load_points_table()`:
   read and normalize the workbook
+- `build_row_level_study_periods()`:
+  derive one study window per row
 - `build_points_gdf()`:
   create point geometries
 - `map_points_to_lau()`:
@@ -649,6 +756,8 @@ If you want to jump into the code quickly, these are the most important function
   load and prefilter the processed event table
 - `filter_events_by_study_period()`:
   keep overlapping event intervals only
+- `filter_candidate_events_by_row_study_period()`:
+  keep only candidate events overlapping each row's own study window
 - `resolve_raster_paths()`:
   locate the official TIFF for each candidate event
 - `inspect_candidate_events()`:
@@ -674,8 +783,10 @@ Its logic is:
 
 1. find the point's LAU
 2. find only JRC events already linked to that LAU
-3. open only those TIFFs
-4. confirm the exact point and nearby buffer in the raster
-5. summarize the result at point level and event level
+3. if needed, derive one study window per row from workbook dates
+4. keep only candidate events whose intervals overlap that row-specific window
+5. open only those TIFFs
+6. confirm the exact point and nearby buffer in the raster
+7. summarize the result at point level and event level
 
 That is why it is both practical and explainable for large coordinate portfolios.
