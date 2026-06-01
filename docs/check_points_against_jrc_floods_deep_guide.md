@@ -17,7 +17,7 @@ The script is a point-level flood screening workflow.
 
 It answers a question like:
 
-> For each coordinate in my workbook, is there evidence that at least one official JRC flood event affected the exact point or the local area around it?
+> For each coordinate in my workbook, is there evidence that at least one official JRC flood event affected the local `40 m` point area or the nearby `1 km` surrounding area?
 
 The script is designed to be much faster than checking every point against every TIFF.
 
@@ -26,7 +26,7 @@ It uses two stages:
 1. Administrative prefilter:
    map each point to a LAU and keep only JRC events already linked to that LAU.
 2. Raster confirmation:
-   open only those candidate TIFFs and inspect the exact point plus a local buffer.
+   open only those candidate TIFFs and inspect both the `40 m` point buffer and the `1 km` surrounding buffer.
 
 So the final decision is still raster-based, but the script uses the tabular LAU event table to reduce the search space first.
 
@@ -62,7 +62,7 @@ The execution path inside `main()` is:
 8. Optionally filter those events by one global study period.
 9. Expand the points into `point x candidate-event` rows and optionally filter those rows again with row-level date windows.
 10. Resolve candidate TIFF file paths.
-11. Open only those candidate TIFFs and inspect the exact point and local buffer.
+11. Open only those candidate TIFFs and inspect the `40 m` point buffer and the `1 km` surrounding buffer.
 12. Build three output sheets and write an Excel workbook.
 
 ## 4. Step-By-Step Logic
@@ -140,7 +140,7 @@ This is the important new behavior used for the T20 portfolio logic.
 
 The rule is:
 
-- `study_period_start = anchor_date - lookback_years`
+- `study_period_start = full history` by default
 - `study_period_end = primary_end_date`
 - if the primary end date is missing, use the fallback end date
 
@@ -153,15 +153,18 @@ For the T20 workbook, the intended mapping is:
 So for example:
 
 - `Reference_Date = 31/12/2008`
-- `lookback_years = 5`
 - `Closed_Default_Date = 08/10/2013`
 
 becomes:
 
-- `study_period_start = 31/12/2003`
+- `study_period_start = open / unbounded`
 - `study_period_end = 08/10/2013`
 
-If `Closed_Default_Date` is empty, the same row keeps the same start logic and uses `Cut_off_Date` as the end instead.
+If `Closed_Default_Date` is empty, the same row keeps the same full-history start logic and uses `Cut_off_Date` as the end instead.
+
+If you explicitly pass `--row-study-lookback-years`, the script can still switch back to:
+
+- `study_period_start = anchor_date - lookback_years`
 
 The script also stores these derived fields for traceability:
 
@@ -348,7 +351,7 @@ A candidate event is kept when:
 
 In plain language:
 
-- floods in the `X` years before default are kept
+- all historical floods before default are kept by default
 - floods during the default period are also kept
 - floods fully outside that row-specific window are dropped
 
@@ -401,40 +404,64 @@ For each TIFF:
 1. open the raster with rasterio
 2. create a coordinate transformer from `EPSG:4326` to the raster CRS
 3. transform the point's longitude / latitude into raster coordinates
-4. check the exact sampled point value
-5. check the local circular buffer around the point
+4. check the local `40 m` point buffer
+5. check the `1 km` surrounding buffer
 
 This is the true raster confirmation stage.
 
-## 5. Exact Point Check
+## 5. 40 m Point Buffer Check
 
-Inside `inspect_candidate_events()`, the script first tests whether the transformed point lies within the raster bounds.
-
-If it does, it samples the exact raster cell value under the point.
-
-That sampled value is passed through `sanitize_depth_value()`.
-
-A sampled value is treated as not flooded if any of the following is true:
-
-- it is missing
-- it is `NaN`
-- it equals the raster `nodata`
-- it equals the JRC permanent / seasonal water code `9999`
-- it is less than or equal to `threshold_cm`
-
-So `hit_at_point = True` only means:
-
-- the exact sampled point cell contains a valid flood depth strictly greater than the threshold
-
-## 6. Local Buffer Check
-
-Function: `compute_buffer_stats()`
-
-The local buffer is a circular search area around the point.
+Inside `inspect_candidate_events()`, the script first builds the local point-area buffer.
 
 Default:
 
-- radius `2 km`
+- radius `40 m`
+
+The script uses:
+
+- `Point(x, y).buffer(point_buffer_m)`
+
+and computes flooded-pixel statistics only for pixels:
+
+- touched by that `40 m` circle
+- not masked
+- not raster `nodata`
+- not JRC permanent water code `9999`
+- strictly above `threshold_cm`
+
+Important naming detail:
+
+- `hit_at_point`
+- `hit_at_point_event_count`
+
+are now local `40 m` buffer metrics for backwards compatibility with the earlier workbook outputs
+
+They no longer mean "one exact raster pixel under the coordinate".
+
+The `40 m` outputs include:
+
+- `point_buffer_flood_hit`
+- `point_buffer_flooded_pixels`
+- `point_buffer_flooded_area_m2`
+- `point_buffer_max_depth_cm`
+- `point_buffer_median_depth_cm`
+- `point_buffer_mean_depth_cm`
+
+The legacy alias:
+
+- `exact_point_depth_cm`
+
+now mirrors `point_buffer_max_depth_cm` so older downstream reads do not break.
+
+## 6. 1 km Surrounding Buffer Check
+
+Function: `compute_buffer_stats()`
+
+The broader buffer is a second circular search area around the same point.
+
+Default:
+
+- radius `1 km`
 
 The script converts `buffer_km` into meters and creates a geometry:
 
@@ -475,16 +502,16 @@ If valid flooded pixels are found, the script computes:
 
 Important nuance:
 
-- `hit_at_point` and `buffer_flood_hit` are not the same thing
-- the exact point can be dry while the local area around it is flooded
-- because the exact point lies inside its own buffer, a point hit will usually also imply a buffer hit
+- the `40 m` point buffer and the `1 km` surrounding buffer are not the same thing
+- the local `40 m` area can stay dry while the wider `1 km` neighborhood still shows flooding
+- any `40 m` hit will usually also imply a `1 km` hit, but not the reverse
 
 ## 7. How Flood Positives Are Defined
 
 For a candidate event, the script treats the event as a positive local hit if either is true:
 
-- `hit_at_point = True`
-- `buffer_flood_hit = True`
+- `point_buffer_flood_hit = True`
+- `surrounding_buffer_flood_hit = True`
 
 That positive logic is later used for:
 
@@ -512,7 +539,7 @@ It contains:
 - candidate event counts
 - checked event counts
 - hit counters
-- maximum local flood metrics
+- maximum flood metrics for both buffer scales
 - date range of the positive hits
 - decision flags and notes
 
@@ -524,6 +551,9 @@ Important summary fields:
 - `checked_event_count`
 - `hit_at_point_event_count`
 - `hit_within_buffer_event_count`
+- `hit_event_count_until_default_date`
+- `max_point_buffer_depth_cm`
+- `max_buffer_depth_cm`
 - `hit_event_count`
 - `jrc_flood_hit`
 - `jrc_flood_flag`
@@ -541,11 +571,21 @@ Meaning of the main counters:
 - `checked_event_count`:
   how many of those candidates were actually inspected in rasters
 - `hit_at_point_event_count`:
-  how many candidate events had flood depth exactly at the coordinate
+  how many candidate events had flooded pixels inside the `40 m` point buffer
 - `hit_within_buffer_event_count`:
-  how many candidate events had flood depth somewhere inside the local buffer
+  how many candidate events had flooded pixels somewhere inside the `1 km` surrounding buffer
 - `hit_event_count`:
-  how many candidate events were positive under the final rule of point hit or buffer hit
+  how many candidate events were positive under the final rule of `40 m` point-buffer hit or `1 km` surrounding-buffer hit, inside the main row window that ends at `Closed_Default_Date` or falls back to `Cut_off_Date`
+- `hit_event_count_until_default_date`:
+  how many positive matched flood events were found from the past up to the default-start date, which in this workflow is `Reference_Date`
+
+This extra count is only a summary feature.
+
+It does not change:
+
+- the main candidate-event filter
+- `hit_event_count`
+- `jrc_flood_hit`
 
 ### `candidate_events`
 
@@ -562,16 +602,16 @@ It includes:
 - event metadata
 - resolved raster path
 - whether the raster path was found
-- point hit result
-- buffer hit result
-- local depth metrics
+- `40 m` point-buffer hit result
+- `1 km` surrounding-buffer hit result
+- both sets of depth metrics
 
 ### `event_hits`
 
 This is the subset of `candidate_events` where:
 
-- `hit_at_point = True`
-- or `buffer_flood_hit = True`
+- `point_buffer_flood_hit = True`
+- or `surrounding_buffer_flood_hit = True`
 
 It is the easiest sheet to use when you only want positive detections.
 
@@ -595,7 +635,7 @@ These are useful because "no" can mean several different things:
 
 - the point was outside the LAU layer
 - the point's LAU had no candidate JRC events
-- candidate JRC events existed, but the exact point and buffer were both dry
+- candidate JRC events existed, but both the `40 m` point buffer and the `1 km` surrounding buffer were dry
 
 ## 10. Why This Workflow Is Fast
 
@@ -694,6 +734,7 @@ Good tuning levers are:
 - `--row-study-end-col`
 - `--row-study-end-fallback-col`
 - `--row-study-lookback-years`
+- `--point-buffer-m`
 - `--buffer-km`
 - `--threshold-cm`
 
@@ -719,7 +760,7 @@ python src/check_points_against_jrc_floods.py \
   --study-end 2024-12-31
 ```
 
-Run the T20 row-level temporal logic with a 5-year lookback:
+Run the T20 row-level temporal logic with the new default full-history window:
 
 ```bash
 python src/check_points_against_jrc_floods.py \
@@ -730,15 +771,27 @@ python src/check_points_against_jrc_floods.py \
   --row-study-anchor-col Reference_Date \
   --row-study-end-col Closed_Default_Date \
   --row-study-end-fallback-col Cut_off_Date \
-  --row-study-lookback-years 5 \
+  --point-buffer-m 40 \
+  --buffer-km 1 \
   --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
 ```
 
-Change the local search radius and flood threshold:
+If you want the older bounded lookback behavior:
 
 ```bash
 python src/check_points_against_jrc_floods.py \
-  --buffer-km 2 \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --row-study-lookback-years 5
+```
+
+Change the surrounding buffer radius and flood threshold:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --point-buffer-m 40 \
+  --buffer-km 1 \
   --threshold-cm 10
 ```
 
@@ -774,9 +827,9 @@ If you want to jump into the code quickly, these are the most important function
 - `resolve_raster_paths()`:
   locate the official TIFF for each candidate event
 - `inspect_candidate_events()`:
-  exact point and local buffer raster checks
+  `40 m` point-buffer and `1 km` surrounding-buffer raster checks
 - `compute_buffer_stats()`:
-  local buffer metrics
+  reusable circular-buffer metrics for either scale
 - `build_summary_table()`:
   point-level decision summary
 - `build_candidate_sheet()`:
@@ -799,7 +852,7 @@ Its logic is:
 3. if needed, derive one study window per row from workbook dates
 4. keep only candidate events whose intervals overlap that row-specific window
 5. open only those TIFFs
-6. confirm the exact point and nearby buffer in the raster
+6. confirm the `40 m` point buffer and the `1 km` surrounding buffer in the raster
 7. summarize the result at point level and event level
 
 That is why it is both practical and explainable for large coordinate portfolios.

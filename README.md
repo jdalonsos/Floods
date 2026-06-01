@@ -164,7 +164,7 @@ The workflow is intentionally optimized in two stages:
 - first map each point to its Eurostat LAU polygon
 - use the processed JRC LAU event table to keep only candidate events touching that LAU
 - open official TIFF rasters only for those candidate events
-- check the exact pixel under the point and also a local search buffer around it
+- check both the `40 m` point buffer and the `1 km` surrounding buffer around it
 
 This is much faster than testing every point against every TIFF, especially once you scale from a few example cities to hundreds of addresses.
 
@@ -182,9 +182,9 @@ Default output:
 
 The output workbook contains three sheets:
 
-- `point_summary`: original point columns plus flood flags, LAU / INSEE / NUTS metadata, candidate-event counts, and max local flood indicators
-- `candidate_events`: all candidate JRC events for each mapped point, including the TIFF file, event dates, and local flood metrics
-- `event_hits`: only the positive local hits
+- `point_summary`: original point columns plus flood flags, LAU / INSEE / NUTS metadata, candidate-event counts, and max flood indicators for both the 40 m point buffer and the 1 km surrounding buffer
+- `candidate_events`: all candidate JRC events for each mapped point, including the TIFF file, event dates, and both buffer scales
+- `event_hits`: only the positive hits at either buffer scale
 
 Run it with:
 
@@ -192,13 +192,13 @@ Run it with:
 python src/check_points_against_jrc_floods.py
 ```
 
-Example with a study period, 2 km local search radius, and a minimum flood threshold:
+Example with a study period, the default 1 km surrounding buffer, and a minimum flood threshold:
 
 ```bash
 python src/check_points_against_jrc_floods.py \
   --study-start 2018-01-01 \
   --study-end 2024-12-31 \
-  --buffer-km 2 \
+  --buffer-km 1 \
   --threshold-cm 10 \
   --out-file data/processed/france_points_jrc_flood_check_2018_2024.xlsx
 ```
@@ -210,11 +210,13 @@ For `data/processed/T20_Anonymised.xlsx`, the matching logic can be kept simple 
 1. map each `LAT` / `LONG` point to its LAU
 2. keep only JRC events already touching that LAU
 3. for each row, build a study window as:
-   - `study_period_start = Reference_Date - X years`
+   - `study_period_start = full history` by default
    - `study_period_end = Closed_Default_Date`
    - if `Closed_Default_Date` is empty, use `Cut_off_Date` instead
 4. keep only JRC events whose `[start_date, end_date]` interval overlaps that row-specific study window
-5. inspect the remaining TIFFs locally around the exact coordinate
+5. inspect the remaining TIFFs with:
+   - a `40 m` point buffer for the local match metrics
+   - a `1 km` surrounding buffer for the broader nearby context
 
 That is the recommended balance here:
 
@@ -233,7 +235,9 @@ That is what allows the script to accept both:
 - decimal dots like `47.87431063`
 - decimal commas like `47,87431063`
 
-Example command for a `5`-year lookback:
+If you still want the old bounded lookback, you can pass `--row-study-lookback-years X`.
+
+Example command for the new default full-history T20 logic:
 
 ```bash
 python src/check_points_against_jrc_floods.py \
@@ -244,7 +248,8 @@ python src/check_points_against_jrc_floods.py \
   --row-study-anchor-col Reference_Date \
   --row-study-end-col Closed_Default_Date \
   --row-study-end-fallback-col Cut_off_Date \
-  --row-study-lookback-years 5 \
+  --point-buffer-m 40 \
+  --buffer-km 1 \
   --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
 ```
 
@@ -261,8 +266,18 @@ Interpretation of the main flags:
 
 - `lau_matched = False`: the point did not fall inside any LAU polygon in the supplied LAU layer
 - `lau_touched_by_any_jrc_event = False`: the point was mapped to a LAU, but that LAU never appears in the processed JRC flood-event table
-- `jrc_flood_hit = False`: the LAU was touched by one or more JRC events, but no flooded pixel above threshold was found at the point or inside the local buffer
-- `jrc_flood_hit = True`: at least one JRC event produced flooded pixels above threshold at the point or inside the local buffer
+- `jrc_flood_hit = False`: the LAU was touched by one or more JRC events, but no flooded pixel above threshold was found inside the `40 m` point buffer or the `1 km` surrounding buffer
+- `jrc_flood_hit = True`: at least one JRC event produced flooded pixels above threshold inside the `40 m` point buffer or the `1 km` surrounding buffer
+
+Important metric meaning:
+
+- `hit_at_point_event_count` now means event hits inside the `40 m` point buffer, not only one exact raster pixel
+- `hit_within_buffer_event_count` now means event hits inside the `1 km` surrounding buffer
+- `hit_event_count` already counts positive matched flood events inside the main row window, meaning from the past up to `Closed_Default_Date`, or up to `Cut_off_Date` when `Closed_Default_Date` is empty
+- `hit_event_count_until_default_date` is the additional feature that counts positive matched flood events from the past up to the default-start date, which in this workflow is `Reference_Date`
+- `hit_event_count_until_default_date` is only a descriptive feature in `point_summary`; it does not change the main candidate filtering or the final `jrc_flood_hit` logic
+- `max_point_buffer_*` columns summarize the `40 m` point-buffer depth metrics
+- `max_buffer_*` columns summarize the `1 km` surrounding-buffer depth metrics
 
 The script is designed so that later you can replace city-centre example points with large address lists converted to latitude / longitude and keep the same flood-check workflow.
 

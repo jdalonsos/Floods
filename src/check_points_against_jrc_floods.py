@@ -24,6 +24,8 @@ DEFAULT_LAU_FILE = Path("data/raw/LAU_RG_01M_2024_4326.gpkg")
 DEFAULT_FLOOD_DIR = Path("data/JRC_flood_depth_maps")
 DEFAULT_FRANCE_LOOKUP = Path("data/processed/france_lau_insee_documentation/fr_lau_insee_lookup.csv")
 DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check.xlsx")
+DEFAULT_POINT_BUFFER_M = 40.0
+DEFAULT_SURROUNDING_BUFFER_KM = 1.0
 
 EVENT_COLUMNS = [
     "event_id",
@@ -250,18 +252,18 @@ def build_row_level_study_periods(
     anchor_col: str | None,
     end_col: str | None,
     fallback_end_col: str | None,
-    lookback_years: int,
+    lookback_years: int | None,
 ) -> tuple[pd.DataFrame, RowStudyPeriodColumns | None]:
     """Add per-row study windows used to filter candidate JRC events.
 
     For the T20 portfolio, the intended rule is:
-    - start = Reference_Date minus X years
+    - start = full history by default, or Reference_Date minus X years when requested
     - end = Closed_Default_Date
     - fallback end = Cut_off_Date when Closed_Default_Date is empty
     """
     if not any([anchor_col, end_col, fallback_end_col]):
         return points_df, None
-    if lookback_years < 0:
+    if lookback_years is not None and lookback_years < 0:
         raise ValueError("--row-study-lookback-years must be 0 or greater.")
 
     result = points_df.copy()
@@ -308,7 +310,10 @@ def build_row_level_study_periods(
     result["study_period_anchor_date"] = anchor_dates
     result["study_period_primary_end_date"] = primary_end_dates
     result["study_period_fallback_end_date"] = fallback_end_dates
-    result["study_period_start"] = anchor_dates - pd.DateOffset(years=lookback_years)
+    if lookback_years is None:
+        result["study_period_start"] = pd.NaT
+    else:
+        result["study_period_start"] = anchor_dates - pd.DateOffset(years=lookback_years)
     result["study_period_end"] = study_end
     result["study_period_end_source"] = study_end_source
 
@@ -429,20 +434,33 @@ def filter_events_by_study_period(
 
 def filter_candidate_events_by_row_study_period(candidate_df: pd.DataFrame) -> pd.DataFrame:
     """Keep only JRC events whose date interval overlaps each row's study window."""
+    return filter_candidate_events_by_interval_columns(
+        candidate_df,
+        start_col="study_period_start",
+        end_col="study_period_end",
+    )
+
+
+def filter_candidate_events_by_interval_columns(
+    candidate_df: pd.DataFrame,
+    start_col: str | None,
+    end_col: str | None,
+) -> pd.DataFrame:
+    """Keep only JRC events whose date interval overlaps the supplied row-level interval columns."""
     if candidate_df.empty:
         return candidate_df
-    if "study_period_start" not in candidate_df.columns and "study_period_end" not in candidate_df.columns:
+    if (not start_col or start_col not in candidate_df.columns) and (not end_col or end_col not in candidate_df.columns):
         return candidate_df
 
     result = candidate_df.copy()
     overlap_mask = pd.Series(True, index=result.index)
 
     # A candidate event is kept when the event interval [start_date, end_date]
-    # overlaps the row-specific study interval [study_period_start, study_period_end].
-    if "study_period_start" in result.columns:
-        overlap_mask &= result["study_period_start"].isna() | result["end_date"].ge(result["study_period_start"])
-    if "study_period_end" in result.columns:
-        overlap_mask &= result["study_period_end"].isna() | result["start_date"].le(result["study_period_end"])
+    # overlaps the chosen row-specific study interval [start_col, end_col].
+    if start_col and start_col in result.columns:
+        overlap_mask &= result[start_col].isna() | result["end_date"].ge(result[start_col])
+    if end_col and end_col in result.columns:
+        overlap_mask &= result[end_col].isna() | result["start_date"].le(result[end_col])
 
     keep_mask = result["event_id"].isna() | overlap_mask.fillna(False)
     return result[keep_mask].copy()
@@ -491,19 +509,15 @@ def resolve_raster_paths(candidate_df: pd.DataFrame, flood_dir: Path) -> pd.Data
     return result
 
 
-def sanitize_depth_value(value: Any, threshold_cm: float, nodata_value: float | None) -> float | None:
-    if value is None:
-        return None
-    numeric_value = float(value)
-    if np.isnan(numeric_value):
-        return None
-    if nodata_value is not None and np.isclose(numeric_value, nodata_value):
-        return None
-    if np.isclose(numeric_value, PERMANENT_WATER_VALUE):
-        return None
-    if numeric_value <= threshold_cm:
-        return None
-    return numeric_value
+def empty_buffer_stats(prefix: str) -> dict[str, Any]:
+    return {
+        f"{prefix}_flood_hit": False,
+        f"{prefix}_flooded_pixels": 0,
+        f"{prefix}_flooded_area_m2": 0.0,
+        f"{prefix}_max_depth_cm": np.nan,
+        f"{prefix}_median_depth_cm": np.nan,
+        f"{prefix}_mean_depth_cm": np.nan,
+    }
 
 
 def compute_buffer_stats(
@@ -512,19 +526,13 @@ def compute_buffer_stats(
     y: float,
     radius_m: float,
     threshold_cm: float,
+    prefix: str,
 ) -> dict[str, Any]:
     geom = Point(x, y).buffer(radius_m)
     try:
         window = geometry_window(src, [mapping(geom)])
     except WindowError:
-        return {
-            "buffer_flood_hit": False,
-            "buffer_flooded_pixels": 0,
-            "buffer_flooded_area_m2": 0.0,
-            "buffer_max_depth_cm": np.nan,
-            "buffer_median_depth_cm": np.nan,
-            "buffer_mean_depth_cm": np.nan,
-        }
+        return empty_buffer_stats(prefix)
 
     data = src.read(1, window=window, masked=True)
     arr = np.asarray(data)
@@ -545,32 +553,26 @@ def compute_buffer_stats(
     valid &= arr > threshold_cm
 
     if not valid.any():
-        return {
-            "buffer_flood_hit": False,
-            "buffer_flooded_pixels": 0,
-            "buffer_flooded_area_m2": 0.0,
-            "buffer_max_depth_cm": np.nan,
-            "buffer_median_depth_cm": np.nan,
-            "buffer_mean_depth_cm": np.nan,
-        }
+        return empty_buffer_stats(prefix)
 
     values = arr[valid].astype(float)
     flooded_pixels = int(values.size)
     pixel_area_m2 = abs(src.res[0] * src.res[1])
     return {
-        "buffer_flood_hit": True,
-        "buffer_flooded_pixels": flooded_pixels,
-        "buffer_flooded_area_m2": float(flooded_pixels * pixel_area_m2),
-        "buffer_max_depth_cm": float(values.max()),
-        "buffer_median_depth_cm": float(np.median(values)),
-        "buffer_mean_depth_cm": float(values.mean()),
+        f"{prefix}_flood_hit": True,
+        f"{prefix}_flooded_pixels": flooded_pixels,
+        f"{prefix}_flooded_area_m2": float(flooded_pixels * pixel_area_m2),
+        f"{prefix}_max_depth_cm": float(values.max()),
+        f"{prefix}_median_depth_cm": float(np.median(values)),
+        f"{prefix}_mean_depth_cm": float(values.mean()),
     }
 
 
 def inspect_candidate_events(
     candidate_df: pd.DataFrame,
     point_columns: PointColumns,
-    buffer_km: float,
+    point_buffer_m: float,
+    surrounding_buffer_km: float,
     threshold_cm: float,
 ) -> pd.DataFrame:
     valid_candidates = candidate_df[candidate_df["event_id"].notna() & candidate_df["raster_path_found"]].copy()
@@ -580,7 +582,13 @@ def inspect_candidate_events(
                 "point_id",
                 "event_id",
                 "hit_at_point",
-                "exact_point_depth_cm",
+                "point_buffer_flood_hit",
+                "point_buffer_flooded_pixels",
+                "point_buffer_flooded_area_m2",
+                "point_buffer_max_depth_cm",
+                "point_buffer_median_depth_cm",
+                "point_buffer_mean_depth_cm",
+                "point_buffer_radius_m",
                 "buffer_flood_hit",
                 "buffer_flooded_pixels",
                 "buffer_flooded_area_m2",
@@ -588,11 +596,19 @@ def inspect_candidate_events(
                 "buffer_median_depth_cm",
                 "buffer_mean_depth_cm",
                 "buffer_radius_km",
+                "surrounding_buffer_flood_hit",
+                "surrounding_buffer_flooded_pixels",
+                "surrounding_buffer_flooded_area_m2",
+                "surrounding_buffer_max_depth_cm",
+                "surrounding_buffer_median_depth_cm",
+                "surrounding_buffer_mean_depth_cm",
+                "surrounding_buffer_radius_km",
+                "exact_point_depth_cm",
             ]
         )
 
     results: list[dict[str, Any]] = []
-    radius_m = buffer_km * 1000.0
+    surrounding_radius_m = surrounding_buffer_km * 1000.0
 
     for raster_path_value, group in valid_candidates.groupby("resolved_raster_path", sort=False):
         raster_path = Path(str(raster_path_value))
@@ -603,22 +619,39 @@ def inspect_candidate_events(
                 lat = float(row[point_columns.latitude])
                 x, y = transformer.transform(lon, lat)
 
-                exact_depth_cm: float | None = None
-                hit_at_point = False
-                if src.bounds.left <= x <= src.bounds.right and src.bounds.bottom <= y <= src.bounds.top:
-                    sample_value = next(src.sample([(x, y)]))[0]
-                    exact_depth_cm = sanitize_depth_value(sample_value, threshold_cm, src.nodata)
-                    hit_at_point = exact_depth_cm is not None
-
-                buffer_stats = compute_buffer_stats(src, x, y, radius_m, threshold_cm)
+                point_buffer_stats = compute_buffer_stats(
+                    src,
+                    x,
+                    y,
+                    point_buffer_m,
+                    threshold_cm,
+                    prefix="point_buffer",
+                )
+                surrounding_buffer_stats = compute_buffer_stats(
+                    src,
+                    x,
+                    y,
+                    surrounding_radius_m,
+                    threshold_cm,
+                    prefix="surrounding_buffer",
+                )
                 results.append(
                     {
                         "point_id": row[point_columns.point_id],
                         "event_id": row["event_id"],
-                        "hit_at_point": hit_at_point,
-                        "exact_point_depth_cm": exact_depth_cm if exact_depth_cm is not None else np.nan,
-                        "buffer_radius_km": buffer_km,
-                        **buffer_stats,
+                        "hit_at_point": point_buffer_stats["point_buffer_flood_hit"],
+                        "exact_point_depth_cm": point_buffer_stats["point_buffer_max_depth_cm"],
+                        "point_buffer_radius_m": point_buffer_m,
+                        "buffer_flood_hit": surrounding_buffer_stats["surrounding_buffer_flood_hit"],
+                        "buffer_flooded_pixels": surrounding_buffer_stats["surrounding_buffer_flooded_pixels"],
+                        "buffer_flooded_area_m2": surrounding_buffer_stats["surrounding_buffer_flooded_area_m2"],
+                        "buffer_max_depth_cm": surrounding_buffer_stats["surrounding_buffer_max_depth_cm"],
+                        "buffer_median_depth_cm": surrounding_buffer_stats["surrounding_buffer_median_depth_cm"],
+                        "buffer_mean_depth_cm": surrounding_buffer_stats["surrounding_buffer_mean_depth_cm"],
+                        "buffer_radius_km": surrounding_buffer_km,
+                        "surrounding_buffer_radius_km": surrounding_buffer_km,
+                        **point_buffer_stats,
+                        **surrounding_buffer_stats,
                     }
                 )
 
@@ -632,13 +665,39 @@ def build_summary_table(
     points_with_lau: pd.DataFrame,
     candidate_df: pd.DataFrame,
     inspected_df: pd.DataFrame,
-    buffer_km: float,
+    default_date_inspected_df: pd.DataFrame | None,
+    point_buffer_m: float,
+    surrounding_buffer_km: float,
     threshold_cm: float,
     study_start: str | None,
     study_end: str | None,
 ) -> pd.DataFrame:
     summary = original_points.copy()
     point_id_col = point_columns.point_id
+    inspected_df = inspected_df.copy()
+    default_date_inspected_df = (
+        default_date_inspected_df.copy() if default_date_inspected_df is not None else pd.DataFrame()
+    )
+
+    expected_inspected_columns: dict[str, Any] = {
+        "point_buffer_flood_hit": False,
+        "point_buffer_flooded_pixels": 0,
+        "point_buffer_flooded_area_m2": 0.0,
+        "point_buffer_max_depth_cm": np.nan,
+        "point_buffer_median_depth_cm": np.nan,
+        "point_buffer_mean_depth_cm": np.nan,
+        "surrounding_buffer_flood_hit": False,
+        "surrounding_buffer_flooded_pixels": 0,
+        "surrounding_buffer_flooded_area_m2": 0.0,
+        "surrounding_buffer_max_depth_cm": np.nan,
+        "surrounding_buffer_median_depth_cm": np.nan,
+        "surrounding_buffer_mean_depth_cm": np.nan,
+    }
+    for column, default_value in expected_inspected_columns.items():
+        if column not in inspected_df.columns:
+            inspected_df[column] = default_value
+        if column not in default_date_inspected_df.columns:
+            default_date_inspected_df[column] = default_value
 
     point_metadata_cols = [
         point_id_col,
@@ -677,14 +736,21 @@ def build_summary_table(
 
     inspected_agg = pd.DataFrame(columns=[point_id_col])
     if not inspected_df.empty:
-        hits_only = inspected_df[inspected_df["buffer_flood_hit"] | inspected_df["hit_at_point"]].copy()
+        hits_only = inspected_df[
+            inspected_df["surrounding_buffer_flood_hit"] | inspected_df["point_buffer_flood_hit"]
+        ].copy()
         inspected_agg = (
             inspected_df.groupby("point_id")
             .agg(
                 checked_event_count=("event_id", "nunique"),
-                hit_at_point_event_count=("hit_at_point", "sum"),
-                hit_within_buffer_event_count=("buffer_flood_hit", "sum"),
-                max_exact_point_depth_cm=("exact_point_depth_cm", "max"),
+                hit_at_point_event_count=("point_buffer_flood_hit", "sum"),
+                hit_within_buffer_event_count=("surrounding_buffer_flood_hit", "sum"),
+                max_exact_point_depth_cm=("point_buffer_max_depth_cm", "max"),
+                max_point_buffer_depth_cm=("point_buffer_max_depth_cm", "max"),
+                max_point_buffer_median_depth_cm=("point_buffer_median_depth_cm", "max"),
+                max_point_buffer_mean_depth_cm=("point_buffer_mean_depth_cm", "max"),
+                max_point_buffer_flooded_pixels=("point_buffer_flooded_pixels", "max"),
+                max_point_buffer_flooded_area_m2=("point_buffer_flooded_area_m2", "max"),
                 max_buffer_depth_cm=("buffer_max_depth_cm", "max"),
                 max_buffer_median_depth_cm=("buffer_median_depth_cm", "max"),
                 max_buffer_mean_depth_cm=("buffer_mean_depth_cm", "max"),
@@ -714,6 +780,19 @@ def build_summary_table(
             )
             inspected_agg = inspected_agg.merge(hit_dates, on=point_id_col, how="left")
 
+    if not default_date_inspected_df.empty:
+        default_date_hits_only = default_date_inspected_df[
+            default_date_inspected_df["surrounding_buffer_flood_hit"] | default_date_inspected_df["point_buffer_flood_hit"]
+        ].copy()
+        if not default_date_hits_only.empty:
+            default_date_hit_counts = (
+                default_date_hits_only.groupby("point_id")
+                .agg(hit_event_count_until_default_date=("event_id", "nunique"))
+                .reset_index()
+                .rename(columns={"point_id": point_id_col})
+            )
+            inspected_agg = inspected_agg.merge(default_date_hit_counts, on=point_id_col, how="left")
+
     summary = summary.merge(candidate_agg, on=point_id_col, how="left")
     summary = summary.merge(inspected_agg, on=point_id_col, how="left")
 
@@ -721,7 +800,13 @@ def build_summary_table(
         "checked_event_count": np.nan,
         "hit_at_point_event_count": np.nan,
         "hit_within_buffer_event_count": np.nan,
+        "hit_event_count_until_default_date": np.nan,
         "max_exact_point_depth_cm": np.nan,
+        "max_point_buffer_depth_cm": np.nan,
+        "max_point_buffer_median_depth_cm": np.nan,
+        "max_point_buffer_mean_depth_cm": np.nan,
+        "max_point_buffer_flooded_pixels": np.nan,
+        "max_point_buffer_flooded_area_m2": np.nan,
         "max_buffer_depth_cm": np.nan,
         "max_buffer_median_depth_cm": np.nan,
         "max_buffer_mean_depth_cm": np.nan,
@@ -734,8 +819,15 @@ def build_summary_table(
     for column, default_value in expected_summary_columns.items():
         if column not in summary.columns:
             summary[column] = default_value
+    if "study_period_anchor_date" in summary.columns:
+        anchor_mask = summary["study_period_anchor_date"].notna()
+        summary.loc[anchor_mask, "hit_event_count_until_default_date"] = (
+            summary.loc[anchor_mask, "hit_event_count_until_default_date"].fillna(0)
+        )
 
-    summary["buffer_radius_km"] = buffer_km
+    summary["point_buffer_radius_m"] = point_buffer_m
+    summary["buffer_radius_km"] = surrounding_buffer_km
+    summary["surrounding_buffer_radius_km"] = surrounding_buffer_km
     summary["flood_threshold_cm"] = threshold_cm
     if "study_period_start" not in summary.columns:
         summary["study_period_start"] = study_start if study_start else pd.NA
@@ -772,8 +864,8 @@ def build_summary_table(
         [
             "Point did not fall inside any LAU polygon in the supplied LAU dataset.",
             "The mapped LAU never appears in the processed JRC LAU event table, so no raster checks were needed.",
-            "The LAU was touched by one or more JRC events, but no flooded pixel above threshold was found at the point or inside the local buffer.",
-            "At least one JRC event produced flooded pixels above threshold at the point or inside the local buffer.",
+            "The LAU was touched by one or more JRC events, but no flooded pixel above threshold was found inside the 40 m point buffer or the 1 km surrounding buffer.",
+            "At least one JRC event produced flooded pixels above threshold inside the 40 m point buffer or the 1 km surrounding buffer.",
         ],
         default="",
     )
@@ -811,6 +903,13 @@ def build_candidate_sheet(
     expected_inspection_columns: dict[str, Any] = {
         "hit_at_point": False,
         "exact_point_depth_cm": np.nan,
+        "point_buffer_flood_hit": False,
+        "point_buffer_flooded_pixels": 0,
+        "point_buffer_flooded_area_m2": 0.0,
+        "point_buffer_max_depth_cm": np.nan,
+        "point_buffer_median_depth_cm": np.nan,
+        "point_buffer_mean_depth_cm": np.nan,
+        "point_buffer_radius_m": np.nan,
         "buffer_flood_hit": False,
         "buffer_flooded_pixels": 0,
         "buffer_flooded_area_m2": 0.0,
@@ -818,6 +917,13 @@ def build_candidate_sheet(
         "buffer_median_depth_cm": np.nan,
         "buffer_mean_depth_cm": np.nan,
         "buffer_radius_km": np.nan,
+        "surrounding_buffer_flood_hit": False,
+        "surrounding_buffer_flooded_pixels": 0,
+        "surrounding_buffer_flooded_area_m2": 0.0,
+        "surrounding_buffer_max_depth_cm": np.nan,
+        "surrounding_buffer_median_depth_cm": np.nan,
+        "surrounding_buffer_mean_depth_cm": np.nan,
+        "surrounding_buffer_radius_km": np.nan,
     }
     for column, default_value in expected_inspection_columns.items():
         if column not in candidate_only.columns:
@@ -861,6 +967,13 @@ def build_candidate_sheet(
         "raster_path_found",
         "hit_at_point",
         "exact_point_depth_cm",
+        "point_buffer_flood_hit",
+        "point_buffer_flooded_pixels",
+        "point_buffer_flooded_area_m2",
+        "point_buffer_max_depth_cm",
+        "point_buffer_median_depth_cm",
+        "point_buffer_mean_depth_cm",
+        "point_buffer_radius_m",
         "buffer_flood_hit",
         "buffer_flooded_pixels",
         "buffer_flooded_area_m2",
@@ -868,6 +981,13 @@ def build_candidate_sheet(
         "buffer_median_depth_cm",
         "buffer_mean_depth_cm",
         "buffer_radius_km",
+        "surrounding_buffer_flood_hit",
+        "surrounding_buffer_flooded_pixels",
+        "surrounding_buffer_flooded_area_m2",
+        "surrounding_buffer_max_depth_cm",
+        "surrounding_buffer_median_depth_cm",
+        "surrounding_buffer_mean_depth_cm",
+        "surrounding_buffer_radius_km",
     ]
     available = [column for column in ordered_cols if column in candidate_only.columns]
     remainder = [column for column in candidate_only.columns if column not in available]
@@ -877,14 +997,15 @@ def build_candidate_sheet(
 def build_hits_sheet(candidate_sheet: pd.DataFrame) -> pd.DataFrame:
     if candidate_sheet.empty:
         return candidate_sheet
-    if "buffer_flood_hit" not in candidate_sheet.columns:
+    if "surrounding_buffer_flood_hit" not in candidate_sheet.columns:
         candidate_sheet = candidate_sheet.copy()
-        candidate_sheet["buffer_flood_hit"] = False
-    if "hit_at_point" not in candidate_sheet.columns:
+        candidate_sheet["surrounding_buffer_flood_hit"] = candidate_sheet.get("buffer_flood_hit", False)
+    if "point_buffer_flood_hit" not in candidate_sheet.columns:
         candidate_sheet = candidate_sheet.copy()
-        candidate_sheet["hit_at_point"] = False
+        candidate_sheet["point_buffer_flood_hit"] = candidate_sheet.get("hit_at_point", False)
     return candidate_sheet[
-        candidate_sheet["buffer_flood_hit"].fillna(False) | candidate_sheet["hit_at_point"].fillna(False)
+        candidate_sheet["surrounding_buffer_flood_hit"].fillna(False)
+        | candidate_sheet["point_buffer_flood_hit"].fillna(False)
     ].copy()
 
 
@@ -921,11 +1042,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--france-lookup-file", default=str(DEFAULT_FRANCE_LOOKUP), help="Optional France LAU to INSEE lookup CSV for extra output columns.")
     parser.add_argument("--study-start", default=None, help="Optional study-period start date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--study-end", default=None, help="Optional study-period end date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
-    parser.add_argument("--row-study-anchor-col", default=None, help="Optional workbook column used as the per-row anchor date before subtracting the lookback years.")
+    parser.add_argument("--row-study-anchor-col", default=None, help="Optional workbook column used as the per-row anchor date when a lookback window is requested.")
     parser.add_argument("--row-study-end-col", default=None, help="Optional workbook column used as the preferred per-row study-period end date.")
     parser.add_argument("--row-study-end-fallback-col", default=None, help="Optional fallback workbook column used when the preferred per-row end date is empty.")
-    parser.add_argument("--row-study-lookback-years", type=int, default=0, help="Years to subtract from the per-row anchor date. Default: 0.")
-    parser.add_argument("--buffer-km", type=float, default=2.0, help="Buffer radius around each point in kilometers. Default: 2.0.")
+    parser.add_argument("--row-study-lookback-years", type=int, default=None, help="Optional years to subtract from the per-row anchor date. Leave blank to keep the full flood history up to the row end date.")
+    parser.add_argument("--point-buffer-m", type=float, default=DEFAULT_POINT_BUFFER_M, help=f"Radius in meters used for the local point match metrics. Default: {DEFAULT_POINT_BUFFER_M:.0f}.")
+    parser.add_argument("--buffer-km", type=float, default=DEFAULT_SURROUNDING_BUFFER_KM, help=f"Radius in kilometers used for the surrounding buffer metrics. Default: {DEFAULT_SURROUNDING_BUFFER_KM:.1f}.")
     parser.add_argument("--threshold-cm", type=float, default=0.0, help="Minimum depth in cm to count as flooded. Default: 0.0.")
     parser.add_argument("--out-file", default=str(DEFAULT_OUTPUT), help="Output Excel workbook.")
     return parser
@@ -964,12 +1086,17 @@ def main() -> None:
     )
     print(f"Loaded {len(points_df):,} valid points.")
     if row_study_period_columns:
+        lookback_label = (
+            f"lookback_years={args.row_study_lookback_years}"
+            if args.row_study_lookback_years is not None
+            else "lookback_years=full_history"
+        )
         print(
             "Derived row-level study periods using "
             f"anchor={row_study_period_columns.anchor!r}, "
             f"end={row_study_period_columns.primary_end!r}, "
             f"fallback_end={row_study_period_columns.fallback_end!r}, "
-            f"lookback_years={args.row_study_lookback_years}."
+            f"{lookback_label}."
         )
 
     print("Loading LAU polygons...")
@@ -1029,15 +1156,33 @@ def main() -> None:
             point_extra_cols.append(derived_col)
     point_base = points_with_lau[point_key_cols + mapping_cols + point_extra_cols].copy()
 
-    candidate_df = point_base.merge(event_df, on="lau_code", how="left", suffixes=("", "_event"))
-    candidate_df = filter_candidate_events_by_row_study_period(candidate_df)
+    candidate_df_all = point_base.merge(event_df, on="lau_code", how="left", suffixes=("", "_event"))
+
+    candidate_df = filter_candidate_events_by_row_study_period(candidate_df_all)
     candidate_df = resolve_raster_paths(candidate_df, flood_dir=flood_dir)
+
+    default_date_candidate_df = pd.DataFrame(columns=candidate_df_all.columns)
+    if "study_period_anchor_date" in candidate_df_all.columns:
+        default_date_candidate_df = filter_candidate_events_by_interval_columns(
+            candidate_df_all,
+            start_col=None,
+            end_col="study_period_anchor_date",
+        )
+        default_date_candidate_df = resolve_raster_paths(default_date_candidate_df, flood_dir=flood_dir)
 
     print("Inspecting exact pixels and local buffers only for candidate events...")
     inspected_df = inspect_candidate_events(
         candidate_df=candidate_df,
         point_columns=point_columns,
-        buffer_km=args.buffer_km,
+        point_buffer_m=args.point_buffer_m,
+        surrounding_buffer_km=args.buffer_km,
+        threshold_cm=args.threshold_cm,
+    )
+    default_date_inspected_df = inspect_candidate_events(
+        candidate_df=default_date_candidate_df,
+        point_columns=point_columns,
+        point_buffer_m=args.point_buffer_m,
+        surrounding_buffer_km=args.buffer_km,
         threshold_cm=args.threshold_cm,
     )
 
@@ -1048,7 +1193,9 @@ def main() -> None:
         points_with_lau=pd.DataFrame(points_with_lau.drop(columns="geometry", errors="ignore")),
         candidate_df=pd.DataFrame(candidate_df.drop(columns="geometry", errors="ignore")),
         inspected_df=inspected_df,
-        buffer_km=args.buffer_km,
+        default_date_inspected_df=default_date_inspected_df,
+        point_buffer_m=args.point_buffer_m,
+        surrounding_buffer_km=args.buffer_km,
         threshold_cm=args.threshold_cm,
         study_start=args.study_start,
         study_end=args.study_end,
