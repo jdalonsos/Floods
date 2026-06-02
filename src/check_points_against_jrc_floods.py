@@ -509,11 +509,14 @@ def resolve_raster_paths(candidate_df: pd.DataFrame, flood_dir: Path) -> pd.Data
     return result
 
 
-def empty_buffer_stats(prefix: str) -> dict[str, Any]:
+def empty_buffer_stats(prefix: str, total_pixels: int = 0) -> dict[str, Any]:
     return {
         f"{prefix}_flood_hit": False,
+        f"{prefix}_total_pixels": total_pixels,
         f"{prefix}_flooded_pixels": 0,
+        f"{prefix}_flooded_pixel_pct": 0.0,
         f"{prefix}_flooded_area_m2": 0.0,
+        f"{prefix}_min_depth_cm": np.nan,
         f"{prefix}_max_depth_cm": np.nan,
         f"{prefix}_median_depth_cm": np.nan,
         f"{prefix}_mean_depth_cm": np.nan,
@@ -544,24 +547,29 @@ def compute_buffer_stats(
         all_touched=True,
     )
 
+    total_pixels = int(inside.sum())
+    if total_pixels == 0:
+        return empty_buffer_stats(prefix)
+
     valid = inside.copy()
     if np.ma.isMaskedArray(data):
         valid &= ~np.asarray(data.mask)
-    if src.nodata is not None:
-        valid &= arr != src.nodata
     valid &= arr != PERMANENT_WATER_VALUE
     valid &= arr > threshold_cm
 
     if not valid.any():
-        return empty_buffer_stats(prefix)
+        return empty_buffer_stats(prefix, total_pixels=total_pixels)
 
     values = arr[valid].astype(float)
     flooded_pixels = int(values.size)
     pixel_area_m2 = abs(src.res[0] * src.res[1])
     return {
         f"{prefix}_flood_hit": True,
+        f"{prefix}_total_pixels": total_pixels,
         f"{prefix}_flooded_pixels": flooded_pixels,
+        f"{prefix}_flooded_pixel_pct": float((flooded_pixels / total_pixels) * 100.0),
         f"{prefix}_flooded_area_m2": float(flooded_pixels * pixel_area_m2),
+        f"{prefix}_min_depth_cm": float(values.min()),
         f"{prefix}_max_depth_cm": float(values.max()),
         f"{prefix}_median_depth_cm": float(np.median(values)),
         f"{prefix}_mean_depth_cm": float(values.mean()),
@@ -582,23 +590,32 @@ def inspect_candidate_events(
                 "point_id",
                 "event_id",
                 "hit_at_point",
+                "point_buffer_total_pixels",
                 "point_buffer_flood_hit",
                 "point_buffer_flooded_pixels",
+                "point_buffer_flooded_pixel_pct",
                 "point_buffer_flooded_area_m2",
+                "point_buffer_min_depth_cm",
                 "point_buffer_max_depth_cm",
                 "point_buffer_median_depth_cm",
                 "point_buffer_mean_depth_cm",
                 "point_buffer_radius_m",
+                "buffer_total_pixels",
                 "buffer_flood_hit",
                 "buffer_flooded_pixels",
+                "buffer_flooded_pixel_pct",
                 "buffer_flooded_area_m2",
+                "buffer_min_depth_cm",
                 "buffer_max_depth_cm",
                 "buffer_median_depth_cm",
                 "buffer_mean_depth_cm",
                 "buffer_radius_km",
+                "surrounding_buffer_total_pixels",
                 "surrounding_buffer_flood_hit",
                 "surrounding_buffer_flooded_pixels",
+                "surrounding_buffer_flooded_pixel_pct",
                 "surrounding_buffer_flooded_area_m2",
+                "surrounding_buffer_min_depth_cm",
                 "surrounding_buffer_max_depth_cm",
                 "surrounding_buffer_median_depth_cm",
                 "surrounding_buffer_mean_depth_cm",
@@ -642,9 +659,12 @@ def inspect_candidate_events(
                         "hit_at_point": point_buffer_stats["point_buffer_flood_hit"],
                         "exact_point_depth_cm": point_buffer_stats["point_buffer_max_depth_cm"],
                         "point_buffer_radius_m": point_buffer_m,
+                        "buffer_total_pixels": surrounding_buffer_stats["surrounding_buffer_total_pixels"],
                         "buffer_flood_hit": surrounding_buffer_stats["surrounding_buffer_flood_hit"],
                         "buffer_flooded_pixels": surrounding_buffer_stats["surrounding_buffer_flooded_pixels"],
+                        "buffer_flooded_pixel_pct": surrounding_buffer_stats["surrounding_buffer_flooded_pixel_pct"],
                         "buffer_flooded_area_m2": surrounding_buffer_stats["surrounding_buffer_flooded_area_m2"],
+                        "buffer_min_depth_cm": surrounding_buffer_stats["surrounding_buffer_min_depth_cm"],
                         "buffer_max_depth_cm": surrounding_buffer_stats["surrounding_buffer_max_depth_cm"],
                         "buffer_median_depth_cm": surrounding_buffer_stats["surrounding_buffer_median_depth_cm"],
                         "buffer_mean_depth_cm": surrounding_buffer_stats["surrounding_buffer_mean_depth_cm"],
@@ -680,15 +700,21 @@ def build_summary_table(
     )
 
     expected_inspected_columns: dict[str, Any] = {
+        "point_buffer_total_pixels": 0,
         "point_buffer_flood_hit": False,
         "point_buffer_flooded_pixels": 0,
+        "point_buffer_flooded_pixel_pct": 0.0,
         "point_buffer_flooded_area_m2": 0.0,
+        "point_buffer_min_depth_cm": np.nan,
         "point_buffer_max_depth_cm": np.nan,
         "point_buffer_median_depth_cm": np.nan,
         "point_buffer_mean_depth_cm": np.nan,
+        "surrounding_buffer_total_pixels": 0,
         "surrounding_buffer_flood_hit": False,
         "surrounding_buffer_flooded_pixels": 0,
+        "surrounding_buffer_flooded_pixel_pct": 0.0,
         "surrounding_buffer_flooded_area_m2": 0.0,
+        "surrounding_buffer_min_depth_cm": np.nan,
         "surrounding_buffer_max_depth_cm": np.nan,
         "surrounding_buffer_median_depth_cm": np.nan,
         "surrounding_buffer_mean_depth_cm": np.nan,
@@ -903,23 +929,32 @@ def build_candidate_sheet(
     expected_inspection_columns: dict[str, Any] = {
         "hit_at_point": False,
         "exact_point_depth_cm": np.nan,
+        "point_buffer_total_pixels": 0,
         "point_buffer_flood_hit": False,
         "point_buffer_flooded_pixels": 0,
+        "point_buffer_flooded_pixel_pct": 0.0,
         "point_buffer_flooded_area_m2": 0.0,
+        "point_buffer_min_depth_cm": np.nan,
         "point_buffer_max_depth_cm": np.nan,
         "point_buffer_median_depth_cm": np.nan,
         "point_buffer_mean_depth_cm": np.nan,
         "point_buffer_radius_m": np.nan,
+        "buffer_total_pixels": 0,
         "buffer_flood_hit": False,
         "buffer_flooded_pixels": 0,
+        "buffer_flooded_pixel_pct": 0.0,
         "buffer_flooded_area_m2": 0.0,
+        "buffer_min_depth_cm": np.nan,
         "buffer_max_depth_cm": np.nan,
         "buffer_median_depth_cm": np.nan,
         "buffer_mean_depth_cm": np.nan,
         "buffer_radius_km": np.nan,
+        "surrounding_buffer_total_pixels": 0,
         "surrounding_buffer_flood_hit": False,
         "surrounding_buffer_flooded_pixels": 0,
+        "surrounding_buffer_flooded_pixel_pct": 0.0,
         "surrounding_buffer_flooded_area_m2": 0.0,
+        "surrounding_buffer_min_depth_cm": np.nan,
         "surrounding_buffer_max_depth_cm": np.nan,
         "surrounding_buffer_median_depth_cm": np.nan,
         "surrounding_buffer_mean_depth_cm": np.nan,
@@ -967,23 +1002,32 @@ def build_candidate_sheet(
         "raster_path_found",
         "hit_at_point",
         "exact_point_depth_cm",
+        "point_buffer_total_pixels",
         "point_buffer_flood_hit",
         "point_buffer_flooded_pixels",
+        "point_buffer_flooded_pixel_pct",
         "point_buffer_flooded_area_m2",
+        "point_buffer_min_depth_cm",
         "point_buffer_max_depth_cm",
         "point_buffer_median_depth_cm",
         "point_buffer_mean_depth_cm",
         "point_buffer_radius_m",
+        "buffer_total_pixels",
         "buffer_flood_hit",
         "buffer_flooded_pixels",
+        "buffer_flooded_pixel_pct",
         "buffer_flooded_area_m2",
+        "buffer_min_depth_cm",
         "buffer_max_depth_cm",
         "buffer_median_depth_cm",
         "buffer_mean_depth_cm",
         "buffer_radius_km",
+        "surrounding_buffer_total_pixels",
         "surrounding_buffer_flood_hit",
         "surrounding_buffer_flooded_pixels",
+        "surrounding_buffer_flooded_pixel_pct",
         "surrounding_buffer_flooded_area_m2",
+        "surrounding_buffer_min_depth_cm",
         "surrounding_buffer_max_depth_cm",
         "surrounding_buffer_median_depth_cm",
         "surrounding_buffer_mean_depth_cm",

@@ -184,7 +184,7 @@ The output workbook contains three sheets:
 
 - `point_summary`: original point columns plus flood flags, LAU / INSEE / NUTS metadata, candidate-event counts, and max flood indicators for both the 40 m point buffer and the 1 km surrounding buffer
 - `candidate_events`: all candidate JRC events for each mapped point, including the TIFF file, event dates, and both buffer scales
-- `event_hits`: only the positive hits at either buffer scale
+- `event_hits`: only the positive hits at either buffer scale, now including `min` depth and flooded-pixel percentages for the buffers
 
 Run it with:
 
@@ -278,6 +278,12 @@ Important metric meaning:
 - `hit_event_count_until_default_date` is only a descriptive feature in `point_summary`; it does not change the main candidate filtering or the final `jrc_flood_hit` logic
 - `max_point_buffer_*` columns summarize the `40 m` point-buffer depth metrics
 - `max_buffer_*` columns summarize the `1 km` surrounding-buffer depth metrics
+
+Buffer event-level metrics now also include:
+
+- `*_min_depth_cm` alongside `*_max_depth_cm`, `*_median_depth_cm`, and `*_mean_depth_cm`
+- `*_total_pixels` for the number of raster pixels touched by the buffer and available for evaluation
+- `*_flooded_pixel_pct` for `100 * flooded_pixels / total_pixels`
 
 The script is designed so that later you can replace city-centre example points with large address lists converted to latitude / longitude and keep the same flood-check workflow.
 

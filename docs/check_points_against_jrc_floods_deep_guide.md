@@ -440,9 +440,12 @@ They no longer mean "one exact raster pixel under the coordinate".
 
 The `40 m` outputs include:
 
+- `point_buffer_total_pixels`
 - `point_buffer_flood_hit`
 - `point_buffer_flooded_pixels`
+- `point_buffer_flooded_pixel_pct`
 - `point_buffer_flooded_area_m2`
+- `point_buffer_min_depth_cm`
 - `point_buffer_max_depth_cm`
 - `point_buffer_median_depth_cm`
 - `point_buffer_mean_depth_cm`
@@ -493,12 +496,21 @@ If no valid flooded pixels are found in the buffer, the result is:
 
 If valid flooded pixels are found, the script computes:
 
+- `buffer_total_pixels`
 - `buffer_flood_hit`
 - `buffer_flooded_pixels`
+- `buffer_flooded_pixel_pct`
 - `buffer_flooded_area_m2`
+- `buffer_min_depth_cm`
 - `buffer_max_depth_cm`
 - `buffer_median_depth_cm`
 - `buffer_mean_depth_cm`
+
+The flooded-pixel percentage is:
+
+- `100 * flooded_pixels / total_pixels`
+
+where `total_pixels` means the raster pixels touched by the buffer and available for evaluation after masking and `nodata` removal.
 
 Important nuance:
 
@@ -604,7 +616,8 @@ It includes:
 - whether the raster path was found
 - `40 m` point-buffer hit result
 - `1 km` surrounding-buffer hit result
-- both sets of depth metrics
+- both sets of depth metrics, including `min`
+- flooded-pixel percentages and total buffer-pixel counts
 
 ### `event_hits`
 
