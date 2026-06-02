@@ -109,6 +109,55 @@ Recommended interpretation of those modes:
 - `Raster overlay` is the fastest mode, but also the most approximate
 - `Auto` is the best default for routine browsing
 
+## How to Run the France Commune Activity App
+
+This second Streamlit app is for the France `Gaspar vs JRC` comparison workflow.
+It colors the active communes on a France map for:
+
+- one exact date
+- one month in one year
+- one full year
+- one custom date range
+
+It supports:
+
+- `Gaspar` only
+- `JRC` only
+- `Gaspar vs JRC` overlap / difference mode
+- commune reconciliation from `Gaspar cod_commune` to current `INSEE` using:
+  - exact current code
+  - old `INSEE -> current INSEE` update tables
+  - unique commune-name fallback
+  - Corsica-style alphanumeric codes such as `2B246`
+
+From the project root:
+
+```bat
+run_gaspar_jrc_france_map.cmd
+```
+
+From Git Bash:
+
+```bash
+bash run_gaspar_jrc_france_map.sh
+```
+
+By default it opens on `http://localhost:8502`.
+
+If you want another port:
+
+```bat
+run_gaspar_jrc_france_map.cmd -Port 8503
+```
+
+From Git Bash with another port:
+
+```bash
+bash run_gaspar_jrc_france_map.sh --port 8503
+```
+
+For a deep walkthrough of this France commune app, see [docs/france_commune_activity_app_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/france_commune_activity_app_deep_guide.md).
+
 For a beginner-friendly deep walkthrough of the whole dashboard display process, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
 
 ## How to Run the Main Europe Pipeline
