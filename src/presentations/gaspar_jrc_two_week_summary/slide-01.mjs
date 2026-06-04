@@ -66,9 +66,9 @@ export async function slide01(presentation, ctx) {
     left: 58,
     top: 340,
     width: 710,
-    height: 178,
+    height: 220,
     text: overview.highlights.join("\n\n"),
-    size: 21,
+    size: 18,
     color: "#E6ECF5",
     lineSpacing: 1.1,
   });
@@ -117,7 +117,7 @@ export async function slide01(presentation, ctx) {
     width: 310,
     height: 140,
     label: "Core finding",
-    value: "Commune-level match stays low, but manual checks show real evidence on both sides.",
+    value: "Mismatch is structured, not random.",
     accent: THEME.gold,
     fill: "#F7F1D9",
   });
@@ -126,7 +126,7 @@ export async function slide01(presentation, ctx) {
     slide,
     ctx,
     dark: true,
-    text: `${overview.dateLabel} | Scope: July 2021 comparison, Streamlit viewer, national audit, and T20 point-screening workflow.`,
+    text: `${overview.dateLabel} | Scope: July 2021 comparison, Streamlit viewer, national plus horizon audit, and T20 point-screening workflow.`,
   });
 
   return slide;

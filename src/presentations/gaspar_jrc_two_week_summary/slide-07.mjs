@@ -1,5 +1,5 @@
 import { jsx } from "@oai/artifact-tool/presentation-jsx/jsx-runtime";
-import { t20 } from "./deck_content.mjs";
+import { horizonAudit } from "./deck_content.mjs";
 import {
   THEME,
   Background,
@@ -8,8 +8,8 @@ import {
   MetricCard,
   Panel,
   BodyText,
+  SmallText,
   BulletList,
-  DecisionBar,
   Footer,
 } from "./deck_helpers.mjs";
 
@@ -17,7 +17,7 @@ export async function slide07(presentation, ctx) {
   const slide = presentation.slides.add();
 
   jsx(Background, { slide, ctx, variant: "paper" });
-  jsx(Label, { slide, ctx, left: 54, top: 42, width: 240, text: "T20 CHECK" });
+  jsx(Label, { slide, ctx, left: 54, top: 42, width: 320, text: "HORIZON AUDIT" });
   jsx(Title, {
     slide,
     ctx,
@@ -25,30 +25,66 @@ export async function slide07(presentation, ctx) {
     top: 78,
     width: 1120,
     height: 66,
-    text: t20.title,
-    size: 34,
+    text: horizonAudit.title,
+    size: 33,
+  });
+  jsx(SmallText, {
+    slide,
+    ctx,
+    left: 54,
+    top: 146,
+    width: 1060,
+    height: 22,
+    text: horizonAudit.mainReading,
   });
 
-  const cards = [
-    { label: "Rows checked", value: t20.totalPoints, accent: THEME.slate, fill: THEME.white },
-    { label: "LAU matched", value: t20.lauMatched, accent: THEME.blue, fill: "#EEF3FB" },
-    { label: "Any JRC event in LAU", value: t20.touchedAny, accent: THEME.teal, fill: "#EAF5F3" },
-    { label: "Positive local hit", value: t20.positiveHit, accent: THEME.coral, fill: "#FBEEE9" },
-    { label: "Positive event hits", value: t20.hitEventCount, accent: THEME.gold, fill: "#F7F1D9" },
-  ];
-  cards.forEach((card, index) => {
-    jsx(MetricCard, {
-      slide,
-      ctx,
-      left: 54 + index * 224,
-      top: 186,
-      width: 204,
-      height: 108,
-      label: card.label,
-      value: String(card.value),
-      accent: card.accent,
-      fill: card.fill,
-    });
+  jsx(MetricCard, {
+    slide,
+    ctx,
+    left: 54,
+    top: 184,
+    width: 228,
+    height: 112,
+    label: "Largest mismatch",
+    value: "1,312 communes",
+    accent: THEME.blue,
+    fill: "#EEF3FB",
+  });
+  jsx(MetricCard, {
+    slide,
+    ctx,
+    left: 298,
+    top: 184,
+    width: 228,
+    height: 112,
+    label: "Strongest Gaspar quarter",
+    value: "707 Gaspar only",
+    accent: THEME.coral,
+    fill: "#FBEEE9",
+  });
+  jsx(MetricCard, {
+    slide,
+    ctx,
+    left: 542,
+    top: 184,
+    width: 228,
+    height: 112,
+    label: "Recent major case",
+    value: "1,080 mismatch",
+    accent: THEME.teal,
+    fill: "#EAF5F3",
+  });
+  jsx(MetricCard, {
+    slide,
+    ctx,
+    left: 786,
+    top: 184,
+    width: 384,
+    height: 112,
+    label: "Coverage horizon",
+    value: "2015-Q1 to 2024-Q4",
+    accent: THEME.gold,
+    fill: "#F7F1D9",
   });
 
   Panel({
@@ -56,98 +92,110 @@ export async function slide07(presentation, ctx) {
     ctx,
     left: 54,
     top: 324,
-    width: 500,
-    height: 302,
+    width: 636,
+    height: 290,
     fill: "#FFFDFC",
     line: { style: "solid", fill: THEME.line, width: 1 },
-    name: "RulePanel",
+    name: "TopPeriodsPanel",
   });
   BodyText({
     slide,
     ctx,
     left: 78,
     top: 346,
+    width: 260,
+    height: 30,
+    text: "Top disagreement periods",
+    size: 24,
+    style: { fontSize: 24, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
+  });
+  horizonAudit.topPeriods.slice(0, 3).forEach((row, index) => {
+    const rowTop = 394 + index * 72;
+    BodyText({
+      slide,
+      ctx,
+      left: 78,
+      top: rowTop,
+      width: 574,
+      height: 22,
+      text: `${row.label}: ${row.metrics}`,
+      size: 18,
+      style: { fontSize: 18, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
+    });
+    SmallText({
+      slide,
+      ctx,
+      left: 78,
+      top: rowTop + 30,
+      width: 574,
+      height: 22,
+      text: row.takeaway,
+      color: THEME.muted,
+    });
+  });
+
+  Panel({
+    slide,
+    ctx,
+    left: 714,
+    top: 324,
+    width: 456,
+    height: 290,
+    fill: "#F8FBFF",
+    line: { style: "solid", fill: THEME.line, width: 1 },
+    name: "SupportPanel",
+  });
+  BodyText({
+    slide,
+    ctx,
+    left: 738,
+    top: 346,
     width: 280,
-    height: 28,
-    text: "Applied rule",
-    size: 23,
-    style: { fontSize: 23, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
+    height: 30,
+    text: "Other important flood families",
+    size: 24,
+    style: { fontSize: 24, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
   });
   jsx(BulletList, {
     slide,
     ctx,
-    left: 78,
-    top: 392,
-    width: 438,
-    items: t20.rule,
-    rowHeight: 58,
-    bulletColor: THEME.coral,
+    left: 738,
+    top: 396,
+    width: 394,
+    items: horizonAudit.supportingPeriods,
+    rowHeight: 74,
+    bulletColor: THEME.gold,
     size: 17,
   });
 
   Panel({
     slide,
     ctx,
-    left: 578,
-    top: 324,
-    width: 592,
-    height: 302,
-    fill: "#FFFDFC",
-    line: { style: "solid", fill: THEME.line, width: 1 },
-    name: "DecisionPanel",
+    left: 54,
+    top: 636,
+    width: 1116,
+    height: 30,
+    fill: THEME.transparent,
+    line: { style: "solid", fill: THEME.transparent, width: 0 },
+    name: "ConclusionStrip",
   });
   BodyText({
-    slide,
-    ctx,
-    left: 602,
-    top: 346,
-    width: 260,
-    height: 28,
-    text: "Decision-path breakdown",
-    size: 23,
-    style: { fontSize: 23, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
-  });
-  t20.decisionPaths.forEach((row, index) => {
-    jsx(DecisionBar, {
-      slide,
-      ctx,
-      left: 602,
-      top: 392 + index * 56,
-      width: 520,
-      label: row.label,
-      value: row.value,
-      total: t20.totalPoints,
-      color: row.color,
-    });
-  });
-
-  Panel({
     slide,
     ctx,
     left: 54,
-    top: 646,
+    top: 636,
     width: 1116,
-    height: 44,
-    fill: "#FFFDFC",
-    line: { style: "solid", fill: THEME.line, width: 1 },
-    name: "CasePanel",
-  });
-  BodyText({
-    slide,
-    ctx,
-    left: 78,
-    top: 658,
-    width: 1068,
-    height: 22,
-    text: `Positive case: ${t20.positiveCase}`,
-    size: 18,
+    height: 26,
+    text: "Bottom line: the mismatch is historically persistent and changes shape over time, rather than disappearing once one famous flood is explained.",
+    size: 20,
     color: THEME.ink,
+    style: { fontSize: 20, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
   });
 
   jsx(Footer, {
     slide,
     ctx,
-    text: "Workbook: data/processed/T20_Anonymised_jrc_flood_check.xlsx. Decision paths show why most rows stay negative even after successful LAU geocoding.",
+    text: "Source: docs/gaspar_jrc_horizon_audit_en.md and ..._fr.md, generated from the region-quarter ranking and mapped manual checks.",
   });
 
   return slide;

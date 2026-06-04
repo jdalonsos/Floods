@@ -168,6 +168,12 @@ map checks, see
 and
 [docs/gaspar_jrc_match_audit_fr.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_match_audit_fr.md).
 
+For a broader bilingual `2015-2024` horizon audit with ranked mismatch
+periods, deeper manual map checks, and supporting public-source chronology, see
+[docs/gaspar_jrc_horizon_audit_en.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_horizon_audit_en.md)
+and
+[docs/gaspar_jrc_horizon_audit_fr.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_horizon_audit_fr.md).
+
 For a compact slide-deck summary of the last two weeks of Gaspar / JRC work,
 see
 [docs/presentations/gaspar_jrc_two_week_summary.pptx](/D:/M2_MoSEF/DataCollection/docs/presentations/gaspar_jrc_two_week_summary.pptx).

@@ -1,12 +1,13 @@
 export const overview = {
   title: "Gaspar vs JRC Flood Comparison in France",
   subtitle:
-    "Two-week delivery summary: commune matching, July 2021 evidence, national audit, and T20 screening.",
+    "Two-week delivery summary: July 2021 comparison, Streamlit diagnostics, national audit, horizon audit, and T20 screening.",
   dateLabel: "Prepared on 2026-06-04",
   highlights: [
     "A France-wide comparison workflow now exists from raw commune rows to map-ready diagnostics.",
     "The July 2021 mismatch has been documented with public evidence from both the Gaspar-only and JRC-only sides.",
-    "National commune-level event matching remains low even after widening the time window.",
+    "National commune-level event matching remains low, but department-level matching is materially higher.",
+    "The new 2015-2024 horizon audit shows the mismatch recurring across several major flood families.",
     "The T20 point workflow is operational and already tested against processed JRC flood rasters.",
   ],
 };
@@ -26,7 +27,7 @@ export const workflow = {
     "Track unresolved rows instead of silently dropping them",
   ],
   outputs: [
-    "Bilingual audit documents and July 2021 evidence note",
+    "Bilingual audit documents, horizon audit, and July 2021 evidence note",
     "France comparison tables for 7-day and 30-day windows",
     "Quarter-region manual comparison maps",
     "T20 workbook with point-level JRC flood checks",
@@ -129,26 +130,65 @@ export const auditStats = {
     "Department-level rates are materially higher than commune-level rates, which points to commune fragmentation and timing differences rather than a total absence of overlap.",
 };
 
-export const manualChecks = {
-  title: "Manual regional checks suggest timing, footprint, and administrative grain drive the mismatch",
-  cases: [
+export const departmentComparison = {
+  title: "At department level, Gaspar and JRC align much more often than they do by commune",
+  reading:
+    "The gap between commune-level and department-level matching is large in both windows, which suggests that much of the disagreement comes from fine-grained commune allocation and event timing segmentation.",
+};
+
+export const horizonAudit = {
+  title: "The new 2015-2024 horizon audit shows the mismatch recurring across multiple flood families",
+  topPeriods: [
     {
-      label: "Grand Est, Q3 2021",
-      metrics: "Both 95 | Gaspar only 202 | JRC only 532",
-      takeaway:
-        "Shared northeast flood episode, but much wider JRC commune footprint than the administrative overlap zone.",
+      label: "Grand Est, Q1 2018",
+      metrics: "1,312 disagreement communes | 8.4% overlap",
+      takeaway: "Largest region-quarter mismatch in the ranking, dominated by a very broad JRC winter-flood corridor.",
     },
     {
-      label: "Bourgogne-Franche-Comte, Q3 2021",
-      metrics: "Both 22 | Gaspar only 69 | JRC only 417",
+      label: "Centre-Val de Loire, Q2 2016",
+      metrics: "707 Gaspar only | 22 JRC only",
+      takeaway: "Strongest high-activity Gaspar-dominant quarter during the late-May / early-June 2016 flood family.",
+    },
+    {
+      label: "Grand Est, Q2 2024",
+      metrics: "1,080 disagreement communes | 9.2% overlap",
+      takeaway: "Recent end-of-horizon case where both real flood extent and administrative timing lag may matter.",
+    },
+    {
+      label: "Bourgogne-Franche-Comte, Q1 2018",
+      metrics: "1,127 disagreement communes | 9.6% overlap",
+      takeaway: "Second-largest mismatch quarter, confirming the 2018 winter corridor beyond Grand Est.",
+    },
+  ],
+  supportingPeriods: [
+    "Ile-de-France, Q2 2016: 583 Gaspar-only communes in the same national flood family as Centre-Val de Loire 2016.",
+    "PACA, Q4 2019: 305 Gaspar-only communes during the Var and Alpes-Maritimes Mediterranean floods.",
+    "Hauts-de-France, Q4 2023: 302 Gaspar-only communes during the Pas-de-Calais and Nord flood sequence.",
+  ],
+  mainReading:
+    "The low match rate is not tied to one famous event. It reappears in different hydrologic settings from 2016 to 2024, with both Gaspar-heavy and JRC-heavy profiles.",
+};
+
+export const manualChecks = {
+  title: "Mapped manual checks now cover both Gaspar-dominant and JRC-dominant flood families across the horizon",
+  cases: [
+    {
+      label: "Grand Est, Q1 2018",
+      metrics: "Both 120 | Gaspar only 48 | JRC only 1,264",
       takeaway:
-        "JRC dominates the flood corridor while Gaspar remains concentrated in a smaller subset of recognized communes.",
+        "A very wide winter-flood corridor appears in JRC, while Gaspar remains concentrated in a much smaller administrative footprint.",
     },
     {
       label: "Centre-Val de Loire, Q2 2016",
       metrics: "Both 89 | Gaspar only 707 | JRC only 22",
       takeaway:
-        "Large administratively recognized event with much narrower JRC overlap at the commune level.",
+        "The Loire flood family is heavily recognized in Gaspar, but much less aligned with JRC at commune level.",
+    },
+    {
+      label: "Grand Est, Q2 2024",
+      metrics: "Both 110 | Gaspar only 348 | JRC only 732",
+      takeaway:
+        "A recent case with large disagreement in both directions, consistent with both flood-extent differences and timing effects.",
     },
   ],
 };
@@ -180,13 +220,13 @@ export const closeout = {
   title: "The project now has both a decision tool and a validation backlog",
   ready: [
     "France commune comparison app with map-first diagnostics",
-    "Bilingual Gaspar / JRC match audit docs",
+    "Bilingual Gaspar / JRC match audit docs plus the 2015-2024 horizon extension",
     "July 2021 mismatch evidence report with public links",
     "T20 workbook checked against processed JRC flood rasters",
   ],
   next: [
-    "Test alternative event-grouping rules to reduce commune-level fragmentation.",
-    "Add more quarter-region manual checks where the mismatch remains highest.",
+    "Test alternative event-grouping rules using the department-to-commune gap as a benchmark.",
+    "Add more quarter-region manual checks where the horizon audit still shows the largest mismatch.",
     "Decide whether to add a LAU-geometry map mode alongside current communes.",
     "Use the same point-screening workflow on additional credit portfolios.",
   ],

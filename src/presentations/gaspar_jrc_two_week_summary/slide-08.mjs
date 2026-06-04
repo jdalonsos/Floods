@@ -1,5 +1,7 @@
+import path from "node:path";
+
 import { jsx } from "@oai/artifact-tool/presentation-jsx/jsx-runtime";
-import { closeout } from "./deck_content.mjs";
+import { manualChecks } from "./deck_content.mjs";
 import {
   THEME,
   Background,
@@ -7,121 +9,106 @@ import {
   Title,
   Panel,
   BodyText,
-  BulletList,
+  SmallText,
   Footer,
+  ImageFrame,
 } from "./deck_helpers.mjs";
+
+const GRAND_EST_2018_MAP = path.resolve(process.cwd(), "docs/assets/gaspar_jrc_horizon_audit/grand_est_2018_q1.png");
+const CVL_2016_MAP = path.resolve(process.cwd(), "docs/assets/gaspar_jrc_horizon_audit/centre_val_de_loire_2016_q2.png");
+const GRAND_EST_2024_MAP = path.resolve(process.cwd(), "docs/assets/gaspar_jrc_horizon_audit/grand_est_2024_q2.png");
+
+const mapPaths = [GRAND_EST_2018_MAP, CVL_2016_MAP, GRAND_EST_2024_MAP];
 
 export async function slide08(presentation, ctx) {
   const slide = presentation.slides.add();
 
-  jsx(Background, { slide, ctx, variant: "dark" });
-  jsx(Label, {
-    slide,
-    ctx,
-    left: 54,
-    top: 42,
-    width: 360,
-    text: "READY NOW / NEXT",
-    color: "#F4B39F",
-  });
+  jsx(Background, { slide, ctx, variant: "paper" });
+  jsx(Label, { slide, ctx, left: 54, top: 42, width: 320, text: "MANUAL CHECKS" });
   jsx(Title, {
     slide,
     ctx,
     left: 54,
     top: 78,
-    width: 1080,
+    width: 1120,
     height: 66,
-    text: closeout.title,
-    dark: true,
-    size: 38,
+    text: manualChecks.title,
+    size: 34,
   });
-
-  Panel({
+  jsx(SmallText, {
     slide,
     ctx,
     left: 54,
-    top: 192,
-    width: 522,
-    height: 408,
-    fill: "#F7EFE6",
-    line: { style: "solid", fill: THEME.transparent, width: 0 },
-    name: "ReadyPanel",
-  });
-  BodyText({
-    slide,
-    ctx,
-    left: 82,
-    top: 218,
-    width: 260,
-    height: 28,
-    text: "Ready today",
-    size: 24,
-    style: { fontSize: 24, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
-  });
-  jsx(BulletList, {
-    slide,
-    ctx,
-    left: 82,
-    top: 270,
-    width: 438,
-    items: closeout.ready,
-    rowHeight: 78,
-    bulletColor: THEME.coral,
-    size: 18,
+    top: 146,
+    width: 1040,
+    height: 22,
+    text: "These maps use the same commune-activity logic as the Streamlit app, but focus on quarter-region period overlap rather than event-pair matching.",
   });
 
-  Panel({
-    slide,
-    ctx,
-    left: 594,
-    top: 192,
-    width: 576,
-    height: 408,
-    fill: "#EEF3FB",
-    line: { style: "solid", fill: THEME.transparent, width: 0 },
-    name: "NextPanel",
-  });
-  BodyText({
-    slide,
-    ctx,
-    left: 622,
-    top: 218,
-    width: 260,
-    height: 28,
-    text: "Best next questions",
-    size: 24,
-    style: { fontSize: 24, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
-  });
-  jsx(BulletList, {
-    slide,
-    ctx,
-    left: 622,
-    top: 270,
-    width: 492,
-    items: closeout.next,
-    rowHeight: 78,
-    bulletColor: THEME.blue,
-    size: 18,
-  });
-
-  BodyText({
-    slide,
-    ctx,
-    left: 54,
-    top: 626,
-    width: 1116,
-    height: 30,
-    text: "Bottom line: the project moved from isolated scripts to a coherent comparison workflow with a reproducible audit trail and analyst-facing map diagnostics.",
-    size: 22,
-    color: "#F5F1E8",
-    style: { fontSize: 22, bold: true, typeface: ctx.fonts.title, color: "#F5F1E8" },
-  });
+  for (let index = 0; index < manualChecks.cases.length; index += 1) {
+    const card = manualChecks.cases[index];
+    const left = 54 + index * 374;
+    Panel({
+      slide,
+      ctx,
+      left,
+      top: 196,
+      width: 346,
+      height: 444,
+      fill: "#FFFDFC",
+      line: { style: "solid", fill: THEME.line, width: 1 },
+      name: `ManualCase${index + 1}`,
+    });
+    BodyText({
+      slide,
+      ctx,
+      left: left + 18,
+      top: 214,
+      width: 300,
+      height: 30,
+      text: card.label,
+      size: 22,
+      style: { fontSize: 22, bold: true, typeface: ctx.fonts.title, color: THEME.ink },
+    });
+    SmallText({
+      slide,
+      ctx,
+      left: left + 18,
+      top: 248,
+      width: 300,
+      height: 18,
+      text: card.metrics,
+      color: index === 0 ? THEME.blue : index === 1 ? THEME.coral : THEME.teal,
+    });
+    await jsx(ImageFrame, {
+      slide,
+      ctx,
+      left: left + 18,
+      top: 282,
+      width: 310,
+      height: 200,
+      path: mapPaths[index],
+      fit: "contain",
+      fill: "#FBFBFB",
+    });
+    BodyText({
+      slide,
+      ctx,
+      left: left + 18,
+      top: 500,
+      width: 310,
+      height: 112,
+      text: card.takeaway,
+      size: 17,
+      color: THEME.ink,
+      lineSpacing: 1.1,
+    });
+  }
 
   jsx(Footer, {
     slide,
     ctx,
-    dark: true,
-    text: "Deliverables shipped this cycle: France comparison app, bilingual audit, July 2021 evidence note, and T20 JRC flood-check workbook.",
+    text: "Rendered audit figures live in docs/assets/gaspar_jrc_horizon_audit and are referenced by the bilingual horizon-audit report.",
   });
 
   return slide;
