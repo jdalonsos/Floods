@@ -158,6 +158,10 @@ bash run_gaspar_jrc_france_map.sh --port 8503
 
 For a deep walkthrough of this France commune app, see [docs/france_commune_activity_app_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/france_commune_activity_app_deep_guide.md).
 
+For a targeted external-source audit of the largest `Gaspar-only` and
+`JRC-only` mismatch clusters in **July 2021**, see
+[docs/july_2021_gaspar_jrc_mismatch_evidence_report.md](/D:/M2_MoSEF/DataCollection/docs/july_2021_gaspar_jrc_mismatch_evidence_report.md).
+
 For a beginner-friendly deep walkthrough of the whole dashboard display process, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
 
 ## How to Run the Main Europe Pipeline
