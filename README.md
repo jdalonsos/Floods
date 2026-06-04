@@ -162,6 +162,16 @@ For a targeted external-source audit of the largest `Gaspar-only` and
 `JRC-only` mismatch clusters in **July 2021**, see
 [docs/july_2021_gaspar_jrc_mismatch_evidence_report.md](/D:/M2_MoSEF/DataCollection/docs/july_2021_gaspar_jrc_mismatch_evidence_report.md).
 
+For a bilingual summary of national match statistics plus quarter-region manual
+map checks, see
+[docs/gaspar_jrc_match_audit_en.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_match_audit_en.md)
+and
+[docs/gaspar_jrc_match_audit_fr.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_match_audit_fr.md).
+
+For a compact slide-deck summary of the last two weeks of Gaspar / JRC work,
+see
+[docs/presentations/gaspar_jrc_two_week_summary.pptx](/D:/M2_MoSEF/DataCollection/docs/presentations/gaspar_jrc_two_week_summary.pptx).
+
 For a beginner-friendly deep walkthrough of the whole dashboard display process, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
 
 ## How to Run the Main Europe Pipeline
