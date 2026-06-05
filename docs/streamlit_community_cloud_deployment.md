@@ -30,8 +30,6 @@ includes:
 
 - [src/requirements.txt](/D:/M2_MoSEF/DataCollection/src/requirements.txt)
   with a minimal dependency set just for this app
-- [packages.txt](/D:/M2_MoSEF/DataCollection/packages.txt)
-  with Debian geospatial packages needed by the runtime
 
 This matters because Community Cloud searches for a dependency file starting in
 the entrypoint file's directory, then the repository root. Since the app lives
@@ -39,13 +37,17 @@ in `src/`, `src/requirements.txt` takes precedence over the larger root
 environment files. Source:
 [App dependencies](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies)
 
+This app no longer needs a root `packages.txt` for Streamlit Cloud because the
+Cloud build only installs the lightweight Python geospatial stack required to
+run the map app itself. The heavier raster-processing dependencies are kept out
+of the app startup path.
+
 ## 2. Before You Deploy
 
 Make sure the branch you want to deploy is pushed to GitHub and includes:
 
 - `src/gaspar_jrc_france_map_app.py`
 - `src/requirements.txt`
-- `packages.txt`
 - the tracked data files used by the app:
   - `data/raw/adminexpress-cog-simpl-000-2025.gpkg`
   - `data/raw/catnat_gaspar.csv`
@@ -99,7 +101,6 @@ Click `Deploy`.
 Community Cloud will then:
 
 - clone your repository
-- install `packages.txt` from the root
 - install `src/requirements.txt`
 - run the app from the repository root with entrypoint
   `src/gaspar_jrc_france_map_app.py`
@@ -118,7 +119,6 @@ Open the Cloud logs from `Manage app`.
 
 The most likely failure modes for this app are:
 
-- Linux dependency install problems
 - memory/resource limits after startup
 - import/runtime issues from the geospatial stack
 

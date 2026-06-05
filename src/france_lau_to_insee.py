@@ -24,7 +24,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-from granular_tabularization import enrich_lau_with_nuts, load_nuts
+from eurostat_nuts_lookup import enrich_lau_with_nuts, load_nuts
 
 
 FRANCE_LOOKUP_COLUMNS = [
