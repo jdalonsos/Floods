@@ -1,0 +1,7 @@
+build-essential
+gdal-bin
+libgdal-dev
+libgeos-dev
+libproj-dev
+libspatialindex-dev
+pkg-config
