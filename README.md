@@ -14,6 +14,7 @@ This repository contains a full workflow for working with the Copernicus / JRC E
 - Single-raster notebook inspection: `src/5_Visualize_Flood_TIFF_Map.ipynb`
 - Interactive raster browser: `src/app.py`
 - Shared dashboard / notebook preview engine: `src/flood_preview.py`
+- TRI folder reference: `docs/tri_2020_sig_di_reference.md`
 
 ## Very Important Visualization Note
 
