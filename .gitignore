@@ -14,6 +14,16 @@ data/events_viz_merged
 *.tif
 !data/raw/insee_history/
 !data/raw/insee_history/*.csv
+data/raw/tri_2020_sig_di (1).zip
+data/raw/tri_2020_sig_di_75.zip
+data/raw/n_inondable_*.zip
+data/raw/tri_2020_sig_di (1)/
+data/raw/tri_2020_sig_di/**
+!data/raw/tri_2020_sig_di/
+!data/raw/tri_2020_sig_di/n_inondable_*.shp
+!data/raw/tri_2020_sig_di/n_inondable_*.shx
+!data/raw/tri_2020_sig_di/n_inondable_*.dbf
+!data/raw/tri_2020_sig_di/n_inondable_*.prj
 __pycache__/
 *.pyc
 tmp_docx_render/

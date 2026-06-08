@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
+import zipfile
 
 import geopandas as gpd
 import numpy as np
@@ -14,6 +15,14 @@ from rasterio.errors import WindowError
 from rasterio.features import geometry_mask, geometry_window
 from shapely.geometry import Point, mapping
 
+from compare_france_jrc_gaspar_flexible import normalize_insee_code_series
+from france_commune_activity import (
+    DEFAULT_GASPAR_SHEET,
+    load_france_lookup as load_france_activity_lookup,
+    load_historical_insee_updates,
+    prepare_processed_gaspar_rows,
+    resolve_gaspar_current_communes,
+)
 from granular_tabularization import load_lau
 
 
@@ -23,9 +32,78 @@ DEFAULT_EVENT_TABLE = Path("data/processed/_outputs_eurostat_full/events_lau_lon
 DEFAULT_LAU_FILE = Path("data/raw/LAU_RG_01M_2024_4326.gpkg")
 DEFAULT_FLOOD_DIR = Path("data/JRC_flood_depth_maps")
 DEFAULT_FRANCE_LOOKUP = Path("data/processed/france_lau_insee_documentation/fr_lau_insee_lookup.csv")
+DEFAULT_FRANCE_OLD_INSEE_UPDATES = (
+    Path("data/processed/france_lau_insee_documentation/fr_old_insee_to_current_update_ready.csv")
+)
+DEFAULT_GASPAR_FILE = Path("data/processed/Gaspar_2015_2024.xlsx")
+DEFAULT_TRI_ARCHIVE = Path("data/raw/tri_2020_sig_di")
 DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check.xlsx")
 DEFAULT_POINT_BUFFER_M = 40.0
 DEFAULT_SURROUNDING_BUFFER_KM = 1.0
+TRI_ARCHIVE_ROOT = "tri_2020_sig_di"
+TRI_INONDABLE_PREFIX = "n_inondable_"
+TRI_SCENARIO_METADATA: dict[str, dict[str, str]] = {
+    "01for": {
+        "canonical_code": "01For",
+        "tri_level": "high",
+        "scenario_label": "Aléa de forte probabilité",
+        "source_document": "COVADIS Directive inondation v2.0",
+    },
+    "01forcc_ct": {
+        "canonical_code": "01Forcc_ct",
+        "tri_level": "high",
+        "scenario_label": "Aléa de forte probabilité avec prise en compte du changement climatique à court terme",
+        "source_document": "Rapportage 2020 ArcGIS coded values",
+    },
+    "01forcc_100": {
+        "canonical_code": "01Forcc_100",
+        "tri_level": "high",
+        "scenario_label": "Aléa de forte probabilité avec prise en compte du changement climatique à échéance 100 ans",
+        "source_document": "Rapportage 2020 ArcGIS coded values",
+    },
+    "02moy": {
+        "canonical_code": "02Moy",
+        "tri_level": "medium",
+        "scenario_label": "Aléa de moyenne probabilité",
+        "source_document": "COVADIS Directive inondation v2.0",
+    },
+    "03mcc": {
+        "canonical_code": "03Mcc",
+        "tri_level": "medium",
+        "scenario_label": "Aléa de moyenne probabilité avec prise en compte du changement climatique",
+        "source_document": "COVADIS Directive inondation v2.0",
+    },
+    "03mcc_ct": {
+        "canonical_code": "03Mcc_ct",
+        "tri_level": "medium",
+        "scenario_label": "Aléa de moyenne probabilité avec prise en compte du changement climatique à court terme",
+        "source_document": "Rapportage 2020 ArcGIS coded values",
+    },
+    "04fai": {
+        "canonical_code": "04Fai",
+        "tri_level": "low",
+        "scenario_label": "Aléa de faible probabilité",
+        "source_document": "COVADIS Directive inondation v2.0",
+    },
+    "04faicc_ct": {
+        "canonical_code": "04Faicc_ct",
+        "tri_level": "low",
+        "scenario_label": "Aléa de faible probabilité avec prise en compte du changement climatique à court terme",
+        "source_document": "Rapportage 2020 ArcGIS coded values",
+    },
+    "04fai_100": {
+        "canonical_code": "04Fai_100",
+        "tri_level": "low",
+        "scenario_label": "Aléa de faible probabilité avec prise en compte du changement climatique à échéance 100 ans",
+        "source_document": "Rapportage 2020 ArcGIS coded values",
+    },
+}
+TRI_LEVEL_PRIORITY = {
+    "high": 0,
+    "medium": 1,
+    "low": 2,
+    "out": 3,
+}
 
 EVENT_COLUMNS = [
     "event_id",
@@ -445,8 +523,11 @@ def filter_candidate_events_by_interval_columns(
     candidate_df: pd.DataFrame,
     start_col: str | None,
     end_col: str | None,
+    *,
+    event_start_col: str = "start_date",
+    event_end_col: str = "end_date",
 ) -> pd.DataFrame:
-    """Keep only JRC events whose date interval overlaps the supplied row-level interval columns."""
+    """Keep only candidate events whose date interval overlaps the supplied row-level interval columns."""
     if candidate_df.empty:
         return candidate_df
     if (not start_col or start_col not in candidate_df.columns) and (not end_col or end_col not in candidate_df.columns):
@@ -458,12 +539,378 @@ def filter_candidate_events_by_interval_columns(
     # A candidate event is kept when the event interval [start_date, end_date]
     # overlaps the chosen row-specific study interval [start_col, end_col].
     if start_col and start_col in result.columns:
-        overlap_mask &= result[start_col].isna() | result["end_date"].ge(result[start_col])
+        overlap_mask &= result[start_col].isna() | result[event_end_col].ge(result[start_col])
     if end_col and end_col in result.columns:
-        overlap_mask &= result[end_col].isna() | result["start_date"].le(result[end_col])
+        overlap_mask &= result[end_col].isna() | result[event_start_col].le(result[end_col])
 
-    keep_mask = result["event_id"].isna() | overlap_mask.fillna(False)
+    event_missing_mask = result[event_start_col].isna() & result[event_end_col].isna()
+    keep_mask = event_missing_mask | overlap_mask.fillna(False)
     return result[keep_mask].copy()
+
+
+def filter_records_by_global_interval(
+    df: pd.DataFrame,
+    *,
+    event_start_col: str,
+    event_end_col: str,
+    study_start: str | None,
+    study_end: str | None,
+) -> pd.DataFrame:
+    if df.empty or (not study_start and not study_end):
+        return df
+
+    result = df.copy()
+    start_ts = pd.to_datetime(study_start, errors="coerce") if study_start else pd.NaT
+    end_ts = pd.to_datetime(study_end, errors="coerce") if study_end else pd.NaT
+
+    if study_start and pd.isna(start_ts):
+        raise ValueError(f"Could not parse study start value: {study_start}")
+    if study_end and pd.isna(end_ts):
+        raise ValueError(f"Could not parse study end value: {study_end}")
+    if pd.notna(start_ts):
+        result = result[result[event_end_col] >= start_ts].copy()
+    if pd.notna(end_ts):
+        result = result[result[event_start_col] <= end_ts].copy()
+    return result
+
+
+def load_resolved_gaspar_events(
+    gaspar_file: Path,
+    gaspar_sheet_name: str | int,
+    france_lookup_file: Path,
+    france_old_insee_updates_file: Path,
+    target_insee_codes: set[str],
+) -> pd.DataFrame:
+    gaspar_df, _ = prepare_processed_gaspar_rows(gaspar_file, sheet_name=gaspar_sheet_name)
+    france_lookup_df = load_france_activity_lookup(france_lookup_file)
+    historical_updates_df = load_historical_insee_updates(france_old_insee_updates_file)
+    resolved_gaspar_df, _ = resolve_gaspar_current_communes(
+        gaspar_df,
+        france_lookup=france_lookup_df,
+        historical_updates=historical_updates_df,
+    )
+
+    resolved_gaspar_df = resolved_gaspar_df[
+        resolved_gaspar_df["gaspar_commune_match_found"].fillna(False)
+    ].copy()
+    resolved_gaspar_df["insee_com_key"] = normalize_insee_code_series(resolved_gaspar_df["insee_com"])
+    resolved_gaspar_df = resolved_gaspar_df[resolved_gaspar_df["insee_com_key"].isin(target_insee_codes)].copy()
+
+    keep_cols = [
+        "gaspar_event_uid",
+        "cod_nat_catnat",
+        "num_risque_jo",
+        "lib_risque_jo",
+        "gaspar_start_date",
+        "gaspar_end_date",
+        "gaspar_source_cod_commune",
+        "gaspar_source_insee_com",
+        "gaspar_commune_name",
+        "insee_com_key",
+        "commune_name_current",
+        "lau_code",
+        "lau_code_local",
+        "nuts3_code",
+        "nuts3_name",
+        "insee_dep",
+        "insee_reg",
+        "gaspar_commune_match_method",
+    ]
+    keep_cols = [column for column in keep_cols if column in resolved_gaspar_df.columns]
+    resolved_gaspar_df = resolved_gaspar_df[keep_cols].copy()
+    resolved_gaspar_df = resolved_gaspar_df.drop_duplicates(
+        subset=["gaspar_event_uid", "insee_com_key"],
+        keep="first",
+    )
+    return resolved_gaspar_df.reset_index(drop=True)
+
+
+def build_gaspar_candidate_events(
+    points_with_lau: pd.DataFrame,
+    point_columns: PointColumns,
+    gaspar_events_df: pd.DataFrame,
+    row_study_period_columns: RowStudyPeriodColumns | None,
+) -> pd.DataFrame:
+    if gaspar_events_df.empty:
+        return pd.DataFrame()
+
+    point_key_cols = [
+        point_columns.point_id,
+        point_columns.latitude,
+        point_columns.longitude,
+        "excel_row_number",
+        "lau_code",
+        "lau_code_local",
+        "lau_name",
+        "country_code",
+        "insee_com",
+        "insee_dep",
+        "insee_reg",
+        "nuts3_code",
+        "nuts3_name",
+        "insee_com_key",
+    ]
+    if point_columns.city and point_columns.city in points_with_lau.columns:
+        point_key_cols.append(point_columns.city)
+    if row_study_period_columns:
+        for raw_col in [
+            row_study_period_columns.anchor,
+            row_study_period_columns.primary_end,
+            row_study_period_columns.fallback_end,
+        ]:
+            if raw_col and raw_col in points_with_lau.columns and raw_col not in point_key_cols:
+                point_key_cols.append(raw_col)
+    for derived_col in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+        if derived_col in points_with_lau.columns and derived_col not in point_key_cols:
+            point_key_cols.append(derived_col)
+
+    point_base = points_with_lau[point_key_cols].copy()
+    gaspar_candidate_df = point_base.merge(
+        gaspar_events_df,
+        on="insee_com_key",
+        how="left",
+        suffixes=("", "_gaspar"),
+    )
+    return filter_candidate_events_by_interval_columns(
+        gaspar_candidate_df,
+        start_col="study_period_start",
+        end_col="study_period_end",
+        event_start_col="gaspar_start_date",
+        event_end_col="gaspar_end_date",
+    )
+
+
+def normalize_tri_scenario_key(value: Any) -> str:
+    if pd.isna(value):
+        return ""
+    return str(value).strip().lower().replace(" ", "")
+
+
+def extract_tri_scenario_key_from_member(member_name: str) -> str:
+    stem = Path(member_name).stem.lower()
+    if not stem.startswith(TRI_INONDABLE_PREFIX):
+        return ""
+    remainder = stem[len(TRI_INONDABLE_PREFIX) :]
+    if "_" not in remainder:
+        return ""
+    _, scenario_part = remainder.split("_", 1)
+    if scenario_part.endswith("_s"):
+        scenario_part = scenario_part[:-2]
+    return normalize_tri_scenario_key(scenario_part)
+
+
+def tri_metadata_for_scenario_key(scenario_key: str) -> dict[str, str]:
+    normalized_key = normalize_tri_scenario_key(scenario_key)
+    metadata = TRI_SCENARIO_METADATA.get(normalized_key)
+    if metadata is not None:
+        return metadata
+    canonical_code = str(scenario_key).strip() if str(scenario_key).strip() else "unknown"
+    return {
+        "canonical_code": canonical_code,
+        "tri_level": "out",
+        "scenario_label": f"Unmapped TRI scenario ({canonical_code})",
+        "source_document": "unmapped",
+    }
+
+
+def classify_tri_level_from_scenario_keys(scenario_keys: Iterable[str]) -> str:
+    levels = {
+        tri_metadata_for_scenario_key(scenario_key)["tri_level"]
+        for scenario_key in scenario_keys
+        if normalize_tri_scenario_key(scenario_key)
+    }
+    if not levels:
+        return "out"
+    return min(levels, key=lambda level: TRI_LEVEL_PRIORITY.get(level, 999))
+
+
+def list_tri_inondable_members(tri_archive: Path) -> list[tuple[str, str]]:
+    shapefile_members: list[tuple[str, str]] = []
+    if tri_archive.is_dir():
+        for path in sorted(tri_archive.rglob("*.shp")):
+            if not path.name.lower().startswith(TRI_INONDABLE_PREFIX):
+                continue
+            relative_name = path.relative_to(tri_archive).as_posix()
+            scenario_key = extract_tri_scenario_key_from_member(path.name)
+            shapefile_members.append((relative_name, scenario_key))
+        return shapefile_members
+
+    with zipfile.ZipFile(tri_archive) as archive:
+        for name in archive.namelist():
+            if not name.lower().endswith(".shp"):
+                continue
+            if not Path(name).name.lower().startswith(TRI_INONDABLE_PREFIX):
+                continue
+            scenario_key = extract_tri_scenario_key_from_member(Path(name).name)
+            shapefile_members.append((name, scenario_key))
+    return shapefile_members
+
+
+def tri_member_uri(tri_archive: Path, member_name: str) -> str:
+    if tri_archive.is_dir():
+        return str((tri_archive / Path(member_name)).resolve())
+    return f"zip://{tri_archive.resolve().as_posix()}!{member_name}"
+
+
+def load_tri_polygon_members(
+    tri_archive: Path,
+    member_specs: Iterable[tuple[str, str]],
+    *,
+    bbox: tuple[float, float, float, float] | None,
+) -> gpd.GeoDataFrame:
+    frames: list[gpd.GeoDataFrame] = []
+    for member_name, scenario_key in member_specs:
+        frame = gpd.read_file(tri_member_uri(tri_archive, member_name), bbox=bbox)
+        if frame.empty:
+            continue
+        metadata = tri_metadata_for_scenario_key(scenario_key)
+        trimmed = frame[["geometry"]].copy()
+        trimmed["tri_member_name"] = Path(member_name).name
+        trimmed["tri_scenario_key"] = normalize_tri_scenario_key(scenario_key)
+        trimmed["tri_scenario_code"] = metadata["canonical_code"]
+        trimmed["tri_scenario_label"] = metadata["scenario_label"]
+        trimmed["tri_level"] = metadata["tri_level"]
+        frames.append(trimmed)
+
+    if not frames:
+        return gpd.GeoDataFrame(
+            {
+                "geometry": [],
+                "tri_member_name": [],
+                "tri_scenario_key": [],
+                "tri_scenario_code": [],
+                "tri_scenario_label": [],
+                "tri_level": [],
+            },
+            geometry="geometry",
+            crs=4326,
+        )
+
+    merged = gpd.GeoDataFrame(
+        pd.concat(frames, ignore_index=True),
+        geometry="geometry",
+        crs=frames[0].crs,
+    )
+    if merged.crs is None:
+        merged = merged.set_crs(4326)
+    elif str(merged.crs) != "EPSG:4326":
+        merged = merged.to_crs(4326)
+    return merged
+
+
+def point_ids_intersecting_polygons(
+    points_gdf: gpd.GeoDataFrame,
+    point_id_col: str,
+    polygon_gdf: gpd.GeoDataFrame,
+) -> set[Any]:
+    if points_gdf.empty or polygon_gdf.empty:
+        return set()
+    joined = gpd.sjoin(
+        points_gdf[[point_id_col, "geometry"]],
+        polygon_gdf[["geometry"]],
+        how="inner",
+        predicate="intersects",
+    )
+    return set(joined[point_id_col].dropna().tolist())
+
+
+def classify_points_against_tri(
+    points_gdf: gpd.GeoDataFrame,
+    point_columns: PointColumns,
+    tri_archive: Path,
+) -> pd.DataFrame:
+    point_id_col = point_columns.point_id
+    if points_gdf.empty:
+        return pd.DataFrame(
+            columns=[
+                point_id_col,
+                "tri_flood_risk_high_hit",
+                "tri_flood_risk_medium_hit",
+                "tri_flood_risk_low_hit",
+                "tri_flood_risk_other_hit",
+                "flood_risk_area_value",
+                "TRI",
+                "tri_scenario_codes",
+                "tri_scenario_labels",
+                "riparian_zone_hit",
+            ]
+        )
+
+    bbox = tuple(points_gdf.total_bounds.tolist())
+    member_specs = list_tri_inondable_members(tri_archive)
+    tri_polygons = load_tri_polygon_members(tri_archive, member_specs, bbox=bbox)
+    base_points = points_gdf[[point_id_col, "geometry"]].drop_duplicates(subset=[point_id_col]).copy()
+    classification_df = base_points[[point_id_col]].copy()
+
+    if not tri_polygons.empty:
+        joined = gpd.sjoin(
+            base_points[[point_id_col, "geometry"]],
+            tri_polygons[
+                [
+                    "geometry",
+                    "tri_member_name",
+                    "tri_scenario_key",
+                    "tri_scenario_code",
+                    "tri_scenario_label",
+                    "tri_level",
+                ]
+            ],
+            how="left",
+            predicate="intersects",
+        )
+        joined = joined[joined["tri_scenario_code"].notna()].copy()
+        if not joined.empty:
+            tri_by_point = (
+                joined.groupby(point_id_col)
+                .agg(
+                    tri_scenario_codes=(
+                        "tri_scenario_code",
+                        lambda values: "; ".join(sorted({str(value) for value in values if pd.notna(value)})),
+                    ),
+                    tri_scenario_labels=(
+                        "tri_scenario_label",
+                        lambda values: "; ".join(sorted({str(value) for value in values if pd.notna(value)})),
+                    ),
+                    tri_scenario_keys=(
+                        "tri_scenario_key",
+                        lambda values: sorted(
+                            {
+                                normalize_tri_scenario_key(value)
+                                for value in values
+                                if normalize_tri_scenario_key(value)
+                            }
+                        ),
+                    ),
+                )
+                .reset_index()
+            )
+            tri_by_point["TRI"] = tri_by_point["tri_scenario_keys"].apply(
+                classify_tri_level_from_scenario_keys
+            )
+            tri_by_point = tri_by_point.drop(columns=["tri_scenario_keys"])
+            classification_df = classification_df.merge(tri_by_point, on=point_id_col, how="left")
+    if "tri_scenario_codes" not in classification_df.columns:
+        classification_df["tri_scenario_codes"] = pd.Series(pd.NA, index=classification_df.index, dtype="string")
+    else:
+        classification_df["tri_scenario_codes"] = classification_df["tri_scenario_codes"].astype("string")
+    if "tri_scenario_labels" not in classification_df.columns:
+        classification_df["tri_scenario_labels"] = pd.Series(pd.NA, index=classification_df.index, dtype="string")
+    else:
+        classification_df["tri_scenario_labels"] = classification_df["tri_scenario_labels"].astype("string")
+    if "TRI" not in classification_df.columns:
+        classification_df["TRI"] = pd.Series("out", index=classification_df.index, dtype="string")
+    else:
+        classification_df["TRI"] = classification_df["TRI"].fillna("out").astype("string").str.lower()
+
+    classification_df["tri_flood_risk_high_hit"] = classification_df["TRI"].eq("high")
+    classification_df["tri_flood_risk_medium_hit"] = classification_df["TRI"].eq("medium")
+    classification_df["tri_flood_risk_low_hit"] = classification_df["TRI"].eq("low")
+    classification_df["tri_flood_risk_other_hit"] = classification_df["TRI"].isin(["medium", "low"])
+    # The current BCEF rule does not use a riparian-zone fallback because we do not
+    # have a validated riparian dataset in the repo.
+    classification_df["riparian_zone_hit"] = False
+    classification_df["flood_risk_area_value"] = classification_df["TRI"]
+    return classification_df
 
 
 def resolve_raster_paths(candidate_df: pd.DataFrame, flood_dir: Path) -> pd.DataFrame:
@@ -679,6 +1126,114 @@ def inspect_candidate_events(
     return inspected_df
 
 
+def build_combined_flood_flag_columns(summary: pd.DataFrame) -> pd.DataFrame:
+    result = summary.copy()
+
+    for column, default_value in {
+        "gaspar_commune_hit": False,
+        "tri_flood_risk_high_hit": False,
+        "tri_flood_risk_medium_hit": False,
+        "tri_flood_risk_low_hit": False,
+        "tri_flood_risk_other_hit": False,
+        "riparian_zone_hit": False,
+    }.items():
+        if column not in result.columns:
+            result[column] = default_value
+        result[column] = result[column].fillna(default_value).astype(bool)
+
+    tri_source_col = "TRI" if "TRI" in result.columns else "flood_risk_area_value"
+    if tri_source_col not in result.columns:
+        result[tri_source_col] = pd.Series(pd.NA, index=result.index, dtype="string")
+    result["TRI"] = result[tri_source_col].astype("string").fillna("out").str.lower()
+    result["flood_risk_area_value"] = result["TRI"]
+
+    case_a_mask = result["jrc_flood_hit"].fillna(False)
+    gaspar_branch_mask = ~case_a_mask & result["gaspar_commune_hit"]
+    case_b_mask = gaspar_branch_mask & result["tri_flood_risk_high_hit"]
+
+    result["flag_jrc"] = np.where(case_a_mask, 1, 0).astype(int)
+    result["flag_gaspar"] = np.where(gaspar_branch_mask, 1, 0).astype(int)
+
+    result["flag_flood"] = np.where(case_a_mask | case_b_mask, 1, 0).astype(int)
+    result["flag_flood_source"] = np.select(
+        [
+            case_a_mask,
+            case_b_mask,
+        ],
+        [
+            "jrc",
+            "gaspar",
+        ],
+        default="none",
+    )
+    result["flag_flood_case"] = np.select(
+        [
+            case_a_mask,
+            case_b_mask,
+        ],
+        [
+            "case_a_jrc",
+            "case_b_gaspar_high_risk_area",
+        ],
+        default="none",
+    )
+
+    result["flag_flood_start_date"] = pd.NaT
+    result["flag_flood_end_date"] = pd.NaT
+    result.loc[case_a_mask, "flag_flood_start_date"] = result.loc[case_a_mask, "first_hit_start_date"]
+    result.loc[case_a_mask, "flag_flood_end_date"] = result.loc[case_a_mask, "last_hit_end_date"]
+    gaspar_flag_mask = case_b_mask
+    result.loc[gaspar_flag_mask, "flag_flood_start_date"] = result.loc[
+        gaspar_flag_mask,
+        "gaspar_first_start_date",
+    ]
+    result.loc[gaspar_flag_mask, "flag_flood_end_date"] = result.loc[
+        gaspar_flag_mask,
+        "gaspar_last_end_date",
+    ]
+    result["flag_flood_date_source"] = np.where(case_a_mask, "jrc", np.where(gaspar_flag_mask, "gaspar", "none"))
+
+    result["flag_flood_decision_path"] = np.select(
+        [
+            case_a_mask,
+            ~case_a_mask & ~result["gaspar_commune_hit"],
+            case_b_mask,
+            gaspar_branch_mask & result["TRI"].eq("medium"),
+            gaspar_branch_mask & result["TRI"].eq("low"),
+            gaspar_branch_mask & result["TRI"].eq("out"),
+        ],
+        [
+            "jrc_positive_local_flood_hit",
+            "no_jrc_hit_and_no_gaspar_commune_event",
+            "no_jrc_hit_gaspar_high_risk_area",
+            "no_jrc_hit_gaspar_medium_risk_area",
+            "no_jrc_hit_gaspar_low_risk_area",
+            "no_jrc_hit_gaspar_outside_risk_area",
+        ],
+        default="no_positive_flag_case",
+    )
+    result["flag_flood_notes"] = np.select(
+        [
+            case_a_mask,
+            ~case_a_mask & ~result["gaspar_commune_hit"],
+            case_b_mask,
+            gaspar_branch_mask & result["TRI"].eq("medium"),
+            gaspar_branch_mask & result["TRI"].eq("low"),
+            gaspar_branch_mask & result["TRI"].eq("out"),
+        ],
+        [
+            "Final flood flag is positive from the raster-confirmed JRC local hit.",
+            "JRC stayed negative and no overlapping Gaspar commune event was found inside the study window.",
+            "JRC stayed negative, but Gaspar found an overlapping commune event and the point lies inside a TRI high flood-risk area.",
+            "JRC stayed negative and Gaspar found an overlapping commune event, but the point only falls inside a TRI medium flood-risk area.",
+            "JRC stayed negative and Gaspar found an overlapping commune event, but the point only falls inside a TRI low flood-risk area.",
+            "JRC stayed negative and Gaspar found an overlapping commune event, but the point is outside the TRI high flood-risk polygons.",
+        ],
+        default="No positive combined flood flag case was triggered.",
+    )
+    return result
+
+
 def build_summary_table(
     original_points: pd.DataFrame,
     point_columns: PointColumns,
@@ -691,10 +1246,16 @@ def build_summary_table(
     threshold_cm: float,
     study_start: str | None,
     study_end: str | None,
+    gaspar_candidate_df: pd.DataFrame | None = None,
+    tri_classification_df: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     summary = original_points.copy()
     point_id_col = point_columns.point_id
     inspected_df = inspected_df.copy()
+    gaspar_candidate_df = gaspar_candidate_df.copy() if gaspar_candidate_df is not None else pd.DataFrame()
+    tri_classification_df = (
+        tri_classification_df.copy() if tri_classification_df is not None else pd.DataFrame()
+    )
     default_date_inspected_df = (
         default_date_inspected_df.copy() if default_date_inspected_df is not None else pd.DataFrame()
     )
@@ -822,6 +1383,42 @@ def build_summary_table(
     summary = summary.merge(candidate_agg, on=point_id_col, how="left")
     summary = summary.merge(inspected_agg, on=point_id_col, how="left")
 
+    if not gaspar_candidate_df.empty and "gaspar_event_uid" in gaspar_candidate_df.columns:
+        gaspar_only = gaspar_candidate_df[gaspar_candidate_df["gaspar_event_uid"].notna()].copy()
+        if not gaspar_only.empty:
+            gaspar_agg = (
+                gaspar_only.groupby(point_id_col)
+                .agg(
+                    gaspar_candidate_event_count=("gaspar_event_uid", "nunique"),
+                    gaspar_candidate_decree_count=("cod_nat_catnat", "nunique"),
+                    gaspar_first_start_date=("gaspar_start_date", "min"),
+                    gaspar_last_end_date=("gaspar_end_date", "max"),
+                )
+                .reset_index()
+            )
+            summary = summary.merge(gaspar_agg, on=point_id_col, how="left")
+
+    if not tri_classification_df.empty:
+        tri_cols = [
+            point_id_col,
+            "tri_flood_risk_high_hit",
+            "tri_flood_risk_medium_hit",
+            "tri_flood_risk_low_hit",
+            "tri_flood_risk_other_hit",
+            "flood_risk_area_value",
+            "TRI",
+            "tri_scenario_codes",
+            "tri_scenario_labels",
+            "riparian_zone_hit",
+        ]
+        tri_cols = [column for column in tri_cols if column in tri_classification_df.columns]
+        if tri_cols:
+            summary = summary.merge(
+                tri_classification_df[tri_cols].drop_duplicates(subset=[point_id_col]),
+                on=point_id_col,
+                how="left",
+            )
+
     expected_summary_columns: dict[str, Any] = {
         "checked_event_count": np.nan,
         "hit_at_point_event_count": np.nan,
@@ -841,6 +1438,10 @@ def build_summary_table(
         "first_hit_start_date": pd.NaT,
         "last_hit_end_date": pd.NaT,
         "hit_event_count": np.nan,
+        "gaspar_candidate_event_count": np.nan,
+        "gaspar_candidate_decree_count": np.nan,
+        "gaspar_first_start_date": pd.NaT,
+        "gaspar_last_end_date": pd.NaT,
     }
     for column, default_value in expected_summary_columns.items():
         if column not in summary.columns:
@@ -863,6 +1464,7 @@ def build_summary_table(
     summary["lau_touched_by_any_jrc_event"] = summary["candidate_event_count"].fillna(0).gt(0)
     summary["jrc_flood_hit"] = summary["hit_event_count"].fillna(0).gt(0)
     summary["jrc_flood_flag"] = np.where(summary["jrc_flood_hit"], "yes", "no")
+    summary["gaspar_commune_hit"] = summary["gaspar_candidate_event_count"].fillna(0).gt(0)
 
     summary["decision_path"] = np.select(
         [
@@ -896,7 +1498,7 @@ def build_summary_table(
         default="",
     )
 
-    return summary
+    return build_combined_flood_flag_columns(summary)
 
 
 def build_candidate_sheet(
@@ -1053,6 +1655,154 @@ def build_hits_sheet(candidate_sheet: pd.DataFrame) -> pd.DataFrame:
     ].copy()
 
 
+def build_jrc_output_summary_sheet(summary_df: pd.DataFrame) -> pd.DataFrame:
+    drop_columns = [
+        "gaspar_commune_hit",
+        "gaspar_candidate_event_count",
+        "gaspar_candidate_decree_count",
+        "gaspar_first_start_date",
+        "gaspar_last_end_date",
+        "tri_flood_risk_high_hit",
+        "tri_flood_risk_medium_hit",
+        "tri_flood_risk_low_hit",
+        "tri_flood_risk_other_hit",
+        "flood_risk_area_value",
+        "TRI",
+        "tri_scenario_codes",
+        "tri_scenario_labels",
+        "riparian_zone_hit",
+        "flag_jrc",
+        "flag_gaspar",
+        "flag_flood",
+        "flag_flood_source",
+        "flag_flood_case",
+        "flag_flood_start_date",
+        "flag_flood_end_date",
+        "flag_flood_date_source",
+        "flag_flood_decision_path",
+        "flag_flood_notes",
+    ]
+    keep_columns = [column for column in summary_df.columns if column not in drop_columns]
+    return summary_df[keep_columns].copy()
+
+
+def build_gaspar_candidate_sheet(
+    gaspar_candidate_df: pd.DataFrame,
+    point_columns: PointColumns,
+    combined_summary_df: pd.DataFrame,
+    row_study_period_columns: RowStudyPeriodColumns | None = None,
+) -> pd.DataFrame:
+    expected_columns = [
+        "point_id",
+        "point_latitude",
+        "point_longitude",
+        "excel_row_number",
+        "lau_code",
+        "lau_name",
+        "insee_com",
+        "flag_jrc",
+        "flag_gaspar",
+        "TRI",
+        "flag_flood",
+        "gaspar_event_uid",
+        "cod_nat_catnat",
+        "gaspar_start_date",
+        "gaspar_end_date",
+        "gaspar_commune_name",
+        "gaspar_source_cod_commune",
+        "gaspar_source_insee_com",
+        "gaspar_commune_match_method",
+    ]
+    if gaspar_candidate_df.empty or "gaspar_event_uid" not in gaspar_candidate_df.columns:
+        return pd.DataFrame(columns=expected_columns)
+
+    point_id_col = point_columns.point_id
+    gaspar_only = gaspar_candidate_df[gaspar_candidate_df["gaspar_event_uid"].notna()].copy()
+    if gaspar_only.empty:
+        return pd.DataFrame(columns=expected_columns)
+
+    if point_id_col in combined_summary_df.columns and "flag_jrc" in combined_summary_df.columns:
+        jrc_negative_ids = set(
+            combined_summary_df.loc[
+                combined_summary_df["flag_jrc"].fillna(0).eq(0),
+                point_id_col,
+            ].dropna()
+        )
+        gaspar_only = gaspar_only[gaspar_only[point_id_col].isin(jrc_negative_ids)].copy()
+    if gaspar_only.empty:
+        return pd.DataFrame(columns=expected_columns)
+
+    gaspar_only = gaspar_only.rename(
+        columns={
+            point_id_col: "point_id",
+            point_columns.latitude: "point_latitude",
+            point_columns.longitude: "point_longitude",
+        }
+    )
+    if point_columns.city and point_columns.city in gaspar_only.columns:
+        gaspar_only = gaspar_only.rename(columns={point_columns.city: "point_city"})
+
+    merge_cols = [point_id_col, "flag_jrc", "flag_gaspar", "TRI", "flag_flood"]
+    merge_cols = [column for column in merge_cols if column in combined_summary_df.columns]
+    if merge_cols:
+        gaspar_only = gaspar_only.merge(
+            combined_summary_df[merge_cols].drop_duplicates(subset=[point_id_col]).rename(
+                columns={point_id_col: "point_id"}
+            ),
+            on="point_id",
+            how="left",
+        )
+
+    preferred_order = [
+        "point_id",
+        "point_latitude",
+        "point_longitude",
+        "excel_row_number",
+        "point_city",
+        "lau_code",
+        "lau_name",
+        "insee_com",
+        "flag_jrc",
+        "flag_gaspar",
+        "TRI",
+        "flag_flood",
+        "gaspar_event_uid",
+        "cod_nat_catnat",
+        "gaspar_start_date",
+        "gaspar_end_date",
+        "gaspar_commune_name",
+        "gaspar_source_cod_commune",
+        "gaspar_source_insee_com",
+        "gaspar_commune_match_method",
+    ]
+    if row_study_period_columns:
+        for column in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+            if column in gaspar_only.columns and column not in preferred_order:
+                preferred_order.append(column)
+    available = [column for column in preferred_order if column in gaspar_only.columns]
+    remainder = [column for column in gaspar_only.columns if column not in available]
+    sort_columns = [column for column in ["point_id", "gaspar_start_date", "gaspar_event_uid"] if column in gaspar_only.columns]
+    result = gaspar_only[available + remainder].copy()
+    if sort_columns:
+        result = result.sort_values(sort_columns)
+    return result
+
+
+def build_tri_reference_sheet() -> pd.DataFrame:
+    rows = []
+    for scenario_key, metadata in TRI_SCENARIO_METADATA.items():
+        rows.append(
+            {
+                "tri_scenario_key": scenario_key,
+                "tri_scenario_code": metadata["canonical_code"],
+                "tri_level": metadata["tri_level"],
+                "scenario_label": metadata["scenario_label"],
+                "source_document": metadata["source_document"],
+            }
+        )
+    return pd.DataFrame(rows).sort_values(["tri_level", "tri_scenario_code"]).reset_index(drop=True)
+
+
 def write_output_workbook(
     output_path: Path,
     summary_df: pd.DataFrame,
@@ -1064,6 +1814,34 @@ def write_output_workbook(
         summary_df.to_excel(writer, sheet_name="point_summary", index=False)
         candidate_sheet.to_excel(writer, sheet_name="candidate_events", index=False)
         hits_sheet.to_excel(writer, sheet_name="event_hits", index=False)
+
+
+def write_combined_output_workbook(
+    output_path: Path,
+    combined_summary_df: pd.DataFrame,
+    jrc_candidate_sheet: pd.DataFrame,
+    jrc_hits_sheet: pd.DataFrame,
+    gaspar_candidate_sheet: pd.DataFrame,
+    tri_reference_sheet: pd.DataFrame,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        combined_summary_df.to_excel(writer, sheet_name="point_summary", index=False)
+        jrc_candidate_sheet.to_excel(writer, sheet_name="jrc_candidate_events", index=False)
+        jrc_hits_sheet.to_excel(writer, sheet_name="jrc_event_hits", index=False)
+        gaspar_candidate_sheet.to_excel(writer, sheet_name="gaspar_candidate_events", index=False)
+        tri_reference_sheet.to_excel(writer, sheet_name="tri_reference", index=False)
+
+
+def derive_combined_output_path(output_path: Path) -> Path:
+    stem = output_path.stem
+    if "jrc_flood_check" in stem:
+        combined_stem = stem.replace("jrc_flood_check", "jrc_gaspar_tri_check")
+    else:
+        combined_stem = f"{stem}_jrc_gaspar_tri_check"
+    if combined_stem == stem:
+        combined_stem = f"{stem}_combined"
+    return output_path.with_name(f"{combined_stem}{output_path.suffix}")
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
@@ -1084,6 +1862,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--events-file", default=str(DEFAULT_EVENT_TABLE), help="Processed LAU event table (.parquet or .csv).")
     parser.add_argument("--flood-dir", default=str(DEFAULT_FLOOD_DIR), help="Root directory containing the official JRC flood TIFF folders.")
     parser.add_argument("--france-lookup-file", default=str(DEFAULT_FRANCE_LOOKUP), help="Optional France LAU to INSEE lookup CSV for extra output columns.")
+    parser.add_argument("--gaspar-file", default=str(DEFAULT_GASPAR_FILE), help="Optional processed Gaspar workbook used for the fallback flood flag branch.")
+    parser.add_argument("--gaspar-sheet-name", default=DEFAULT_GASPAR_SHEET, help=f"Sheet name to read from the Gaspar workbook. Default: {DEFAULT_GASPAR_SHEET}.")
+    parser.add_argument("--france-old-insee-updates-file", default=str(DEFAULT_FRANCE_OLD_INSEE_UPDATES), help="Historical old-INSEE to current-INSEE CSV used to resolve Gaspar communes.")
+    parser.add_argument("--tri-archive", default=str(DEFAULT_TRI_ARCHIVE), help="National TRI source used to classify Gaspar fallback points into TRI high / medium / low / out areas. Accepts either the unpacked folder or the original zip archive.")
+    parser.add_argument("--disable-gaspar-fallback", action="store_true", help="Disable the Gaspar plus TRI fallback branch and keep the final flood flag JRC-only.")
     parser.add_argument("--study-start", default=None, help="Optional study-period start date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--study-end", default=None, help="Optional study-period end date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--row-study-anchor-col", default=None, help="Optional workbook column used as the per-row anchor date when a lookback window is requested.")
@@ -1094,6 +1877,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--buffer-km", type=float, default=DEFAULT_SURROUNDING_BUFFER_KM, help=f"Radius in kilometers used for the surrounding buffer metrics. Default: {DEFAULT_SURROUNDING_BUFFER_KM:.1f}.")
     parser.add_argument("--threshold-cm", type=float, default=0.0, help="Minimum depth in cm to count as flooded. Default: 0.0.")
     parser.add_argument("--out-file", default=str(DEFAULT_OUTPUT), help="Output Excel workbook.")
+    parser.add_argument("--combined-out-file", default=None, help="Optional second Excel workbook that combines the JRC summary with Gaspar and TRI outputs. Default derives a sibling file next to --out-file.")
     return parser
 
 
@@ -1106,7 +1890,17 @@ def main() -> None:
     events_file = Path(args.events_file)
     flood_dir = Path(args.flood_dir)
     france_lookup_file = Path(args.france_lookup_file) if args.france_lookup_file else None
+    gaspar_file = Path(args.gaspar_file) if args.gaspar_file else None
+    france_old_insee_updates_file = (
+        Path(args.france_old_insee_updates_file) if args.france_old_insee_updates_file else None
+    )
+    tri_archive = Path(args.tri_archive) if args.tri_archive else None
     out_file = Path(args.out_file)
+    combined_out_file = (
+        Path(args.combined_out_file)
+        if args.combined_out_file
+        else derive_combined_output_path(out_file)
+    )
 
     target_countries = None
     if args.lau_country_filter and args.lau_country_filter.strip():
@@ -1151,6 +1945,7 @@ def main() -> None:
     points_gdf = build_points_gdf(points_df, point_columns)
     points_with_lau = map_points_to_lau(points_gdf, lau_gdf)
     points_with_lau = attach_france_lookup(points_with_lau, france_lookup_file)
+    points_with_lau["insee_com_key"] = normalize_insee_code_series(points_with_lau.get("insee_com"))
 
     target_lau_codes = {
         code
@@ -1230,6 +2025,52 @@ def main() -> None:
         threshold_cm=args.threshold_cm,
     )
 
+    gaspar_candidate_df = pd.DataFrame()
+    tri_classification_df = pd.DataFrame()
+    gaspar_fallback_enabled = not args.disable_gaspar_fallback
+    if gaspar_fallback_enabled:
+        required_gaspar_paths = [
+            gaspar_file,
+            france_lookup_file,
+            france_old_insee_updates_file,
+            tri_archive,
+        ]
+        if any(path is None or not path.exists() for path in required_gaspar_paths):
+            print("Gaspar fallback disabled at runtime because one or more required files are missing.")
+        else:
+            print("Loading Gaspar commune events for fallback flag logic...")
+            target_insee_codes = {
+                code
+                for code in points_with_lau["insee_com_key"].dropna().astype(str).str.strip().tolist()
+                if code
+            }
+            gaspar_events_df = load_resolved_gaspar_events(
+                gaspar_file=gaspar_file,
+                gaspar_sheet_name=args.gaspar_sheet_name,
+                france_lookup_file=france_lookup_file,
+                france_old_insee_updates_file=france_old_insee_updates_file,
+                target_insee_codes=target_insee_codes,
+            )
+            gaspar_events_df = filter_records_by_global_interval(
+                gaspar_events_df,
+                event_start_col="gaspar_start_date",
+                event_end_col="gaspar_end_date",
+                study_start=args.study_start,
+                study_end=args.study_end,
+            )
+            gaspar_candidate_df = build_gaspar_candidate_events(
+                points_with_lau=points_with_lau,
+                point_columns=point_columns,
+                gaspar_events_df=gaspar_events_df,
+                row_study_period_columns=row_study_period_columns,
+            )
+            print("Classifying points against national TRI flood-risk polygons...")
+            tri_classification_df = classify_points_against_tri(
+                points_gdf=points_gdf,
+                point_columns=point_columns,
+                tri_archive=tri_archive,
+            )
+
     print("Building summary tables...")
     summary_df = build_summary_table(
         original_points=points_df,
@@ -1243,6 +2084,8 @@ def main() -> None:
         threshold_cm=args.threshold_cm,
         study_start=args.study_start,
         study_end=args.study_end,
+        gaspar_candidate_df=pd.DataFrame(gaspar_candidate_df.drop(columns="geometry", errors="ignore")),
+        tri_classification_df=tri_classification_df,
     )
     candidate_sheet = build_candidate_sheet(
         candidate_df=pd.DataFrame(candidate_df.drop(columns="geometry", errors="ignore")),
@@ -1251,25 +2094,47 @@ def main() -> None:
         row_study_period_columns=row_study_period_columns,
     )
     hits_sheet = build_hits_sheet(candidate_sheet)
+    jrc_summary_sheet = build_jrc_output_summary_sheet(summary_df)
+    gaspar_candidate_sheet = build_gaspar_candidate_sheet(
+        gaspar_candidate_df=pd.DataFrame(gaspar_candidate_df.drop(columns="geometry", errors="ignore")),
+        point_columns=point_columns,
+        combined_summary_df=summary_df,
+        row_study_period_columns=row_study_period_columns,
+    )
+    tri_reference_sheet = build_tri_reference_sheet()
 
-    print("Writing workbook...")
+    print("Writing JRC workbook...")
     write_output_workbook(
         output_path=out_file,
-        summary_df=summary_df,
+        summary_df=jrc_summary_sheet,
         candidate_sheet=candidate_sheet,
         hits_sheet=hits_sheet,
     )
+    print("Writing combined JRC + Gaspar + TRI workbook...")
+    write_combined_output_workbook(
+        output_path=combined_out_file,
+        combined_summary_df=summary_df,
+        jrc_candidate_sheet=candidate_sheet,
+        jrc_hits_sheet=hits_sheet,
+        gaspar_candidate_sheet=gaspar_candidate_sheet,
+        tri_reference_sheet=tri_reference_sheet,
+    )
 
     print("Done.")
-    print(f"Output workbook: {out_file.resolve()}")
+    print(f"JRC workbook: {out_file.resolve()}")
+    print(f"Combined workbook: {combined_out_file.resolve()}")
     print(
         {
             "n_points": int(len(summary_df)),
             "n_points_with_lau": int(summary_df["lau_matched"].sum()),
             "n_points_with_candidate_events": int(summary_df["lau_touched_by_any_jrc_event"].sum()),
             "n_points_with_positive_hit": int(summary_df["jrc_flood_hit"].sum()),
+            "n_points_with_gaspar_commune_event": int(summary_df["gaspar_commune_hit"].sum()),
+            "n_points_with_flag_gaspar": int(summary_df["flag_gaspar"].sum()),
+            "n_points_with_final_flag_flood": int(summary_df["flag_flood"].sum()),
             "n_candidate_event_rows": int(len(candidate_sheet)),
             "n_positive_event_hits": int(len(hits_sheet)),
+            "n_gaspar_candidate_rows": int(len(gaspar_candidate_sheet)),
         }
     )
 

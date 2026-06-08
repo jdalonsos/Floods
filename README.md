@@ -166,6 +166,10 @@ and
 For a simpler free deployment on Streamlit Community Cloud, see
 [docs/streamlit_community_cloud_deployment.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_community_cloud_deployment.md).
 
+For a Render deployment path with an `onrender.com` domain, see
+[docs/render_deployment.md](/D:/M2_MoSEF/DataCollection/docs/render_deployment.md)
+and [render.yaml](/D:/M2_MoSEF/DataCollection/render.yaml).
+
 For a targeted external-source audit of the largest `Gaspar-only` and
 `JRC-only` mismatch clusters in **July 2021**, see
 [docs/july_2021_gaspar_jrc_mismatch_evidence_report.md](/D:/M2_MoSEF/DataCollection/docs/july_2021_gaspar_jrc_mismatch_evidence_report.md).

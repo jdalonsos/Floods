@@ -27,6 +27,7 @@ from check_points_against_jrc_floods import (  # noqa: E402
     build_row_level_study_periods,
     compute_buffer_stats,
     filter_candidate_events_by_row_study_period,
+    list_tri_inondable_members,
     parse_coordinate_series,
     resolve_named_column,
 )
@@ -54,6 +55,23 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertAlmostEqual(float(parsed.iloc[1]), 2.39401056)
         self.assertAlmostEqual(float(parsed.iloc[2]), 1234.56)
         self.assertAlmostEqual(float(parsed.iloc[3]), 1234.56)
+
+    def test_list_tri_inondable_members_accepts_directory_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tri_dir = Path(tmp_dir)
+            (tri_dir / "n_inondable_01_01for_s.shp").touch()
+            (tri_dir / "n_inondable_03_03mcc_s.shp").touch()
+            (tri_dir / "n_commune_s.shp").touch()
+
+            members = list_tri_inondable_members(tri_dir)
+
+        self.assertEqual(
+            members,
+            [
+                ("n_inondable_01_01for_s.shp", "01for"),
+                ("n_inondable_03_03mcc_s.shp", "03mcc"),
+            ],
+        )
 
     def test_compute_buffer_stats_uses_full_buffer_pixels_for_percentage(self) -> None:
         data = np.zeros((5, 5), dtype=np.float32)
@@ -345,6 +363,11 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(float(summary.loc[0, "max_buffer_depth_cm"]), 60.0)
         self.assertEqual(int(summary.loc[0, "max_buffer_flooded_pixels"]), 15)
         self.assertTrue(bool(summary.loc[0, "jrc_flood_hit"]))
+        self.assertEqual(int(summary.loc[0, "flag_jrc"]), 1)
+        self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 0)
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 1)
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "jrc")
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "case_a_jrc")
 
     def test_candidate_and_hits_sheets_include_min_depth_and_flooded_pixel_percentage(self) -> None:
         candidate_df = pd.DataFrame(
@@ -423,6 +446,289 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(len(hits_sheet), 1)
         self.assertIn("buffer_min_depth_cm", hits_sheet.columns)
         self.assertIn("buffer_flooded_pixel_pct", hits_sheet.columns)
+
+    def test_build_summary_table_uses_gaspar_high_risk_area_when_jrc_is_negative(self) -> None:
+        original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
+        points_with_lau = pd.DataFrame(
+            {
+                "point_id": [1],
+                "excel_row_number": [2],
+                "lau_code": ["FR_75056"],
+                "lau_code_local": ["75056"],
+                "lau_name": ["Paris"],
+                "country_code": ["FR"],
+                "insee_com": ["75056"],
+            }
+        )
+        candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "event_id": [pd.NA],
+                "start_date": pd.to_datetime([pd.NaT]),
+                "end_date": pd.to_datetime([pd.NaT]),
+                "raster_path_found": [False],
+            }
+        )
+        inspected_df = pd.DataFrame()
+        gaspar_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "gaspar_event_uid": ["gaspar-1"],
+                "cod_nat_catnat": ["CATNAT-1"],
+                "gaspar_start_date": pd.to_datetime(["2021-05-10"]),
+                "gaspar_end_date": pd.to_datetime(["2021-05-12"]),
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "tri_flood_risk_high_hit": [True],
+                "tri_flood_risk_medium_hit": [False],
+                "tri_flood_risk_low_hit": [False],
+                "tri_flood_risk_other_hit": [False],
+                "flood_risk_area_value": ["high"],
+                "TRI": ["high"],
+                "tri_scenario_codes": ["01For"],
+                "tri_scenario_labels": ["Aléa de forte probabilité"],
+                "riparian_zone_hit": [False],
+            }
+        )
+
+        summary = build_summary_table(
+            original_points=original_points,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            points_with_lau=points_with_lau,
+            candidate_df=candidate_df,
+            inspected_df=inspected_df,
+            default_date_inspected_df=None,
+            point_buffer_m=40.0,
+            surrounding_buffer_km=1.0,
+            threshold_cm=0.0,
+            study_start=None,
+            study_end=None,
+            gaspar_candidate_df=gaspar_candidate_df,
+            tri_classification_df=tri_classification_df,
+        )
+
+        self.assertFalse(bool(summary.loc[0, "jrc_flood_hit"]))
+        self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
+        self.assertTrue(bool(summary.loc[0, "gaspar_commune_hit"]))
+        self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
+        self.assertEqual(summary.loc[0, "TRI"], "high")
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 1)
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "gaspar")
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "case_b_gaspar_high_risk_area")
+        self.assertEqual(summary.loc[0, "flag_flood_start_date"], pd.Timestamp("2021-05-10"))
+        self.assertEqual(summary.loc[0, "flag_flood_end_date"], pd.Timestamp("2021-05-12"))
+
+    def test_build_summary_table_keeps_gaspar_outside_risk_area_negative(self) -> None:
+        original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
+        points_with_lau = pd.DataFrame(
+            {
+                "point_id": [1],
+                "excel_row_number": [2],
+                "lau_code": ["FR_75056"],
+                "lau_code_local": ["75056"],
+                "lau_name": ["Paris"],
+                "country_code": ["FR"],
+                "insee_com": ["75056"],
+            }
+        )
+        candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "event_id": [pd.NA],
+                "start_date": pd.to_datetime([pd.NaT]),
+                "end_date": pd.to_datetime([pd.NaT]),
+                "raster_path_found": [False],
+            }
+        )
+        gaspar_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "gaspar_event_uid": ["gaspar-2"],
+                "cod_nat_catnat": ["CATNAT-2"],
+                "gaspar_start_date": pd.to_datetime(["2019-11-01"]),
+                "gaspar_end_date": pd.to_datetime(["2019-11-04"]),
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "tri_flood_risk_high_hit": [False],
+                "tri_flood_risk_medium_hit": [False],
+                "tri_flood_risk_low_hit": [False],
+                "tri_flood_risk_other_hit": [False],
+                "flood_risk_area_value": ["out"],
+                "TRI": ["out"],
+                "tri_scenario_codes": [pd.NA],
+                "tri_scenario_labels": [pd.NA],
+                "riparian_zone_hit": [False],
+            }
+        )
+
+        summary = build_summary_table(
+            original_points=original_points,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            points_with_lau=points_with_lau,
+            candidate_df=candidate_df,
+            inspected_df=pd.DataFrame(),
+            default_date_inspected_df=None,
+            point_buffer_m=40.0,
+            surrounding_buffer_km=1.0,
+            threshold_cm=0.0,
+            study_start=None,
+            study_end=None,
+            gaspar_candidate_df=gaspar_candidate_df,
+            tri_classification_df=tri_classification_df,
+        )
+
+        self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
+        self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
+        self.assertEqual(summary.loc[0, "TRI"], "out")
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
+
+    def test_build_summary_table_keeps_gaspar_medium_risk_area_negative(self) -> None:
+        original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
+        points_with_lau = pd.DataFrame(
+            {
+                "point_id": [1],
+                "excel_row_number": [2],
+                "lau_code": ["FR_75056"],
+                "lau_code_local": ["75056"],
+                "lau_name": ["Paris"],
+                "country_code": ["FR"],
+                "insee_com": ["75056"],
+            }
+        )
+        candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "event_id": [pd.NA],
+                "start_date": pd.to_datetime([pd.NaT]),
+                "end_date": pd.to_datetime([pd.NaT]),
+                "raster_path_found": [False],
+            }
+        )
+        gaspar_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "gaspar_event_uid": ["gaspar-3"],
+                "cod_nat_catnat": ["CATNAT-3"],
+                "gaspar_start_date": pd.to_datetime(["2020-02-01"]),
+                "gaspar_end_date": pd.to_datetime(["2020-02-02"]),
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "tri_flood_risk_high_hit": [False],
+                "tri_flood_risk_medium_hit": [True],
+                "tri_flood_risk_low_hit": [False],
+                "tri_flood_risk_other_hit": [True],
+                "flood_risk_area_value": ["medium"],
+                "TRI": ["medium"],
+                "tri_scenario_codes": ["03Mcc"],
+                "tri_scenario_labels": [
+                    "Aléa de moyenne probabilité avec prise en compte du changement climatique"
+                ],
+                "riparian_zone_hit": [False],
+            }
+        )
+
+        summary = build_summary_table(
+            original_points=original_points,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            points_with_lau=points_with_lau,
+            candidate_df=candidate_df,
+            inspected_df=pd.DataFrame(),
+            default_date_inspected_df=None,
+            point_buffer_m=40.0,
+            surrounding_buffer_km=1.0,
+            threshold_cm=0.0,
+            study_start=None,
+            study_end=None,
+            gaspar_candidate_df=gaspar_candidate_df,
+            tri_classification_df=tri_classification_df,
+        )
+
+        self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
+        self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
+        self.assertEqual(summary.loc[0, "TRI"], "medium")
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
+
+    def test_build_summary_table_keeps_gaspar_low_risk_area_negative(self) -> None:
+        original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
+        points_with_lau = pd.DataFrame(
+            {
+                "point_id": [1],
+                "excel_row_number": [2],
+                "lau_code": ["FR_75056"],
+                "lau_code_local": ["75056"],
+                "lau_name": ["Paris"],
+                "country_code": ["FR"],
+                "insee_com": ["75056"],
+            }
+        )
+        candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "event_id": [pd.NA],
+                "start_date": pd.to_datetime([pd.NaT]),
+                "end_date": pd.to_datetime([pd.NaT]),
+                "raster_path_found": [False],
+            }
+        )
+        gaspar_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "gaspar_event_uid": ["gaspar-4"],
+                "cod_nat_catnat": ["CATNAT-4"],
+                "gaspar_start_date": pd.to_datetime(["2020-03-01"]),
+                "gaspar_end_date": pd.to_datetime(["2020-03-03"]),
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1],
+                "tri_flood_risk_high_hit": [False],
+                "tri_flood_risk_medium_hit": [False],
+                "tri_flood_risk_low_hit": [True],
+                "tri_flood_risk_other_hit": [True],
+                "flood_risk_area_value": ["low"],
+                "TRI": ["low"],
+                "tri_scenario_codes": ["04Fai"],
+                "tri_scenario_labels": ["Aléa de faible probabilité"],
+                "riparian_zone_hit": [False],
+            }
+        )
+
+        summary = build_summary_table(
+            original_points=original_points,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            points_with_lau=points_with_lau,
+            candidate_df=candidate_df,
+            inspected_df=pd.DataFrame(),
+            default_date_inspected_df=None,
+            point_buffer_m=40.0,
+            surrounding_buffer_km=1.0,
+            threshold_cm=0.0,
+            study_start=None,
+            study_end=None,
+            gaspar_candidate_df=gaspar_candidate_df,
+            tri_classification_df=tri_classification_df,
+        )
+
+        self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
+        self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
+        self.assertEqual(summary.loc[0, "TRI"], "low")
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
 
 
 if __name__ == "__main__":
