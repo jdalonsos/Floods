@@ -628,6 +628,10 @@ This is the subset of `candidate_events` where:
 
 It is the easiest sheet to use when you only want positive detections.
 
+For the current simplified output-column dictionary, see:
+
+- `docs/flood_workbook_column_dictionary.md`
+
 ## 9. Meaning of the Final Decision Flags
 
 The summary table sets:

@@ -19,9 +19,14 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from check_points_against_jrc_floods import (  # noqa: E402
+    GASPAR_EVENT_HITS_COLUMNS,
+    JRC_EVENT_HITS_COLUMNS,
     LONGITUDE_ALIASES,
     PointColumns,
     build_candidate_sheet,
+    build_gaspar_candidate_sheet,
+    build_gaspar_hits_sheet,
+    build_point_flag_sheet,
     build_hits_sheet,
     build_summary_table,
     build_row_level_study_periods,
@@ -444,10 +449,65 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(float(candidate_sheet.loc[0, "surrounding_buffer_flooded_pixel_pct"]), 12.0)
         self.assertEqual(int(candidate_sheet.loc[0, "buffer_total_pixels"]), 100)
         self.assertEqual(len(hits_sheet), 1)
+        expected_hits_columns = [column for column in JRC_EVENT_HITS_COLUMNS if column in candidate_sheet.columns]
+        self.assertEqual(hits_sheet.columns.tolist(), expected_hits_columns)
         self.assertIn("buffer_min_depth_cm", hits_sheet.columns)
         self.assertIn("buffer_flooded_pixel_pct", hits_sheet.columns)
+        self.assertNotIn("resolved_raster_path", hits_sheet.columns)
+        self.assertNotIn("surrounding_buffer_total_pixels", hits_sheet.columns)
 
-    def test_build_summary_table_uses_gaspar_high_risk_area_when_jrc_is_negative(self) -> None:
+    def test_build_point_flag_sheet_marks_only_hit_points(self) -> None:
+        points_df = pd.DataFrame({"point_id": [1, 2, 3, 4]})
+
+        result = build_point_flag_sheet(points_df, "point_id", {2, 4})
+
+        self.assertEqual(result["point_id"].tolist(), [1, 2, 3, 4])
+        self.assertEqual(result["flag_flood"].tolist(), [0, 1, 0, 1])
+
+    def test_gaspar_candidate_and_hits_sheets_keep_only_tri_for_or_riparian(self) -> None:
+        gaspar_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1, 2, 3],
+                "LAT": [45.0, 46.0, 47.0],
+                "LONG": [3.0, 4.0, 5.0],
+                "excel_row_number": [2, 3, 4],
+                "lau_code": ["FR_A", "FR_B", "FR_C"],
+                "lau_name": ["A", "B", "C"],
+                "insee_com": ["00001", "00002", "00003"],
+                "study_period_end": pd.to_datetime(["2024-12-31", "2024-12-31", "2024-12-31"]),
+                "gaspar_event_uid": ["g1", "g2", "g3"],
+                "cod_nat_catnat": ["c1", "c2", "c3"],
+                "gaspar_start_date": pd.to_datetime(["2020-01-01", "2020-02-01", "2020-03-01"]),
+                "gaspar_end_date": pd.to_datetime(["2020-01-03", "2020-02-03", "2020-03-03"]),
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1, 2, 3],
+                "tri_for_hit": [True, False, False],
+                "tri_boundary_hit": [True, True, False],
+                "tri_zone_status": ["for", "inside_n_tri_not_for", "outside_n_tri"],
+                "riparian_hit": [False, False, True],
+            }
+        )
+
+        candidate_sheet = build_gaspar_candidate_sheet(
+            gaspar_candidate_df=gaspar_candidate_df,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            tri_classification_df=tri_classification_df,
+            row_study_period_columns=None,
+        )
+        hits_sheet = build_gaspar_hits_sheet(candidate_sheet)
+
+        self.assertEqual(candidate_sheet["gaspar_spatial_hit"].tolist(), [True, False, True])
+        self.assertEqual(candidate_sheet["gaspar_hit_reason"].tolist(), ["tri_for", "not_selected", "riparian_outside_n_tri"])
+        self.assertEqual(hits_sheet["point_id"].tolist(), [1, 3])
+        self.assertEqual(hits_sheet["gaspar_event_uid"].tolist(), ["g1", "g3"])
+        expected_hits_columns = [column for column in GASPAR_EVENT_HITS_COLUMNS if column in candidate_sheet.columns]
+        self.assertEqual(hits_sheet.columns.tolist(), expected_hits_columns)
+        self.assertNotIn("gaspar_spatial_hit", hits_sheet.columns)
+
+    def test_build_summary_table_uses_gaspar_tri_for_when_jrc_is_negative(self) -> None:
         original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
         points_with_lau = pd.DataFrame(
             {
@@ -482,15 +542,11 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         tri_classification_df = pd.DataFrame(
             {
                 "point_id": [1],
-                "tri_flood_risk_high_hit": [True],
-                "tri_flood_risk_medium_hit": [False],
-                "tri_flood_risk_low_hit": [False],
-                "tri_flood_risk_other_hit": [False],
-                "flood_risk_area_value": ["high"],
-                "TRI": ["high"],
-                "tri_scenario_codes": ["01For"],
+                "tri_for_hit": [True],
+                "tri_boundary_hit": [True],
+                "tri_zone_status": ["for"],
+                "riparian_hit": [False],
                 "tri_scenario_labels": ["Aléa de forte probabilité"],
-                "riparian_zone_hit": [False],
             }
         )
 
@@ -514,14 +570,14 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
         self.assertTrue(bool(summary.loc[0, "gaspar_commune_hit"]))
         self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
-        self.assertEqual(summary.loc[0, "TRI"], "high")
+        self.assertTrue(bool(summary.loc[0, "tri_for_hit"]))
         self.assertEqual(int(summary.loc[0, "flag_flood"]), 1)
         self.assertEqual(summary.loc[0, "flag_flood_source"], "gaspar")
-        self.assertEqual(summary.loc[0, "flag_flood_case"], "case_b_gaspar_high_risk_area")
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "case_b_gaspar_tri_for")
         self.assertEqual(summary.loc[0, "flag_flood_start_date"], pd.Timestamp("2021-05-10"))
         self.assertEqual(summary.loc[0, "flag_flood_end_date"], pd.Timestamp("2021-05-12"))
 
-    def test_build_summary_table_keeps_gaspar_outside_risk_area_negative(self) -> None:
+    def test_build_summary_table_keeps_gaspar_inside_n_tri_not_for_negative(self) -> None:
         original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
         points_with_lau = pd.DataFrame(
             {
@@ -555,10 +611,10 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         tri_classification_df = pd.DataFrame(
             {
                 "point_id": [1],
-                "tri_flood_risk_high_hit": [False],
-                "tri_flood_risk_medium_hit": [False],
-                "tri_flood_risk_low_hit": [False],
-                "tri_flood_risk_other_hit": [False],
+                "tri_for_hit": [False],
+                "tri_boundary_hit": [True],
+                "tri_zone_status": ["inside_n_tri_not_for"],
+                "riparian_hit": [False],
                 "flood_risk_area_value": ["out"],
                 "TRI": ["out"],
                 "tri_scenario_codes": [pd.NA],
@@ -585,12 +641,13 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
 
         self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
         self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
-        self.assertEqual(summary.loc[0, "TRI"], "out")
+        self.assertTrue(bool(summary.loc[0, "tri_boundary_hit"]))
         self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
         self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
         self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
+        self.assertEqual(summary.loc[0, "flag_flood_decision_path"], "no_jrc_hit_gaspar_inside_n_tri_not_for")
 
-    def test_build_summary_table_keeps_gaspar_medium_risk_area_negative(self) -> None:
+    def test_build_summary_table_uses_gaspar_riparian_when_outside_n_tri(self) -> None:
         original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
         points_with_lau = pd.DataFrame(
             {
@@ -624,10 +681,10 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         tri_classification_df = pd.DataFrame(
             {
                 "point_id": [1],
-                "tri_flood_risk_high_hit": [False],
-                "tri_flood_risk_medium_hit": [True],
-                "tri_flood_risk_low_hit": [False],
-                "tri_flood_risk_other_hit": [True],
+                "tri_for_hit": [False],
+                "tri_boundary_hit": [False],
+                "tri_zone_status": ["outside_n_tri"],
+                "riparian_hit": [True],
                 "flood_risk_area_value": ["medium"],
                 "TRI": ["medium"],
                 "tri_scenario_codes": ["03Mcc"],
@@ -656,12 +713,14 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
 
         self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
         self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
-        self.assertEqual(summary.loc[0, "TRI"], "medium")
-        self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
-        self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
-        self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
+        self.assertTrue(bool(summary.loc[0, "riparian_hit"]))
+        self.assertEqual(int(summary.loc[0, "flag_flood"]), 1)
+        self.assertEqual(summary.loc[0, "flag_flood_case"], "case_c_gaspar_riparian")
+        self.assertEqual(summary.loc[0, "flag_flood_source"], "gaspar")
+        self.assertEqual(summary.loc[0, "flag_flood_start_date"], pd.Timestamp("2020-02-01"))
+        self.assertEqual(summary.loc[0, "flag_flood_end_date"], pd.Timestamp("2020-02-02"))
 
-    def test_build_summary_table_keeps_gaspar_low_risk_area_negative(self) -> None:
+    def test_build_summary_table_keeps_gaspar_outside_n_tri_and_riparian_negative(self) -> None:
         original_points = pd.DataFrame({"point_id": [1], "LAT": [48.8566], "LONG": [2.3522]})
         points_with_lau = pd.DataFrame(
             {
@@ -695,10 +754,10 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         tri_classification_df = pd.DataFrame(
             {
                 "point_id": [1],
-                "tri_flood_risk_high_hit": [False],
-                "tri_flood_risk_medium_hit": [False],
-                "tri_flood_risk_low_hit": [True],
-                "tri_flood_risk_other_hit": [True],
+                "tri_for_hit": [False],
+                "tri_boundary_hit": [False],
+                "tri_zone_status": ["outside_n_tri"],
+                "riparian_hit": [False],
                 "flood_risk_area_value": ["low"],
                 "TRI": ["low"],
                 "tri_scenario_codes": ["04Fai"],
@@ -725,10 +784,14 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
 
         self.assertEqual(int(summary.loc[0, "flag_jrc"]), 0)
         self.assertEqual(int(summary.loc[0, "flag_gaspar"]), 1)
-        self.assertEqual(summary.loc[0, "TRI"], "low")
+        self.assertEqual(summary.loc[0, "tri_zone_status"], "outside_n_tri")
         self.assertEqual(int(summary.loc[0, "flag_flood"]), 0)
         self.assertEqual(summary.loc[0, "flag_flood_case"], "none")
         self.assertEqual(summary.loc[0, "flag_flood_source"], "none")
+        self.assertEqual(
+            summary.loc[0, "flag_flood_decision_path"],
+            "no_jrc_hit_gaspar_outside_n_tri_and_riparian",
+        )
 
 
 if __name__ == "__main__":

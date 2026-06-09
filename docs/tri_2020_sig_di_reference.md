@@ -76,7 +76,111 @@ The most important families in this folder are:
 - `n_tri_s`: TRI territory boundaries
 - `n_commune_s`: communes intersecting TRI
 
-### 3.3 Scenario codes
+### 3.3 Full filename anatomy
+
+The kept TRI filenames are not random. They are structured.
+
+Example:
+
+```text
+n_inondable_03_03mcc_s
+```
+
+This can be read as:
+
+- `n`: national-layer naming prefix used in the TRI delivery
+- `inondable`: floodable-surface family
+- first `03`: flood type code, stored in the TRI attributes as `typ_inond`
+- second `03mcc`: scenario code, stored in the TRI attributes as `scenario`
+- final `_s`: surface geometry layer
+
+So the general pattern is:
+
+```text
+n_inondable_[typ_inond]_[scenario]_s
+```
+
+Another example:
+
+```text
+n_inondable_01_01for_s
+```
+
+This means:
+
+- floodable-surface polygons
+- flood type `01`
+- scenario `01For`
+- polygon geometry
+
+And:
+
+```text
+n_inondable_02_02moy_s
+```
+
+means:
+
+- floodable-surface polygons
+- flood type `02`
+- scenario `02Moy`
+- polygon geometry
+
+Important point:
+
+- the two code blocks do **not** mean the same thing
+- the first block is about the **kind of flooding**
+- the second block is about the **scenario / probability framing**
+
+### 3.4 What the first code means: `typ_inond`
+
+From the official TRI ArcGIS layer metadata, the `typ_inond` field is the flood-type code.
+
+The delivered values used in this national folder align with:
+
+| First code in filename | TRI field | Meaning |
+| --- | --- | --- |
+| `01` | `typ_inond = 01` | `debordement de cours d'eau` |
+| `02` | `typ_inond = 02` | `ruissellement` |
+| `03` | `typ_inond = 03` | `submersion marine` |
+
+Official reference:
+
+- [Zonages Inondation - Rapportage 2020 ArcGIS layers](https://services.arcgis.com/d3voDfTFbHOCRwVR/arcgis/rest/services/Zonages_Inondation___Rapportage_2020/FeatureServer/layers)
+
+What that means in practice:
+
+- `n_inondable_01_*` layers are river-overflow floodable surfaces
+- `n_inondable_02_*` layers are runoff floodable surfaces
+- `n_inondable_03_*` layers are marine-submersion floodable surfaces
+
+Important nuance:
+
+- in the unpacked `tri_2020_sig_di` folder we observed only `01`, `02`, and `03`
+- we did **not** observe a `typ_inond = 04` value in this local delivery
+- so the current documentation only explains the flood-type values that are actually present in your TRI source
+
+### 3.5 Local evidence from the unpacked layers
+
+The interpretation above is not based only on the filename. It is also confirmed by the actual attribute fields inside the local shapefiles.
+
+Representative local examples:
+
+| Local layer | `typ_inond` | `scenario` | Sample clue from attributes | Interpretation |
+| --- | --- | --- | --- | --- |
+| `n_inondable_01_01for_s` | `01` | `01For` | sample `cours_deau = Berre` | river-overflow type + high-probability scenario |
+| `n_inondable_02_01for_s` | `02` | `01For` | `cours_deau` empty in sample | runoff type + high-probability scenario |
+| `n_inondable_03_01for_s` | `03` | `01For` | sample `cours_deau = submar` | marine-submersion type + high-probability scenario |
+| `n_inondable_03_03mcc_s` | `03` | `03Mcc` | sample `cours_deau = submar` | marine-submersion type + medium climate-change scenario |
+| `n_inondable_03_01forcc_ct_s` | `03` | `01Forcc_ct` | TRI id contains `_SUBMAR` in the sample | marine-submersion type + high climate-change short-term scenario |
+
+This local evidence matters because it shows that:
+
+- the first code in the filename really does match the `typ_inond` field
+- the second code really does match the `scenario` field
+- the repository is not inventing this split; it is already present in the official TRI data model
+
+### 3.6 What the second code means: `scenario`
 
 The current repository interprets the delivered TRI scenario codes like this:
 
@@ -98,40 +202,78 @@ Important note:
 - The climate-change variants such as `Forcc` and `Mcc` come from the delivered 2020 layer names and scenario values.
 - The current code supports a few scenario codes that do not appear in the unpacked national folder today, such as `01Forcc_100` and `04Fai_100`, so the mapping stays future-safe.
 
+### 3.7 Why filenames look repetitive, for example `01_01`, `01_02`, `03_03`
+
+The repetition is expected because the two blocks describe different dimensions:
+
+- first block = flood type
+- second block = scenario
+
+So:
+
+- `01_01for` means flood type `01` with scenario `01For`
+- `01_02moy` means flood type `01` with scenario `02Moy`
+- `01_03mcc` means flood type `01` with scenario `03Mcc`
+- `03_01for` means flood type `03` with scenario `01For`
+- `03_03mcc` means flood type `03` with scenario `03Mcc`
+
+This is why filenames can look like "double-coded" names:
+
+- `01_01for`
+- `01_02moy`
+- `02_01for`
+- `03_01for`
+
+They are not duplicates. They are saying:
+
+- what kind of flooding the layer represents
+- under which scenario the floodable surface was produced
+
+### 3.8 What the repository uses from that naming
+
+The repository does **not** currently use both code blocks equally.
+
+Current business behavior:
+
+- the script reads all kept `n_inondable_*` layers
+- it keeps the full TRI attributes available during loading
+- but the final BCEF TRI class is driven by the **scenario block**
+- the first flood-type block is currently **not** used in the final `flag_flood` decision
+
+In other words:
+
+- `01_01for`, `02_01for`, and `03_01for` all become `TRI = high` in the current repo logic
+- because the repo groups them by scenario severity, not by flood type
+
 Also important:
 
 - the first numeric block in filenames such as `n_inondable_01_01for_s` or `n_inondable_03_03mcc_s` is preserved exactly as delivered
-- the current repository does **not** reinterpret that first block for business logic
+- the current repository does **not** reinterpret that first block for the final BCEF flag
 - the workflow only uses the scenario code itself to classify `TRI = high / medium / low / out`
 
 ## 4. Which TRI files the repository actually uses
 
-For the current BCEF combined JRC + Gaspar workflow, the code only reads the `n_inondable_*` family.
+For the current BCEF combined JRC + Gaspar workflow, the repository now keeps only the TRI files required by the simplified final logic:
 
-This happens in `src/check_points_against_jrc_floods.py`:
+- `TRI For` polygons
+- `n_tri` territory boundaries
 
-- `list_tri_inondable_members(...)` keeps only shapefiles whose names start with `n_inondable_`
-- `classify_points_against_tri(...)` loads all those polygons and intersects them with the points
-- the intersected scenario codes are then reduced to one output class per point: `high`, `medium`, `low`, or `out`
+In code terms, the current logic is:
 
-The exact layer stems used today are:
+- if a Gaspar point is inside `TRI For` -> keep the Gaspar flood hit
+- if it is not inside `TRI For` but still inside `n_tri` -> do not keep the hit
+- if it is outside `n_tri` -> check riparian polygons
 
-| Layer stem | Delivered scenario | Repo TRI class | Why we keep it |
-| --- | --- | --- | --- |
-| `n_inondable_01_01for_s` | `01For` | `high` | Floodable-surface extent for a high-probability scenario |
-| `n_inondable_01_02moy_s` | `02Moy` | `medium` | Floodable-surface extent for a medium-probability scenario |
-| `n_inondable_01_03mcc_s` | `03Mcc` | `medium` | Floodable-surface extent for a medium climate-change scenario |
-| `n_inondable_01_04fai_s` | `04Fai` | `low` | Floodable-surface extent for a low-probability scenario |
-| `n_inondable_02_01for_s` | `01For` | `high` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_02_02moy_s` | `02Moy` | `medium` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_02_04fai_s` | `04Fai` | `low` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_03_01for_s` | `01For` | `high` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_03_01forcc_ct_s` | `01Forcc_ct` | `high` | Climate-change high scenario extent |
-| `n_inondable_03_02moy_s` | `02Moy` | `medium` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_03_03mcc_ct_s` | `03Mcc_ct` | `medium` | Climate-change medium scenario extent |
-| `n_inondable_03_03mcc_s` | `03Mcc` | `medium` | Medium climate-change scenario extent |
-| `n_inondable_03_04fai_s` | `04Fai` | `low` | Additional delivered floodable-surface extent, same TRI class |
-| `n_inondable_03_04faicc_ct_s` | `04Faicc_ct` | `low` | Climate-change low scenario extent |
+So the repository does **not** need the medium, low, or climate-change TRI layers anymore.
+
+The exact TRI layer stems kept for the current repository are:
+
+| Layer stem | Delivered scenario | Why it is kept |
+| --- | --- | --- |
+| `n_inondable_01_01for_s` | `01For` | River-overflow `For` polygons |
+| `n_inondable_02_01for_s` | `01For` | Runoff `For` polygons |
+| `n_inondable_03_01for_s` | `01For` | Marine-submersion `For` polygons |
+| `n_tri_s` | not a scenario layer | National TRI territory boundaries used to distinguish `inside n_tri but not For` from `outside n_tri` |
 
 ### 4.1 Sidecar files that are also required
 
@@ -150,7 +292,7 @@ What each file does:
 
 - `.shp`: the main geometry file. This is where the polygon shapes themselves are stored.
 - `.shx`: the geometry index file. It lets GIS readers jump to the right geometry records inside the `.shp`.
-- `.dbf`: the attribute table. This is where non-geometric fields such as `scenario`, `id_tri`, `typ_inond`, and `cours_deau` are stored.
+- `.dbf`: the attribute table. This is where non-geometric fields such as `scenario`, `id_tri`, `typ_inond`, and `cours_deau` are stored when they exist.
 - `.prj`: the coordinate reference system definition. It tells the reader which map projection / CRS the layer uses so the geometries can be interpreted correctly.
 - `.qix`: an optional spatial index. It can make spatial reads faster, but GeoPandas / GDAL can still read the layer without it.
 
@@ -165,32 +307,64 @@ In practical terms, one kept TRI layer such as `n_inondable_01_01for_s` is not j
 Why the workflow really needs all required sidecars:
 
 - without `.shp`, there is no geometry to intersect with the points
-- without `.dbf`, the code loses the `scenario` field used to classify `TRI = high / medium / low`
+- without `.dbf`, the code loses the attributes used to identify `TRI For` layers and the `n_tri` boundaries
 - without `.prj`, CRS handling becomes unreliable or ambiguous
 - without `.shx`, many GIS readers will fail or behave badly when opening the shapefile
 
-That is why the repository tracks only these extensions for the kept `n_inondable_*` stems.
+That is why the repository tracks only these extensions for the kept TRI stems.
 
 ### 4.2 Why this family is enough for the current workflow
 
-The BCEF rule does not currently need detailed hydraulic metrics from TRI. It only needs a point-level answer to:
+The current BCEF rule does not currently need detailed hydraulic metrics from TRI. It only needs point-level answers to:
 
-- is the point inside a TRI floodable polygon?
-- if yes, is that polygon tied to a `high`, `medium`, or `low` scenario?
+- is the point inside a plain `TRI For` polygon?
+- if not, is the point still inside a `n_tri` territory boundary?
 
-That is why `n_inondable_*` is the right family for the present logic:
+That is why the reduced TRI payload is enough for the present logic:
 
-- it is directly about floodable surfaces
-- it already carries the scenario code in the `scenario` field
-- it supports a simple point-in-polygon classification
+- the `n_inondable_*01for*` layers give the positive `TRI For` branch
+- `n_tri_s` gives the `inside n_tri but not For` branch
+- all other TRI scenario layers can stay local but do not need to be tracked in GitHub
+
+### 4.3 Minimal riparian payload tracked with the workflow
+
+The current Gaspar fallback also uses a small riparian payload under `data/raw/France_Riparian`.
+
+The code does **not** need:
+
+- the original `.zip` downloads
+- metadata XML files
+- symbology folders
+- `.sbn`, `.sbx`, `.shp.xml`, or other optional sidecars
+
+For the current workflow, the repository only needs the shapefile components:
+
+- `.shp`
+- `.shx`
+- `.dbf`
+- `.prj`
+
+for the local `rpz_*` layers that currently exist in `France_Riparian/**/Data/`.
+
+Local folders observed in the current workspace:
+
+- `rpz_DU006A`
+- `rpz_DU009A`
+- `rpz_DU016A`
+- `rpz_DU017A`
+- `rpz_DU041A`
+- `rpz_DU043A`
+
+At runtime the script scans only `rpz_*.shp` files inside those `Data/` folders.
 
 ## 5. How the repository uses those files in practice
 
 At runtime, the current script does this:
 
-1. Load all `n_inondable_*` members from `data/raw/tri_2020_sig_di`.
-2. Read only the polygons inside the points' bounding box.
-3. Spatially intersect point geometries with those polygons.
+1. Load only the plain `01For` members from `data/raw/tri_2020_sig_di`.
+2. Load `n_tri_s`.
+3. Read only the polygons inside the points' bounding box.
+4. Spatially intersect point geometries with those polygons.
 4. Collect all intersected TRI scenario codes per point.
 5. Reduce those scenario codes to one output class:
    - `high`
@@ -235,7 +409,7 @@ Why it is not used:
 
 - the layer name is about zones removed from inundation representation, not riparian corridors
 - earlier in the project it was tested as a possible proxy, but that interpretation was too weak
-- the current code does **not** use any riparian fallback
+- the current code now uses dedicated `France_Riparian/**/Data/rpz_*.shp` layers for riparian fallback instead
 
 So `n_soust_inond_s` is now explicitly excluded from the decision rule.
 
