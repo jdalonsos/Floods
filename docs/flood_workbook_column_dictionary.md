@@ -9,6 +9,10 @@ Current output files:
 
 The goal is to keep the `event_hits` sheets short and readable, while still documenting every kept variable.
 
+For the exact TRI and Copernicus riparian shapefiles behind the Gaspar spatial flags, see:
+
+- `docs/tri_2020_sig_di_reference.md`
+
 ## 1. Workbook Structure
 
 ### JRC workbook
@@ -16,12 +20,14 @@ The goal is to keep the `event_hits` sheets short and readable, while still docu
 Sheets:
 
 - `point_flags`
+- `Detailed`
 - `candidate_events`
 - `event_hits`
 
 Meaning:
 
 - `point_flags` gives one row per point and a simple `0/1` flood flag.
+- `Detailed` keeps one row per original T20 input row, with all original workbook columns plus a leading binary `touched` flag.
 - `candidate_events` keeps the full point x JRC-event diagnostic detail.
 - `event_hits` keeps only the positive JRC matches and only the core columns.
 
@@ -30,12 +36,14 @@ Meaning:
 Sheets:
 
 - `point_flags`
+- `Detailed`
 - `candidate_events`
 - `event_hits`
 
 Meaning:
 
 - `point_flags` gives one row per point and a simple `0/1` Gaspar-derived flood flag.
+- `Detailed` keeps one row per original T20 input row, with all original workbook columns plus a leading binary `touched` flag.
 - `candidate_events` keeps the point x Gaspar-event matches that survive the row-level date filter.
 - `event_hits` keeps only the final spatial positives:
   - `TRI For`
@@ -50,7 +58,22 @@ These columns are the same in both workbooks.
 | `point_id` | Point identifier from the input workbook. |
 | `flag_flood` | Final point-level flag. `1` means at least one positive event hit was found for that point. `0` means none was found. |
 
-## 3. JRC `event_hits` Columns
+## 3. `Detailed` Sheet
+
+These columns are written in both workbooks.
+
+- `point_id` is moved to the front.
+- `touched` is inserted right after it.
+- all other original T20 columns are kept after those two leading fields.
+
+Meaning of `touched`:
+
+- JRC workbook:
+  `1` means the point has at least one positive JRC event hit, where either the local `40 m` point buffer or the `1 km` surrounding buffer was flooded.
+- Gaspar workbook:
+  `1` means the point has at least one positive Gaspar hit after the `TRI For / outside n_tri + riparian` filter.
+
+## 4. JRC `event_hits` Columns
 
 The JRC `event_hits` sheet keeps only the essential point, event, date, and buffer-depth fields.
 
@@ -97,7 +120,7 @@ The JRC `event_hits` sheet keeps only the essential point, event, date, and buff
 | `buffer_median_depth_cm` | Median flooded-pixel depth inside the `1 km` surrounding buffer. |
 | `buffer_mean_depth_cm` | Mean flooded-pixel depth inside the `1 km` surrounding buffer. |
 
-## 4. Gaspar `candidate_events` and `event_hits` Columns
+## 5. Gaspar `candidate_events` and `event_hits` Columns
 
 The Gaspar `event_hits` sheet is a filtered subset of the Gaspar `candidate_events` sheet.
 
@@ -136,7 +159,7 @@ The kept columns are:
 | `riparian_hit` | `True` when the point falls inside a riparian polygon. |
 | `gaspar_hit_reason` | Final spatial reason kept by the workflow: `tri_for`, `riparian_outside_n_tri`, or `not_selected`. |
 
-## 5. Reading the Two Workbooks Together
+## 6. Reading the Two Workbooks Together
 
 The simplest interpretation is:
 

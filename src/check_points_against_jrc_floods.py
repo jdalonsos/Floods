@@ -1858,6 +1858,26 @@ def build_point_flag_sheet(
     return result.sort_values("point_id").reset_index(drop=True)
 
 
+def build_detailed_sheet(
+    points_df: pd.DataFrame,
+    point_id_col: str,
+    hit_point_ids: set[Any],
+    *,
+    touch_column: str = "touched",
+) -> pd.DataFrame:
+    result = points_df.copy()
+    if point_id_col != "point_id":
+        result.insert(0, "point_id", result[point_id_col])
+    result.insert(
+        1 if "point_id" in result.columns and result.columns[0] == "point_id" else 0,
+        touch_column,
+        result[point_id_col].isin(hit_point_ids).astype(int),
+    )
+    leading_cols = ["point_id", touch_column]
+    ordered_cols = leading_cols + [column for column in result.columns if column not in leading_cols]
+    return result[ordered_cols].copy()
+
+
 def build_gaspar_candidate_sheet(
     gaspar_candidate_df: pd.DataFrame,
     point_columns: PointColumns,
@@ -2020,12 +2040,14 @@ def build_tri_reference_sheet() -> pd.DataFrame:
 def write_output_workbook(
     output_path: Path,
     point_flag_sheet: pd.DataFrame,
+    detailed_sheet: pd.DataFrame,
     candidate_sheet: pd.DataFrame,
     hits_sheet: pd.DataFrame,
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         point_flag_sheet.to_excel(writer, sheet_name="point_flags", index=False)
+        detailed_sheet.to_excel(writer, sheet_name="Detailed", index=False)
         candidate_sheet.to_excel(writer, sheet_name="candidate_events", index=False)
         hits_sheet.to_excel(writer, sheet_name="event_hits", index=False)
 
@@ -2033,12 +2055,14 @@ def write_output_workbook(
 def write_gaspar_output_workbook(
     output_path: Path,
     point_flag_sheet: pd.DataFrame,
+    detailed_sheet: pd.DataFrame,
     candidate_sheet: pd.DataFrame,
     hits_sheet: pd.DataFrame,
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         point_flag_sheet.to_excel(writer, sheet_name="point_flags", index=False)
+        detailed_sheet.to_excel(writer, sheet_name="Detailed", index=False)
         candidate_sheet.to_excel(writer, sheet_name="candidate_events", index=False)
         hits_sheet.to_excel(writer, sheet_name="event_hits", index=False)
 
@@ -2320,6 +2344,11 @@ def main() -> None:
         point_columns.point_id,
         jrc_hit_point_ids,
     )
+    jrc_detailed_sheet = build_detailed_sheet(
+        points_df,
+        point_columns.point_id,
+        jrc_hit_point_ids,
+    )
     gaspar_candidate_sheet = build_gaspar_candidate_sheet(
         gaspar_candidate_df=pd.DataFrame(gaspar_candidate_df.drop(columns="geometry", errors="ignore")),
         point_columns=point_columns,
@@ -2333,11 +2362,17 @@ def main() -> None:
         point_columns.point_id,
         gaspar_hit_point_ids,
     )
+    gaspar_detailed_sheet = build_detailed_sheet(
+        points_df,
+        point_columns.point_id,
+        gaspar_hit_point_ids,
+    )
 
     print("Writing JRC workbook...")
     write_output_workbook(
         output_path=out_file,
         point_flag_sheet=jrc_point_flag_sheet,
+        detailed_sheet=jrc_detailed_sheet,
         candidate_sheet=candidate_sheet,
         hits_sheet=hits_sheet,
     )
@@ -2345,6 +2380,7 @@ def main() -> None:
     write_gaspar_output_workbook(
         output_path=gaspar_out_file,
         point_flag_sheet=gaspar_point_flag_sheet,
+        detailed_sheet=gaspar_detailed_sheet,
         candidate_sheet=gaspar_candidate_sheet,
         hits_sheet=gaspar_hits_sheet,
     )

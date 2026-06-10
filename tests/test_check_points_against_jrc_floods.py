@@ -24,6 +24,7 @@ from check_points_against_jrc_floods import (  # noqa: E402
     LONGITUDE_ALIASES,
     PointColumns,
     build_candidate_sheet,
+    build_detailed_sheet,
     build_gaspar_candidate_sheet,
     build_gaspar_hits_sheet,
     build_point_flag_sheet,
@@ -463,6 +464,26 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
 
         self.assertEqual(result["point_id"].tolist(), [1, 2, 3, 4])
         self.assertEqual(result["flag_flood"].tolist(), [0, 1, 0, 1])
+
+    def test_build_detailed_sheet_keeps_original_rows_and_prepends_touch_flag(self) -> None:
+        points_df = pd.DataFrame(
+            {
+                "point_id": [11, 12],
+                "LAT": [47.5, 48.5],
+                "LONG": [6.8, 2.3],
+                "Reference_Date": pd.to_datetime(["2020-01-01", "2021-01-01"]),
+            }
+        )
+
+        result = build_detailed_sheet(points_df, "point_id", {12})
+
+        self.assertEqual(
+            result.columns.tolist(),
+            ["point_id", "touched", "LAT", "LONG", "Reference_Date"],
+        )
+        self.assertEqual(result["point_id"].tolist(), [11, 12])
+        self.assertEqual(result["touched"].tolist(), [0, 1])
+        self.assertEqual(result["LAT"].tolist(), [47.5, 48.5])
 
     def test_gaspar_candidate_and_hits_sheets_keep_only_tri_for_or_riparian(self) -> None:
         gaspar_candidate_df = pd.DataFrame(

@@ -2,6 +2,13 @@
 
 This document explains the logic of `src/check_points_against_jrc_floods.py` in detail.
 
+It mainly focuses on the JRC raster branch, because that is the most technical part of the workflow.
+
+For the current simplified Gaspar spatial branch and the exact TRI / riparian files used, see:
+
+- `docs/tri_2020_sig_di_reference.md`
+- `docs/flood_workbook_column_dictionary.md`
+
 It is meant for cases where you want to understand:
 
 - how the script reads an Excel workbook of latitude / longitude points
@@ -15,9 +22,12 @@ It is meant for cases where you want to understand:
 
 The script is a point-level flood screening workflow.
 
-It answers a question like:
+It answers two linked questions:
 
-> For each coordinate in my workbook, is there evidence that at least one official JRC flood event affected the local `40 m` point area or the nearby `1 km` surrounding area?
+- JRC branch:
+  for each coordinate, is there evidence that at least one official JRC flood event affected the local `40 m` point area or the nearby `1 km` surrounding area?
+- Gaspar branch:
+  if JRC stays negative, does the point still qualify through the simplified `TRI For / outside n_tri + riparian` Gaspar fallback?
 
 The script is designed to be much faster than checking every point against every TIFF.
 
@@ -28,7 +38,15 @@ It uses two stages:
 2. Raster confirmation:
    open only those candidate TIFFs and inspect both the `40 m` point buffer and the `1 km` surrounding buffer.
 
-So the final decision is still raster-based, but the script uses the tabular LAU event table to reduce the search space first.
+So the JRC decision is still raster-based, but the script uses the tabular LAU event table to reduce the search space first.
+
+The Gaspar branch is different:
+
+- it starts from commune-level Gaspar events
+- it applies the same row-level date end logic
+- then it keeps only the events whose points fall in:
+  - `TRI For`
+  - or `outside n_tri` and `inside riparian`
 
 ## 2. What The Script Needs
 
