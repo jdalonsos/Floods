@@ -42,6 +42,7 @@ DEFAULT_RIPARIAN_ROOT = Path("data/raw/France_Riparian")
 DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check.xlsx")
 DEFAULT_POINT_BUFFER_M = 40.0
 DEFAULT_SURROUNDING_BUFFER_KM = 1.0
+EXCEL_MAX_DATA_ROWS = 1_048_575
 TRI_ARCHIVE_ROOT = "tri_2020_sig_di"
 TRI_INONDABLE_PREFIX = "n_inondable_"
 TRI_BOUNDARY_FILENAME = "n_tri_s.shp"
@@ -2038,6 +2039,36 @@ def build_tri_reference_sheet() -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["tri_level", "tri_scenario_code"]).reset_index(drop=True)
 
 
+def split_dataframe_for_excel(
+    df: pd.DataFrame,
+    sheet_name: str,
+    *,
+    max_rows: int = EXCEL_MAX_DATA_ROWS,
+) -> list[tuple[str, pd.DataFrame]]:
+    if len(df) <= max_rows:
+        return [(sheet_name, df)]
+
+    parts: list[tuple[str, pd.DataFrame]] = []
+    for chunk_index, start in enumerate(range(0, len(df), max_rows), start=1):
+        chunk = df.iloc[start : start + max_rows].copy()
+        suffix = "" if chunk_index == 1 else f"_{chunk_index}"
+        allowed_base_length = max(1, 31 - len(suffix))
+        chunk_sheet_name = f"{sheet_name[:allowed_base_length]}{suffix}"
+        parts.append((chunk_sheet_name, chunk))
+    return parts
+
+
+def write_dataframe_to_excel(
+    writer: pd.ExcelWriter,
+    df: pd.DataFrame,
+    sheet_name: str,
+    *,
+    index: bool = False,
+) -> None:
+    for chunk_sheet_name, chunk_df in split_dataframe_for_excel(df, sheet_name):
+        chunk_df.to_excel(writer, sheet_name=chunk_sheet_name, index=index)
+
+
 def write_output_workbook(
     output_path: Path,
     point_flag_sheet: pd.DataFrame,
@@ -2047,10 +2078,10 @@ def write_output_workbook(
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
-        point_flag_sheet.to_excel(writer, sheet_name="point_flags", index=False)
-        detailed_sheet.to_excel(writer, sheet_name="Detailed", index=False)
-        candidate_sheet.to_excel(writer, sheet_name="candidate_events", index=False)
-        hits_sheet.to_excel(writer, sheet_name="event_hits", index=False)
+        write_dataframe_to_excel(writer, point_flag_sheet, "point_flags", index=False)
+        write_dataframe_to_excel(writer, detailed_sheet, "Detailed", index=False)
+        write_dataframe_to_excel(writer, candidate_sheet, "candidate_events", index=False)
+        write_dataframe_to_excel(writer, hits_sheet, "event_hits", index=False)
 
 
 def write_gaspar_output_workbook(
@@ -2062,10 +2093,10 @@ def write_gaspar_output_workbook(
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
-        point_flag_sheet.to_excel(writer, sheet_name="point_flags", index=False)
-        detailed_sheet.to_excel(writer, sheet_name="Detailed", index=False)
-        candidate_sheet.to_excel(writer, sheet_name="candidate_events", index=False)
-        hits_sheet.to_excel(writer, sheet_name="event_hits", index=False)
+        write_dataframe_to_excel(writer, point_flag_sheet, "point_flags", index=False)
+        write_dataframe_to_excel(writer, detailed_sheet, "Detailed", index=False)
+        write_dataframe_to_excel(writer, candidate_sheet, "candidate_events", index=False)
+        write_dataframe_to_excel(writer, hits_sheet, "event_hits", index=False)
 
 
 def derive_gaspar_output_path(output_path: Path) -> Path:

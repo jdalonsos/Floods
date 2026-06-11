@@ -36,6 +36,7 @@ from check_points_against_jrc_floods import (  # noqa: E402
     list_tri_inondable_members,
     parse_coordinate_series,
     resolve_named_column,
+    split_dataframe_for_excel,
 )
 
 
@@ -484,6 +485,15 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(result["point_id"].tolist(), [11, 12])
         self.assertEqual(result["touched"].tolist(), [0, 1])
         self.assertEqual(result["LAT"].tolist(), [47.5, 48.5])
+
+    def test_split_dataframe_for_excel_splits_large_sheets_into_numbered_tabs(self) -> None:
+        df = pd.DataFrame({"value": [1, 2, 3, 4, 5]})
+
+        parts = split_dataframe_for_excel(df, "candidate_events", max_rows=2)
+
+        self.assertEqual([sheet_name for sheet_name, _ in parts], ["candidate_events", "candidate_events_2", "candidate_events_3"])
+        self.assertEqual([len(chunk) for _, chunk in parts], [2, 2, 1])
+        self.assertEqual(parts[1][1]["value"].tolist(), [3, 4])
 
     def test_gaspar_candidate_and_hits_sheets_keep_only_tri_for_or_riparian(self) -> None:
         gaspar_candidate_df = pd.DataFrame(

@@ -31,6 +31,13 @@ Meaning:
 - `candidate_events` keeps the full point x JRC-event diagnostic detail.
 - `event_hits` keeps only the positive JRC matches and only the core columns.
 
+Large-sheet note:
+
+- if a workbook sheet exceeds the Excel row limit, the code automatically splits it into numbered tabs such as:
+  - `candidate_events`
+  - `candidate_events_2`
+  - `candidate_events_3`
+
 ### Gaspar workbook
 
 Sheets:
@@ -48,6 +55,13 @@ Meaning:
 - `event_hits` keeps only the final spatial positives:
   - `TRI For`
   - or `outside n_tri` and `inside riparian`
+
+Large-sheet note:
+
+- if a workbook sheet exceeds the Excel row limit, the code automatically splits it into numbered tabs such as:
+  - `candidate_events`
+  - `candidate_events_2`
+  - `candidate_events_3`
 
 ## 2. `point_flags` Columns
 
