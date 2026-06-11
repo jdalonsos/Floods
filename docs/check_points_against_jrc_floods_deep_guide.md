@@ -8,6 +8,7 @@ For the current simplified Gaspar spatial branch and the exact TRI / riparian fi
 
 - `docs/tri_2020_sig_di_reference.md`
 - `docs/flood_workbook_column_dictionary.md`
+- `docs/gaspar_all_dates_workflow.md`
 
 It is meant for cases where you want to understand:
 
