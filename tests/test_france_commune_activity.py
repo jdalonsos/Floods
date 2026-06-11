@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 import pandas as pd
@@ -18,6 +19,7 @@ from france_commune_activity import (  # noqa: E402
     build_month_period,
     filter_records_active_between,
     normalize_commune_name,
+    prepare_raw_gaspar_rows,
     resolve_gaspar_current_communes,
 )
 
@@ -139,6 +141,28 @@ class FranceCommuneActivityTests(unittest.TestCase):
         self.assertEqual(current_codes[3], "01187")
 
         self.assertEqual(diagnostics["unresolved_rows"], 0)
+
+    def test_prepare_raw_gaspar_rows_reads_semicolon_csv_and_keeps_full_history(self) -> None:
+        raw_csv = """cod_nat_catnat;cod_commune;lib_commune;num_risque_jo;lib_risque_jo;dat_deb;dat_fin
+CAT001;01001;Ancienneville;ICB;Inondations et/ou Coulées de Boue;1987-02-11;1987-02-13
+CAT002;01002;Waveville;VAG;Chocs Mécaniques liés à l'action des Vagues;1999-12-25;1999-12-27
+CAT003;01003;Slideville;GLT;Glissement de Terrain;1988-01-01;1988-01-03
+"""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            csv_path = Path(tmp_dir) / "catnat_gaspar.csv"
+            csv_path.write_text(raw_csv, encoding="utf-8")
+
+            prepared, diagnostics = prepare_raw_gaspar_rows(csv_path)
+
+        self.assertEqual(prepared["cod_nat_catnat"].tolist(), ["CAT001", "CAT002"])
+        self.assertEqual(
+            prepared["gaspar_event_uid"].tolist(),
+            ["CAT001__19870211__19870213", "CAT002__19991225__19991227"],
+        )
+        self.assertEqual(prepared["gaspar_source_insee_com"].tolist(), ["01001", "01002"])
+        self.assertEqual(diagnostics["rows_after_flood_risk_filter"], 2)
+        self.assertFalse(diagnostics["optional_date_window_applied"])
+        self.assertEqual(diagnostics["canonical_rows_after_dedup"], 2)
 
 
 if __name__ == "__main__":

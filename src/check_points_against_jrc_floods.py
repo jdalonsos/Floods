@@ -17,6 +17,7 @@ from shapely.geometry import Point, box, mapping
 
 from compare_france_jrc_gaspar_flexible import normalize_insee_code_series
 from france_commune_activity import (
+    DEFAULT_GASPAR_FULL_HISTORY_PROCESSED_PATH,
     DEFAULT_GASPAR_SHEET,
     load_france_lookup as load_france_activity_lookup,
     load_historical_insee_updates,
@@ -35,7 +36,7 @@ DEFAULT_FRANCE_LOOKUP = Path("data/processed/france_lau_insee_documentation/fr_l
 DEFAULT_FRANCE_OLD_INSEE_UPDATES = (
     Path("data/processed/france_lau_insee_documentation/fr_old_insee_to_current_update_ready.csv")
 )
-DEFAULT_GASPAR_FILE = Path("data/processed/Gaspar_2015_2024.xlsx")
+DEFAULT_GASPAR_FILE = DEFAULT_GASPAR_FULL_HISTORY_PROCESSED_PATH
 DEFAULT_TRI_ARCHIVE = Path("data/raw/tri_2020_sig_di")
 DEFAULT_RIPARIAN_ROOT = Path("data/raw/France_Riparian")
 DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check.xlsx")
@@ -2096,8 +2097,22 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--events-file", default=str(DEFAULT_EVENT_TABLE), help="Processed LAU event table (.parquet or .csv).")
     parser.add_argument("--flood-dir", default=str(DEFAULT_FLOOD_DIR), help="Root directory containing the official JRC flood TIFF folders.")
     parser.add_argument("--france-lookup-file", default=str(DEFAULT_FRANCE_LOOKUP), help="Optional France LAU to INSEE lookup CSV for extra output columns.")
-    parser.add_argument("--gaspar-file", default=str(DEFAULT_GASPAR_FILE), help="Optional processed Gaspar workbook used for the fallback flood flag branch.")
-    parser.add_argument("--gaspar-sheet-name", default=DEFAULT_GASPAR_SHEET, help=f"Sheet name to read from the Gaspar workbook. Default: {DEFAULT_GASPAR_SHEET}.")
+    parser.add_argument(
+        "--gaspar-file",
+        default=str(DEFAULT_GASPAR_FILE),
+        help=(
+            "Optional processed Gaspar workbook used for the fallback flood flag branch. "
+            "Default points to the full-history flood-only workbook built from raw/catnat_gaspar.csv."
+        ),
+    )
+    parser.add_argument(
+        "--gaspar-sheet-name",
+        default=DEFAULT_GASPAR_SHEET,
+        help=(
+            f"Sheet name to read from the Gaspar workbook. Default: {DEFAULT_GASPAR_SHEET}. "
+            "The full-history builder also writes this legacy-compatible sheet name."
+        ),
+    )
     parser.add_argument("--france-old-insee-updates-file", default=str(DEFAULT_FRANCE_OLD_INSEE_UPDATES), help="Historical old-INSEE to current-INSEE CSV used to resolve Gaspar communes.")
     parser.add_argument("--tri-archive", default=str(DEFAULT_TRI_ARCHIVE), help="National TRI source used for the simplified Gaspar fallback branch. Only the plain TRI For polygons and the n_tri territory boundaries are used. Accepts either the unpacked folder or the original zip archive.")
     parser.add_argument("--riparian-root", default=str(DEFAULT_RIPARIAN_ROOT), help="Root folder containing the unzipped France riparian shapefiles used only when a Gaspar point is outside both TRI For polygons and n_tri boundaries.")

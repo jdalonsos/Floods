@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import calendar
+import csv
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -34,10 +35,15 @@ DEFAULT_JRC_EVENTS_PATH = (
     PROJECT_ROOT / "data" / "processed" / "france_lau_insee_documentation" / "events_fr_insee_long.csv"
 )
 DEFAULT_GASPAR_PROCESSED_PATH = PROJECT_ROOT / "data" / "processed" / "Gaspar_2015_2024.xlsx"
+DEFAULT_GASPAR_FULL_HISTORY_DIR = PROJECT_ROOT / "data" / "processed" / "gaspar_all_dates"
+DEFAULT_GASPAR_FULL_HISTORY_PROCESSED_PATH = (
+    DEFAULT_GASPAR_FULL_HISTORY_DIR / "Gaspar_all_dates.xlsx"
+)
 DEFAULT_GASPAR_RAW_CSV_PATH = PROJECT_ROOT / "data" / "raw" / "catnat_gaspar.csv"
 DEFAULT_GASPAR_RAW_XLSX_PATH = PROJECT_ROOT / "data" / "raw" / "catnat_gaspar.xlsx"
 
 DEFAULT_GASPAR_SHEET = "Gaspar20152024FloodsClean"
+DEFAULT_GASPAR_FULL_HISTORY_SHEET = "GasparAllDatesFloodsClean"
 DEFAULT_GASPAR_FLOOD_RISK_LABELS = [
     "Inondations et/ou Coul\u00e9es de Boue",
     "Inondations Remont\u00e9e Nappe",
@@ -70,11 +76,28 @@ class PeriodSelection:
     label: str
 
 
+def detect_csv_separator(path: str | Path) -> str:
+    csv_path = Path(path)
+    sample = csv_path.read_text(encoding="utf-8-sig", errors="ignore")[:4096]
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=";,\t|")
+        return dialect.delimiter
+    except csv.Error:
+        return ";" if sample.count(";") > sample.count(",") else ","
+
+
 def read_table(path: str | Path, *, sheet_name: str | int = 0) -> pd.DataFrame:
     table_path = Path(path)
     suffix = table_path.suffix.lower()
     if suffix in {".csv", ".txt"}:
-        return pd.read_csv(table_path, low_memory=False, dtype={"cod_commune": "string"})
+        separator = detect_csv_separator(table_path)
+        return pd.read_csv(
+            table_path,
+            sep=separator,
+            low_memory=False,
+            dtype={"cod_commune": "string"},
+            encoding="utf-8-sig",
+        )
     if suffix == ".parquet":
         return pd.read_parquet(table_path)
     if suffix in {".xlsx", ".xls"}:
@@ -96,6 +119,19 @@ def normalize_commune_name(value: object) -> str | None:
     text = re.sub(r"[^A-Z0-9]+", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text or None
+
+
+def normalize_risk_label(value: object) -> str | None:
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = text.casefold()
+    text = re.sub(r"\s+", " ", text)
+    return text.strip() or None
 
 
 def join_unique_strings(series: pd.Series, *, limit: int = 5) -> str:
@@ -291,6 +327,8 @@ def prepare_raw_gaspar_rows(
     path: str | Path,
     *,
     flood_risk_labels: list[str] | None = None,
+    start_date_lower_bound: str | pd.Timestamp | None = None,
+    end_date_upper_bound: str | pd.Timestamp | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     raw = read_table(path)
     missing = GASPAR_REQUIRED_COLUMNS - set(raw.columns)
@@ -298,18 +336,44 @@ def prepare_raw_gaspar_rows(
         raise KeyError(f"Gaspar raw input is missing required columns: {sorted(missing)}")
 
     labels = flood_risk_labels or DEFAULT_GASPAR_FLOOD_RISK_LABELS
+    normalized_labels = {
+        normalized
+        for normalized in (normalize_risk_label(label) for label in labels)
+        if normalized
+    }
     df = raw.copy()
     df["gaspar_start_date"] = pd.to_datetime(df["dat_deb"], errors="coerce").dt.normalize()
     df["gaspar_end_date"] = pd.to_datetime(df["dat_fin"], errors="coerce").dt.normalize()
     df["activity_start_date"] = df["gaspar_start_date"]
     df["activity_end_date"] = df["gaspar_end_date"]
+    df["cod_nat_catnat"] = df["cod_nat_catnat"].astype("string").str.strip()
+    df["gaspar_commune_name"] = df["lib_commune"].astype("string").str.strip()
+    df["gaspar_source_cod_commune"] = df["cod_commune"].astype("string").str.strip()
+    df["gaspar_source_insee_com"] = normalize_insee_code_series(df["cod_commune"])
+    df["gaspar_risk_label_normalized"] = df["lib_risque_jo"].map(normalize_risk_label)
 
-    date_mask = (
-        df["gaspar_start_date"].gt(pd.Timestamp("2015-01-01"))
-        & df["gaspar_end_date"].lt(pd.Timestamp("2024-12-31"))
+    risk_mask = df["gaspar_risk_label_normalized"].isin(normalized_labels)
+    filtered = df.loc[risk_mask].copy()
+
+    date_window_mask = pd.Series(True, index=filtered.index)
+    lower_bound = pd.to_datetime(start_date_lower_bound, errors="coerce") if start_date_lower_bound else pd.NaT
+    upper_bound = pd.to_datetime(end_date_upper_bound, errors="coerce") if end_date_upper_bound else pd.NaT
+    if start_date_lower_bound is not None and pd.isna(lower_bound):
+        raise ValueError(f"Could not parse start_date_lower_bound value: {start_date_lower_bound}")
+    if end_date_upper_bound is not None and pd.isna(upper_bound):
+        raise ValueError(f"Could not parse end_date_upper_bound value: {end_date_upper_bound}")
+    if pd.notna(lower_bound):
+        date_window_mask &= filtered["gaspar_start_date"].ge(lower_bound)
+    if pd.notna(upper_bound):
+        date_window_mask &= filtered["gaspar_end_date"].le(upper_bound)
+    filtered = filtered.loc[date_window_mask].copy()
+
+    invalid_mask = (
+        filtered["cod_nat_catnat"].isna()
+        | filtered["gaspar_start_date"].isna()
+        | filtered["gaspar_end_date"].isna()
     )
-    risk_mask = df["lib_risque_jo"].astype("string").isin(labels)
-    filtered = df.loc[date_mask & risk_mask].copy()
+    filtered = filtered.loc[~invalid_mask].copy()
 
     keep_cols = [
         "cod_nat_catnat",
@@ -321,13 +385,12 @@ def prepare_raw_gaspar_rows(
         "dat_fin",
         "gaspar_start_date",
         "gaspar_end_date",
+        "gaspar_commune_name",
+        "gaspar_source_cod_commune",
+        "gaspar_source_insee_com",
     ]
     filtered = filtered[keep_cols].drop_duplicates().reset_index(drop=True)
 
-    filtered["cod_nat_catnat"] = filtered["cod_nat_catnat"].astype("string").str.strip()
-    filtered["gaspar_commune_name"] = filtered["lib_commune"].astype("string").str.strip()
-    filtered["gaspar_source_cod_commune"] = filtered["cod_commune"].astype("string").str.strip()
-    filtered["gaspar_source_insee_com"] = normalize_insee_code_series(filtered["cod_commune"])
     filtered["gaspar_event_uid"] = (
         filtered["cod_nat_catnat"]
         + "__"
@@ -339,9 +402,13 @@ def prepare_raw_gaspar_rows(
     diagnostics = {
         "source_kind": "raw_live_transform",
         "raw_rows": int(len(raw)),
-        "rows_after_notebook_date_filter": int(date_mask.sum()),
-        "rows_after_notebook_risk_filter": int((date_mask & risk_mask).sum()),
+        "rows_after_flood_risk_filter": int(risk_mask.sum()),
+        "optional_date_window_applied": bool(pd.notna(lower_bound) or pd.notna(upper_bound)),
+        "rows_after_optional_date_window": int(date_window_mask.sum()),
+        "rows_dropped_missing_core_fields": int(invalid_mask.sum()),
         "canonical_rows_after_dedup": int(len(filtered)),
+        "unique_decrees": int(filtered["cod_nat_catnat"].nunique()),
+        "unique_event_uids": int(filtered["gaspar_event_uid"].nunique()),
     }
     return filtered, diagnostics
 
