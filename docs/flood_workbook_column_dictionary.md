@@ -183,3 +183,162 @@ The simplest interpretation is:
 - Gaspar workbook:
   - `point_flags` answers: did Gaspar produce one or more final hits after the `TRI For / outside n_tri + riparian` rule?
   - `event_hits` answers: which Gaspar events survived both the row-level date filter and the final spatial rule?
+
+## 7. Q&A
+
+### About `point_flags`
+
+Question:
+
+- does one row in `point_flags` mean one address, that is one latitude / longitude pair?
+
+Answer:
+
+- technically, one row in `point_flags` means one unique `point_id`
+- in practice, if the source workbook has one address per row, that usually means one address = one point
+- but the code does not force latitude / longitude uniqueness
+- so two different rows can have the same latitude / longitude and still be treated as two distinct points if they have two different `point_id` values
+
+### About `Detailed`
+
+Question:
+
+- does `Detailed` also contain construction fields such as `study_period_anchor_date`?
+
+Answer:
+
+- yes
+- `Detailed` keeps the original T20 row plus the extra study-period columns created by the script before export
+- typical examples include:
+  - `study_period_anchor_date`
+  - `study_period_primary_end_date`
+  - `study_period_fallback_end_date`
+  - `study_period_start`
+  - `study_period_end`
+  - `study_period_end_source`
+
+### About JRC `event_hits`
+
+Question:
+
+- does `event_hits` contain one row per flood event before `study_period_end`?
+- and for JRC, is a hit either `hit_at_point=True` or `buffer_flood_hit=True`?
+
+Answer:
+
+- yes, with one nuance
+- in the current T20 setup, because the study logic keeps the full history up to `study_period_end`, the practical rule is:
+  - `event_start_date <= study_period_end`
+- more generally, the code uses interval-overlap logic
+- and yes, a JRC event is kept in `event_hits` when it is positive locally, meaning:
+  - `point_buffer_flood_hit = True`
+  - or `surrounding_buffer_flood_hit = True`
+- `buffer_flood_hit` is the simplified-sheet alias for the `1 km` surrounding-buffer logic
+
+### About `lau_code`
+
+Question:
+
+- what LAU level is `lau_code`?
+
+Answer:
+
+- it is the Eurostat LAU level at municipality / commune scale
+- for France, it can be read as a commune-level LAU code such as `FR_25011`
+
+### About `flooded_pixels`
+
+Question:
+
+- is `flooded_pixels` the total number of flooded pixels in the whole JRC TIFF?
+
+Answer:
+
+- no
+- it is not the total for the full TIFF
+- `flooded_pixels` is the number of flooded pixels for that event inside the LAU attached to the row
+- so it is:
+  - not limited to the `40 m` buffer
+  - not limited to the `1 km` buffer
+  - not the whole TIFF either
+- it is an `event x LAU` metric precomputed in the processed JRC event table
+- for local point-neighborhood metrics, use:
+  - `point_buffer_flooded_pixels`
+  - `buffer_flooded_pixels`
+
+### About `point_buffer_radius_m` and `buffer_radius_km`
+
+Question:
+
+- are they always equal to `40 m` and `1 km` in the current methodology?
+
+Answer:
+
+- yes, with the current run settings
+- more precisely:
+  - `point_buffer_radius_m = 40`
+  - `buffer_radius_km = 1`
+- these are script parameters, so they change only if the CLI values are changed at runtime
+
+### About `hit_at_point` and `point_buffer_flood_hit`
+
+Question:
+
+- what is the difference between `hit_at_point` and `point_buffer_flood_hit`?
+
+Answer:
+
+- in the current version, there is no functional difference
+- `hit_at_point` is a historical alias
+- it now reflects the same logic as `point_buffer_flood_hit`
+- in practice:
+  - `hit_at_point == point_buffer_flood_hit`
+- the old name may sound like an exact pixel under the coordinate, but the real current logic is the local `40 m` buffer
+
+### About `gaspar_commune_match_method`
+
+Question:
+
+- what are the possible values of `gaspar_commune_match_method`?
+
+Answer:
+
+- the current code can produce:
+  - `current_code_exact`
+  - `historical_code_update_ready`
+  - `current_name_unique_adminexpress`
+  - `current_name_unique_lau`
+- and in internal diagnostics it may also show:
+  - `unresolved`
+- but the final point-matching workflow normally keeps resolved rows
+
+### About `tri_zone_status`
+
+Question:
+
+- is the following rule correct?
+  - if `tri_for_hit=True` then `tri_zone_status="for"`
+  - if `tri_for_hit=False` and `tri_boundary_hit=True` then `tri_zone_status="inside_n_tri_not_for"`
+  - if `tri_for_hit=False` and `tri_boundary_hit=False` then `tri_zone_status="outside_n_tri"`
+
+Answer:
+
+- yes, that is correct
+- one nuance:
+  - if `tri_for_hit=True`, that status takes priority even if the point is also inside the broader `n_tri` boundary
+
+### About `gaspar_hit_reason`
+
+Question:
+
+- is the following rule correct?
+  - if `tri_for_hit=True` then `gaspar_hit_reason="tri_for"`
+  - if `tri_for_hit=False` and `tri_boundary_hit=False` and `riparian_hit=True` then `gaspar_hit_reason="riparian_outside_n_tri"`
+  - otherwise `gaspar_hit_reason="not_selected"`
+
+Answer:
+
+- yes, that is correct
+- so the following cases correctly lead to `not_selected`:
+  - `tri_for_hit=False` and `tri_boundary_hit=True`
+  - `tri_for_hit=False` and `tri_boundary_hit=False` and `riparian_hit=False`
