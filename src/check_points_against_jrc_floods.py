@@ -10,6 +10,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rasterio
+from openpyxl import Workbook
 from pyproj import Transformer
 from rasterio.errors import WindowError
 from rasterio.features import geometry_mask, geometry_window
@@ -2069,6 +2070,32 @@ def write_dataframe_to_excel(
         chunk_df.to_excel(writer, sheet_name=chunk_sheet_name, index=index)
 
 
+def normalize_excel_cell(value: Any) -> Any:
+    if pd.isna(value):
+        return None
+    if isinstance(value, pd.Timestamp):
+        return value.to_pydatetime()
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def write_workbook_streaming(
+    output_path: Path,
+    sheets: list[tuple[str, pd.DataFrame]],
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    workbook = Workbook(write_only=True)
+    for base_sheet_name, df in sheets:
+        for chunk_sheet_name, chunk_df in split_dataframe_for_excel(df, base_sheet_name):
+            print(f"  - writing sheet {chunk_sheet_name} ({len(chunk_df):,} rows)")
+            worksheet = workbook.create_sheet(title=chunk_sheet_name)
+            worksheet.append(list(chunk_df.columns))
+            for row in chunk_df.itertuples(index=False, name=None):
+                worksheet.append([normalize_excel_cell(value) for value in row])
+    workbook.save(output_path)
+
+
 def write_output_workbook(
     output_path: Path,
     point_flag_sheet: pd.DataFrame,
@@ -2076,12 +2103,15 @@ def write_output_workbook(
     candidate_sheet: pd.DataFrame,
     hits_sheet: pd.DataFrame,
 ) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
-        write_dataframe_to_excel(writer, point_flag_sheet, "point_flags", index=False)
-        write_dataframe_to_excel(writer, detailed_sheet, "Detailed", index=False)
-        write_dataframe_to_excel(writer, candidate_sheet, "candidate_events", index=False)
-        write_dataframe_to_excel(writer, hits_sheet, "event_hits", index=False)
+    write_workbook_streaming(
+        output_path,
+        [
+            ("point_flags", point_flag_sheet),
+            ("Detailed", detailed_sheet),
+            ("candidate_events", candidate_sheet),
+            ("event_hits", hits_sheet),
+        ],
+    )
 
 
 def write_gaspar_output_workbook(
@@ -2091,12 +2121,15 @@ def write_gaspar_output_workbook(
     candidate_sheet: pd.DataFrame,
     hits_sheet: pd.DataFrame,
 ) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
-        write_dataframe_to_excel(writer, point_flag_sheet, "point_flags", index=False)
-        write_dataframe_to_excel(writer, detailed_sheet, "Detailed", index=False)
-        write_dataframe_to_excel(writer, candidate_sheet, "candidate_events", index=False)
-        write_dataframe_to_excel(writer, hits_sheet, "event_hits", index=False)
+    write_workbook_streaming(
+        output_path,
+        [
+            ("point_flags", point_flag_sheet),
+            ("Detailed", detailed_sheet),
+            ("candidate_events", candidate_sheet),
+            ("event_hits", hits_sheet),
+        ],
+    )
 
 
 def derive_gaspar_output_path(output_path: Path) -> Path:

@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 import numpy as np
+from openpyxl import load_workbook
 import pandas as pd
 import rasterio
 from rasterio.transform import from_origin
@@ -37,6 +38,7 @@ from check_points_against_jrc_floods import (  # noqa: E402
     parse_coordinate_series,
     resolve_named_column,
     split_dataframe_for_excel,
+    write_gaspar_output_workbook,
 )
 
 
@@ -494,6 +496,29 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual([sheet_name for sheet_name, _ in parts], ["candidate_events", "candidate_events_2", "candidate_events_3"])
         self.assertEqual([len(chunk) for _, chunk in parts], [2, 2, 1])
         self.assertEqual(parts[1][1]["value"].tolist(), [3, 4])
+
+    def test_write_gaspar_output_workbook_creates_expected_sheets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "gaspar_output.xlsx"
+
+            write_gaspar_output_workbook(
+                output_path=output_path,
+                point_flag_sheet=pd.DataFrame({"point_id": [1], "flag_flood": [1]}),
+                detailed_sheet=pd.DataFrame({"point_id": [1], "touched": [1], "LAT": [45.0]}),
+                candidate_sheet=pd.DataFrame({"point_id": [1], "gaspar_event_uid": ["g1"]}),
+                hits_sheet=pd.DataFrame({"point_id": [1], "gaspar_event_uid": ["g1"]}),
+            )
+
+            workbook = load_workbook(output_path, read_only=True)
+
+            self.assertEqual(
+                workbook.sheetnames,
+                ["point_flags", "Detailed", "candidate_events", "event_hits"],
+            )
+            point_flags_rows = list(workbook["point_flags"].iter_rows(values_only=True))
+            self.assertEqual(point_flags_rows[0], ("point_id", "flag_flood"))
+            self.assertEqual(point_flags_rows[1], (1, 1))
+            workbook.close()
 
     def test_gaspar_candidate_and_hits_sheets_keep_only_tri_for_or_riparian(self) -> None:
         gaspar_candidate_df = pd.DataFrame(
