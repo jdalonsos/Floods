@@ -241,6 +241,8 @@ Use [src/check_points_against_jrc_floods.py](/D:/M2_MoSEF/DataCollection/src/che
 
 For a deeper implementation walkthrough, see [docs/check_points_against_jrc_floods_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/check_points_against_jrc_floods_deep_guide.md).
 
+For the simplified output-column definitions, see [docs/flood_workbook_column_dictionary.md](/D:/M2_MoSEF/DataCollection/docs/flood_workbook_column_dictionary.md).
+
 The workflow is intentionally optimized in two stages:
 
 - first map each point to its Eurostat LAU polygon
@@ -368,6 +370,50 @@ Buffer event-level metrics now also include:
 - `*_flooded_pixel_pct` for `100 * flooded_pixels / total_pixels`
 
 The script is designed so that later you can replace city-centre example points with large address lists converted to latitude / longitude and keep the same flood-check workflow.
+
+## How to Check Italy T20 Points Against JRC And HANZE Plus TRI
+
+Use [src/check_italy_points_against_jrc_hanze.py](/D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze.py) when you want the Italy version of the T20 point workflow.
+
+For the workflow guide, see [docs/check_italy_points_against_jrc_hanze_guide.md](/D:/M2_MoSEF/DataCollection/docs/check_italy_points_against_jrc_hanze_guide.md).
+
+For the Italy output-column dictionary, see [docs/italy_flood_workbook_column_dictionary.md](/D:/M2_MoSEF/DataCollection/docs/italy_flood_workbook_column_dictionary.md).
+
+This Italy script writes two separate workbooks:
+
+- a JRC workbook using the same raster-confirmation logic as the France point script
+- a HANZE plus TRI workbook that flags a point only when:
+  - the point matches a HANZE event through `NUTS3`
+  - and the point lies inside the Italian `HPH / elevata` flood-hazard layer
+
+Default inputs:
+
+- point workbook: `data/processed/T20_Anonymised.xlsx`
+- LAU polygons: `data/raw/LAU_RG_01M_2024_4326.gpkg`
+- LAU to NUTS lookup: `data/processed/_outputs_eurostat_full/lau_nuts_lookup.csv`
+- processed JRC event table: `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
+- raw JRC TIFF root: `data/JRC_flood_depth_maps`
+- HANZE events: `data/processed/HANZE_events_v3_transformed.csv`
+- Italian TRI root: `data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica`
+
+Typical command:
+
+```bash
+python src/check_italy_points_against_jrc_hanze.py \
+  --points-file data/processed/T20_Anonymised.xlsx \
+  --sheet-name Feuil2 \
+  --latitude-col LAT \
+  --longitude-col LONG \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --out-file data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx
+```
+
+Expected outputs:
+
+- `data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx`
+- `data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx`
 
 ## TIFFs and Git
 
