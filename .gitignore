@@ -14,6 +14,7 @@ data/events_viz_merged
 *.tif
 !data/raw/insee_history/
 !data/raw/insee_history/*.csv
+!data/raw/HANZE_events_v3.csv
 data/raw/tri_2020_sig_di (1).zip
 data/raw/tri_2020_sig_di_75.zip
 data/raw/n_inondable_*.zip
