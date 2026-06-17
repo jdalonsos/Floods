@@ -20,6 +20,7 @@ DEFAULT_MODE = "copy"
 
 OUTPUT_COLUMNS = [
     "Point ID",
+    "Obligor_ID",
     "Facility_ID",
     "CLOSED_DEFAULT_DATE",
     "ID_ADR",
@@ -41,21 +42,22 @@ OUTPUT_COLUMNS = [
 COLUMN_WIDTHS = {
     "A": 13,
     "B": 16,
-    "C": 22,
-    "D": 28,
-    "E": 14,
-    "F": 18,
-    "G": 22,
-    "H": 18,
+    "C": 16,
+    "D": 22,
+    "E": 28,
+    "F": 14,
+    "G": 18,
+    "H": 22,
     "I": 18,
     "J": 18,
-    "K": 20,
-    "L": 18,
-    "M": 16,
-    "N": 13,
-    "O": 15,
+    "K": 18,
+    "L": 20,
+    "M": 18,
+    "N": 16,
+    "O": 13,
     "P": 15,
-    "Q": 20,
+    "Q": 15,
+    "R": 20,
 }
 
 HEADER_FILL = PatternFill(fill_type="solid", fgColor="1F4E78")
@@ -184,6 +186,7 @@ def build_jrc_rows(event_hits: pd.DataFrame, source_rows: dict[int, dict[str, An
         rows.append(
             [
                 point_id,
+                source_row.get("Obligor_ID"),
                 source_row.get("Facility_ID"),
                 parse_date(record.get("study_period_end")),
                 build_id_adr(record),
@@ -213,6 +216,7 @@ def build_gaspar_rows(event_hits: pd.DataFrame, source_rows: dict[int, dict[str,
         rows.append(
             [
                 point_id,
+                source_row.get("Obligor_ID"),
                 source_row.get("Facility_ID"),
                 parse_date(record.get("study_period_end")),
                 build_id_adr(record),
@@ -267,17 +271,17 @@ def style_worksheet(worksheet) -> None:
     if max_row < 2:
         return
 
-    for column_letter in ("C", "H", "I"):
+    for column_letter in ("D", "I", "J"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "yyyy-mm-dd"
 
-    for column_letter in ("F", "G", "M", "N", "O", "P"):
+    for column_letter in ("G", "H", "N", "O", "P", "Q"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0"
 
-    for column_letter in ("J", "K", "L"):
+    for column_letter in ("K", "L", "M"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0.##"
