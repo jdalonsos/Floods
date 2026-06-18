@@ -105,6 +105,7 @@ Inside `main()`, the workflow is:
    - write the JRC workbook
 7. Run the HANZE plus TRI branch:
    - keep only HANZE rows for `Country code = IT`
+   - keep only HANZE rows with year `>= 2000` by default
    - keep only HANZE rows whose `NUTS3` matches one of the point `NUTS3`
    - apply the same row-level date logic
    - classify each point against the Italian `HPH ... elevata` layer
@@ -181,6 +182,7 @@ to one `event x NUTS3` combination.
 It keeps only rows where:
 
 - `Country code = IT`
+- `Year >= 2000` by default
 - `NUTS3` matches one of the point `nuts3_code` values
 
 Then it standardizes:
@@ -196,6 +198,14 @@ Then it standardizes:
 
 If one side of the HANZE date interval is missing, the script fills it from the
 other side so the event can still behave as a single-date interval.
+
+The cutoff year is configurable with:
+
+- `--hanze-min-year`
+
+Current default:
+
+- `2000`
 
 ### 7.2 Italian TRI spatial classification
 
@@ -285,6 +295,7 @@ python src/check_italy_points_against_jrc_hanze.py \
   --row-study-anchor-col Reference_Date \
   --row-study-end-col Closed_Default_Date \
   --row-study-end-fallback-col Cut_off_Date \
+  --hanze-min-year 2000 \
   --point-buffer-m 40 \
   --buffer-km 1 \
   --out-file data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx

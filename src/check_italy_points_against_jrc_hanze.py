@@ -45,6 +45,7 @@ DEFAULT_LAU_NUTS_LOOKUP = Path("data/processed/_outputs_eurostat_full/lau_nuts_l
 DEFAULT_HANZE_FILE = Path("data/processed/HANZE_events_v3_transformed.csv")
 DEFAULT_ITALY_TRI_ROOT = Path("data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica")
 DEFAULT_JRC_OUTPUT = Path("data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx")
+DEFAULT_HANZE_MIN_YEAR = 2000
 
 LAU_NUTS_LOOKUP_COLUMNS = [
     "lau_code",
@@ -67,6 +68,7 @@ LAU_NUTS_LOOKUP_COLUMNS = [
 HANZE_REQUIRED_COLUMNS = [
     "ID",
     "Country code",
+    "Year",
     "Country name",
     "Start date",
     "End date",
@@ -126,6 +128,7 @@ def load_hanze_events(
     target_nuts3_codes: set[str],
     *,
     target_country_code: str,
+    min_year: int,
 ) -> pd.DataFrame:
     if not target_nuts3_codes:
         return pd.DataFrame(
@@ -183,6 +186,13 @@ def load_hanze_events(
     hanze_df["hanze_end_date"] = parse_date_series(hanze_df["End date"])
     hanze_df["hanze_start_date"] = hanze_df["hanze_start_date"].combine_first(hanze_df["hanze_end_date"])
     hanze_df["hanze_end_date"] = hanze_df["hanze_end_date"].combine_first(hanze_df["hanze_start_date"])
+    hanze_df["hanze_year"] = pd.to_numeric(hanze_df["Year"], errors="coerce")
+    hanze_df["hanze_year"] = (
+        hanze_df["hanze_year"]
+        .combine_first(hanze_df["hanze_start_date"].dt.year.astype("float"))
+        .combine_first(hanze_df["hanze_end_date"].dt.year.astype("float"))
+    )
+    hanze_df = hanze_df[hanze_df["hanze_year"].ge(float(min_year), fill_value=False)].copy()
 
     hanze_df["hanze_event_id"] = hanze_df["ID"].astype(str).str.strip()
     hanze_df["nuts3_code"] = hanze_df["NUTS3"].astype(str).str.strip()
@@ -532,6 +542,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--flood-dir", default=str(DEFAULT_FLOOD_DIR), help="Root directory containing the official JRC flood TIFF folders.")
     parser.add_argument("--hanze-file", default=str(DEFAULT_HANZE_FILE), help="Expanded HANZE events CSV with one row per NUTS3 region.")
     parser.add_argument("--hanze-country-code", default="IT", help="HANZE country code filter. Default: IT.")
+    parser.add_argument("--hanze-min-year", type=int, default=DEFAULT_HANZE_MIN_YEAR, help=f"Minimum HANZE event year kept by the Italy fallback branch. Default: {DEFAULT_HANZE_MIN_YEAR}.")
     parser.add_argument("--italy-tri-root", default=str(DEFAULT_ITALY_TRI_ROOT), help="Italy TRI root folder or zip archive. The script uses only the HPH/elevata polygons.")
     parser.add_argument("--study-start", default=None, help="Optional study-period start date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--study-end", default=None, help="Optional study-period end date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
@@ -665,6 +676,7 @@ def main() -> None:
         hanze_file,
         target_nuts3_codes=target_nuts3_codes,
         target_country_code=args.hanze_country_code,
+        min_year=args.hanze_min_year,
     )
     hanze_events_df = filter_records_by_global_interval(
         hanze_events_df,
@@ -673,7 +685,10 @@ def main() -> None:
         study_start=args.study_start,
         study_end=args.study_end,
     )
-    print(f"Loaded {len(hanze_events_df):,} HANZE candidate rows after the NUTS3 and date filters.")
+    print(
+        f"Loaded {len(hanze_events_df):,} HANZE candidate rows after the country, "
+        f"NUTS3, min-year>={args.hanze_min_year}, and date filters."
+    )
 
     print("Classifying points against Italy TRI high-hazard polygons...")
     tri_classification_df = classify_points_against_italy_tri(

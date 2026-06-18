@@ -384,6 +384,7 @@ This Italy script writes two separate workbooks:
 - a JRC workbook using the same raster-confirmation logic as the France point script
 - a HANZE plus TRI workbook that flags a point only when:
   - the point matches a HANZE event through `NUTS3`
+  - the HANZE event year is `>= 2000` by default
   - and the point lies inside the Italian `HPH / elevata` flood-hazard layer
 
 Default inputs:
@@ -407,6 +408,7 @@ python src/check_italy_points_against_jrc_hanze.py \
   --row-study-anchor-col Reference_Date \
   --row-study-end-col Closed_Default_Date \
   --row-study-end-fallback-col Cut_off_Date \
+  --hanze-min-year 2000 \
   --out-file data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx
 ```
 
