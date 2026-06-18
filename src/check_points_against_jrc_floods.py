@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any, Iterable
 import zipfile
 
@@ -2071,6 +2071,8 @@ def write_dataframe_to_excel(
 
 
 def normalize_excel_cell(value: Any) -> Any:
+    if isinstance(value, PurePath):
+        return str(value)
     if pd.isna(value):
         return None
     if isinstance(value, pd.Timestamp):
