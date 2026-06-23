@@ -40,9 +40,27 @@ from check_points_against_jrc_floods import (  # noqa: E402
     split_dataframe_for_excel,
     write_gaspar_output_workbook,
 )
+from check_points_against_jrc_floods_collaterals import (  # noqa: E402
+    build_collaterals_argument_parser,
+)
 
 
 class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
+    def test_collaterals_variant_parser_uses_expected_defaults(self) -> None:
+        parser = build_collaterals_argument_parser()
+
+        args = parser.parse_args([])
+
+        self.assertEqual(args.latitude_col, "lat")
+        self.assertEqual(args.longitude_col, "lon")
+        self.assertEqual(args.point_id_col, "ID_geoloc")
+        self.assertEqual(args.row_study_end_col, "last_date")
+        self.assertEqual(args.study_start, "2000-01-01")
+        self.assertEqual(
+            args.out_file,
+            "data/processed/france_points_jrc_flood_check_collaterals.xlsx",
+        )
+
     def test_longitude_aliases_accept_long(self) -> None:
         df = pd.DataFrame(columns=["LAT", "LONG"])
         self.assertEqual(resolve_named_column(df, None, LONGITUDE_ALIASES), "LONG")

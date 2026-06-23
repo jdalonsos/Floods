@@ -2198,10 +2198,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
-    parser = build_argument_parser()
-    args = parser.parse_args()
-
+def run(args: argparse.Namespace) -> None:
     points_file = Path(args.points_file)
     lau_file = Path(args.lau_file)
     events_file = Path(args.events_file)
@@ -2480,6 +2477,12 @@ def main() -> None:
             "n_gaspar_event_hits": int(len(gaspar_hits_sheet)),
         }
     )
+
+
+def main() -> None:
+    parser = build_argument_parser()
+    args = parser.parse_args()
+    run(args)
 
 
 if __name__ == "__main__":
