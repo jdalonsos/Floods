@@ -812,6 +812,46 @@ python src/check_points_against_jrc_floods.py \
   --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
 ```
 
+Run the collaterals preset in Git Bash:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx
+```
+
+This preset expects:
+
+- `ID_geoloc`
+- `lat`
+- `lon`
+- `last_date`
+
+Its default temporal window is:
+
+- start = `2000-01-01`
+- end = each row's `last_date`
+
+Its default output files are:
+
+- `data/processed/france_points_jrc_flood_check_collaterals.xlsx`
+- `data/processed/france_points_gaspar_check_collaterals.xlsx`
+
+To keep all floods from another start year up to each row's `last_date`:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx \
+  --study-start 2015-01-01
+```
+
+If the workbook tab is not the first one:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx \
+  --sheet-name Sheet1
+```
+
 If you want the older bounded lookback behavior:
 
 ```bash
