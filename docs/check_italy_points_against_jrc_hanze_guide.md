@@ -56,6 +56,8 @@ Italy-specific changes:
   `data/processed/_outputs_eurostat_full/lau_nuts_lookup.csv`
 - HANZE fallback events come from:
   `data/processed/HANZE_events_v3_transformed.csv`
+  The transform script standardizes HANZE `Start date` and `End date` values to
+  ISO `YYYY-MM-DD`, including raw slash-formatted `DD/MM/YYYY` rows.
 - Italian hazard geometry comes from:
   `data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica`
 - only the high-hazard `HPH ... elevata` layer is used

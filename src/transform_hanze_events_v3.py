@@ -2,6 +2,9 @@
 Expand HANZE events so each NUTS3 region in ``Regions affected (v2024)`` gets
 its own row, enriched with the official NUTS3 name from the Eurostat
 GeoPackage.
+
+The transform also normalizes HANZE date columns to ISO ``YYYY-MM-DD`` so the
+output does not mix slash-formatted and dash-formatted dates.
 """
 
 from __future__ import annotations
@@ -14,6 +17,8 @@ import pandas as pd
 
 
 REGIONS_COLUMN = "Regions affected (v2024)"
+DATE_COLUMNS = ("Start date", "End date")
+DATE_OUTPUT_FORMAT = "%Y-%m-%d"
 DEFAULT_INPUT = Path("data/raw/HANZE_events_v3.csv")
 DEFAULT_NUTS = Path("data/raw/NUTS_RG_01M_2024_4326.gpkg")
 DEFAULT_OUTPUT = Path("data/processed/HANZE_events_v3_transformed.csv")
@@ -69,7 +74,7 @@ def read_hanze_csv(path: str | Path) -> pd.DataFrame:
             f"Missing required HANZE column '{REGIONS_COLUMN}' in {path}."
         )
 
-    return df
+    return standardize_hanze_date_columns(df)
 
 
 def get_feature_table_name(connection: sqlite3.Connection) -> str:
@@ -122,6 +127,61 @@ def load_nuts3_lookup(path: str | Path) -> pd.DataFrame:
 
 def split_regions(value: str) -> list[str]:
     return [part.strip() for part in str(value).split(";") if part.strip()]
+
+
+def standardize_hanze_date_series(series: pd.Series) -> pd.Series:
+    text = series.astype("string").str.strip()
+    text = text.replace(
+        {"": pd.NA, "nan": pd.NA, "NaT": pd.NA, "None": pd.NA, "#N/A": pd.NA}
+    )
+    standardized = text.copy()
+
+    iso_mask = text.str.fullmatch(r"\d{4}-\d{2}-\d{2}", na=False)
+    slash_mask = text.str.fullmatch(r"\d{1,2}/\d{1,2}/\d{4}", na=False)
+    other_mask = text.notna() & ~(iso_mask | slash_mask)
+
+    if iso_mask.any():
+        parsed_iso = pd.to_datetime(
+            text.loc[iso_mask],
+            format="%Y-%m-%d",
+            errors="coerce",
+        )
+        valid_iso = parsed_iso.notna()
+        standardized.loc[parsed_iso.index[valid_iso]] = parsed_iso.loc[valid_iso].dt.strftime(
+            DATE_OUTPUT_FORMAT
+        )
+
+    if slash_mask.any():
+        parsed_slash = pd.to_datetime(
+            text.loc[slash_mask],
+            format="%d/%m/%Y",
+            errors="coerce",
+        )
+        valid_slash = parsed_slash.notna()
+        standardized.loc[parsed_slash.index[valid_slash]] = parsed_slash.loc[
+            valid_slash
+        ].dt.strftime(DATE_OUTPUT_FORMAT)
+
+    if other_mask.any():
+        parsed_other = pd.to_datetime(
+            text.loc[other_mask],
+            errors="coerce",
+            dayfirst=True,
+        )
+        valid_other = parsed_other.notna()
+        standardized.loc[parsed_other.index[valid_other]] = parsed_other.loc[
+            valid_other
+        ].dt.strftime(DATE_OUTPUT_FORMAT)
+
+    return standardized.fillna("")
+
+
+def standardize_hanze_date_columns(hanze_df: pd.DataFrame) -> pd.DataFrame:
+    standardized = hanze_df.copy()
+    for column in DATE_COLUMNS:
+        if column in standardized.columns:
+            standardized[column] = standardize_hanze_date_series(standardized[column])
+    return standardized
 
 
 def transform_hanze_events(hanze_df: pd.DataFrame, nuts_lookup: pd.DataFrame) -> pd.DataFrame:

@@ -395,6 +395,9 @@ Default inputs:
 - processed JRC event table: `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
 - raw JRC TIFF root: `data/JRC_flood_depth_maps`
 - HANZE events: `data/processed/HANZE_events_v3_transformed.csv`
+  This file is produced by `src/transform_hanze_events_v3.py`, which expands
+  HANZE rows by `NUTS3` and normalizes `Start date` and `End date` to
+  `YYYY-MM-DD`.
 - Italian TRI root: `data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica`
 
 Typical command:
