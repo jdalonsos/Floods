@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Border, Font, PatternFill, Side
@@ -14,50 +14,62 @@ from openpyxl.styles import Border, Font, PatternFill, Side
 DEFAULT_SOURCE_WORKBOOK = Path("data/processed/T20_Anonymised.xlsx")
 DEFAULT_JRC_WORKBOOK = Path("data/processed/T20_Anonymised_jrc_flood_check.xlsx")
 DEFAULT_GASPAR_WORKBOOK = Path("data/processed/T20_Anonymised_gaspar_check.xlsx")
+DEFAULT_HANZE_WORKBOOK = Path("data/processed/T20_Anonymised_hanze_check.xlsx")
 DEFAULT_OUTPUT_DIR = Path("outputs/flood_lgd_export")
 DEFAULT_SHEET_NAME = "FLOOD_LGD"
 DEFAULT_MODE = "copy"
+SOURCE_PRIORITY = ("JRC", "GASPAR", "HANZE")
+LATITUDE_ALIASES = ("LAT", "Latitude", "Lat", "Y")
+LONGITUDE_ALIASES = ("LONG", "Longitude", "Long", "Lon", "Lng", "X")
 
 OUTPUT_COLUMNS = [
-    "Point ID",
+    "point_id",
     "Obligor_ID",
     "Facility_ID",
     "CLOSED_DEFAULT_DATE",
     "ID_ADR",
     "TYPE_ADR",
-    "FLAG_FLOOD_ADR",
-    "FLAG_FLOOD_ADR_AREA",
-    "DATE_REF_FLOOD",
-    "DATE_END_FLOOD",
-    "FLOOD_DEPTH_MAX",
-    "FLOOD_DEPTH_MEDIAN",
-    "FLOOD_DEPTH_MIN",
-    "FLOOD_DURATION",
     "Flag_JRC",
     "Flag_GASPAR",
     "Flag_HANZE",
     "FLOOD_DATA_SOURCE",
+    "Flag_JRC_AREA",
+    "Flag_GASPAR_AREA",
+    "Flag_HANZE_AREA",
+    "FLOOD_DATA_SOURCE_AREA",
+    "FLAG_FLOOD_ADR",
+    "FLAG_FLOOD_ADR_AREA",
+    "DATE_REF_FLOOD",
+    "DATE_END_FLOOD",
+    "FLOOD_DEPTH_MOY",
+    "FLOOD_DEPTH_MOY_AREA",
+    "FLOOD_DEPTH_MAX",
+    "FLOOD_DEPTH_MAX_AREA",
 ]
 
 COLUMN_WIDTHS = {
-    "A": 13,
+    "A": 12,
     "B": 16,
     "C": 16,
     "D": 22,
     "E": 28,
     "F": 14,
-    "G": 18,
-    "H": 22,
-    "I": 18,
-    "J": 18,
-    "K": 18,
-    "L": 20,
-    "M": 18,
-    "N": 16,
-    "O": 13,
-    "P": 15,
-    "Q": 15,
-    "R": 20,
+    "G": 11,
+    "H": 14,
+    "I": 13,
+    "J": 20,
+    "K": 14,
+    "L": 17,
+    "M": 16,
+    "N": 25,
+    "O": 16,
+    "P": 20,
+    "Q": 18,
+    "R": 18,
+    "S": 18,
+    "T": 20,
+    "U": 18,
+    "V": 20,
 }
 
 HEADER_FILL = PatternFill(fill_type="solid", fgColor="1F4E78")
@@ -70,32 +82,26 @@ THIN_BORDER = Border(
 )
 
 
-@dataclass(frozen=True)
-class FloodTarget:
-    input_path: Path
-    source_label: str
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Build FLOOD_LGD outputs from the checked JRC and Gaspar workbooks. "
-            "Use --mode copy to append a new sheet into copied workbooks, "
-            "--mode standalone to write only the FLOOD_LGD sheet as a small xlsx, "
-            "or --mode csv for the fastest export."
+            "Build a consolidated FLOOD_LGD export from the checked JRC, Gaspar, and HANZE workbooks. "
+            "Rows are emitted at point x consolidated flood-episode level using a 30-day merge rule."
         )
     )
-    parser.add_argument("--source-workbook", default=str(DEFAULT_SOURCE_WORKBOOK), help="Original T20 workbook used to recover raw row fields such as Facility_ID.")
-    parser.add_argument("--jrc-workbook", default=str(DEFAULT_JRC_WORKBOOK), help="JRC checked workbook containing an event_hits sheet.")
-    parser.add_argument("--gaspar-workbook", default=str(DEFAULT_GASPAR_WORKBOOK), help="Gaspar checked workbook containing an event_hits sheet.")
+    parser.add_argument("--source-workbook", default=str(DEFAULT_SOURCE_WORKBOOK), help="Original T20 workbook used to recover point metadata such as Obligor_ID and Facility_ID.")
+    parser.add_argument("--jrc-workbook", default=str(DEFAULT_JRC_WORKBOOK), help="JRC checked workbook containing candidate_events and event_hits sheets.")
+    parser.add_argument("--gaspar-workbook", default=str(DEFAULT_GASPAR_WORKBOOK), help="Gaspar checked workbook containing candidate_events and event_hits sheets.")
+    parser.add_argument("--hanze-workbook", default=str(DEFAULT_HANZE_WORKBOOK), help="HANZE checked workbook containing candidate_events and event_hits sheets.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Folder where the outputs will be written.")
     parser.add_argument("--sheet-name", default=DEFAULT_SHEET_NAME, help="Name of the derived sheet.")
+    parser.add_argument("--merge-gap-days", type=int, default=30, help="Maximum day gap used to merge source rows into one consolidated flood episode. Default: 30.")
     parser.add_argument(
         "--mode",
         default=DEFAULT_MODE,
         choices=["copy", "standalone", "csv"],
         help=(
-            "copy: duplicate the original checked workbook and append the new sheet. "
+            "copy: duplicate the original source workbook and append the new sheet. "
             "standalone: create a small workbook containing only the FLOOD_LGD sheet. "
             "csv: export only the FLOOD_LGD data as csv."
         ),
@@ -109,6 +115,25 @@ def ensure_required_file(path: Path, label: str) -> None:
         raise FileNotFoundError(f"Missing required {label}: {path}")
 
 
+def normalize_label(value: Any) -> str:
+    if pd.isna(value):
+        return ""
+    return "".join(ch.lower() for ch in str(value).strip() if ch.isalnum() or ch == "#")
+
+
+def resolve_column_name(columns: list[str], aliases: tuple[str, ...]) -> str | None:
+    normalized_to_original = {
+        normalize_label(column): column
+        for column in columns
+        if normalize_label(column)
+    }
+    for alias in aliases:
+        alias_norm = normalize_label(alias)
+        if alias_norm in normalized_to_original:
+            return normalized_to_original[alias_norm]
+    return None
+
+
 def parse_date(value: Any) -> datetime | None:
     if pd.isna(value) or value in ("", None):
         return None
@@ -116,6 +141,12 @@ def parse_date(value: Any) -> datetime | None:
         return value
     if isinstance(value, pd.Timestamp):
         return value.to_pydatetime()
+    if isinstance(value, (int, float, np.integer, np.floating)):
+        numeric_value = float(value)
+        if np.isnan(numeric_value):
+            return None
+        parsed = pd.Timestamp("1899-12-30") + pd.to_timedelta(numeric_value, unit="D")
+        return parsed.to_pydatetime()
     if isinstance(value, str):
         text = value.strip()
         if not text:
@@ -132,122 +163,543 @@ def parse_date(value: Any) -> datetime | None:
     return parsed
 
 
-def bool_to_int(value: Any) -> int | None:
+def normalize_point_id_value(value: Any) -> Any:
     if pd.isna(value):
-        return None
-    if isinstance(value, bool):
+        return pd.NA
+    if isinstance(value, (np.integer, int)):
         return int(value)
-    if isinstance(value, (int, float)) and value in (0, 1):
-        return int(value)
-    if isinstance(value, str):
-        normalized = value.strip().lower()
-        if normalized in {"true", "yes", "y", "1"}:
-            return 1
-        if normalized in {"false", "no", "n", "0"}:
-            return 0
-    return None
+    if isinstance(value, (np.floating, float)):
+        if np.isnan(value):
+            return pd.NA
+        if float(value).is_integer():
+            return int(value)
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return pd.NA
+    try:
+        numeric_value = float(text)
+    except ValueError:
+        return text
+    if numeric_value.is_integer():
+        return int(numeric_value)
+    return text
 
 
-def duration_days(start_value: Any, end_value: Any) -> int | None:
-    start_date = parse_date(start_value)
-    end_date = parse_date(end_value)
-    if not start_date or not end_date:
-        return None
-    return (end_date.date() - start_date.date()).days
+def normalize_point_id_series(series: pd.Series) -> pd.Series:
+    return series.map(normalize_point_id_value)
+
+
+def normalize_text_value(value: Any) -> str:
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def coerce_bool_series(df: pd.DataFrame, column: str) -> pd.Series:
+    if column not in df.columns:
+        return pd.Series(False, index=df.index)
+    series = df[column]
+    numeric = pd.to_numeric(series, errors="coerce")
+    truthy = numeric.eq(1)
+    text = series.astype("string").str.strip().str.lower()
+    truthy = truthy | text.isin({"true", "yes", "y", "1"})
+    return truthy.fillna(False)
 
 
 def coordinate_text(value: Any) -> str:
     if pd.isna(value) or value is None:
         return ""
-    if isinstance(value, (int, float)):
-        return f"{value:.8f}"
+    if isinstance(value, (int, float, np.integer, np.floating)):
+        return f"{float(value):.8f}"
     return str(value).strip()
 
 
-def build_id_adr(record: pd.Series) -> str | None:
-    latitude = coordinate_text(record.get("point_latitude"))
-    longitude = coordinate_text(record.get("point_longitude"))
+def build_id_adr(latitude_value: Any, longitude_value: Any) -> str | None:
+    latitude = coordinate_text(latitude_value)
+    longitude = coordinate_text(longitude_value)
     if not latitude and not longitude:
         return None
     return f"{latitude}, {longitude}"
 
 
-def load_source_rows(source_workbook: Path) -> dict[int, dict[str, Any]]:
+def load_source_frame(source_workbook: Path) -> pd.DataFrame:
     source_df = pd.read_excel(source_workbook).dropna(how="all").copy()
-    source_df["point_id"] = range(1, len(source_df) + 1)
-    return source_df.set_index("point_id").to_dict(orient="index")
+    source_df.columns = [str(column).strip() for column in source_df.columns]
+
+    point_id_col = resolve_column_name(source_df.columns.tolist(), ("point_id", "Point ID", "#", "id"))
+    if point_id_col is None:
+        source_df["point_id"] = range(1, len(source_df) + 1)
+    else:
+        source_df["point_id"] = normalize_point_id_series(source_df[point_id_col])
+        missing_mask = source_df["point_id"].isna()
+        if missing_mask.any():
+            source_df.loc[missing_mask, "point_id"] = range(1, int(missing_mask.sum()) + 1)
+
+    latitude_col = resolve_column_name(source_df.columns.tolist(), LATITUDE_ALIASES)
+    longitude_col = resolve_column_name(source_df.columns.tolist(), LONGITUDE_ALIASES)
+    closed_default_col = resolve_column_name(
+        source_df.columns.tolist(),
+        ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date"),
+    )
+    type_adr_col = resolve_column_name(source_df.columns.tolist(), ("TYPE_ADR", "Type_ADR", "Type ADR"))
+
+    source_df["point_latitude"] = source_df[latitude_col] if latitude_col else pd.NA
+    source_df["point_longitude"] = source_df[longitude_col] if longitude_col else pd.NA
+    source_df["CLOSED_DEFAULT_DATE"] = (
+        source_df[closed_default_col].map(parse_date)
+        if closed_default_col
+        else pd.Series(pd.NaT, index=source_df.index)
+    )
+    source_df["TYPE_ADR"] = source_df[type_adr_col] if type_adr_col else pd.NA
+    source_df["ID_ADR"] = source_df.apply(
+        lambda row: build_id_adr(row.get("point_latitude"), row.get("point_longitude")),
+        axis=1,
+    )
+    source_df["point_order"] = range(len(source_df))
+    return source_df
 
 
-def build_jrc_rows(event_hits: pd.DataFrame, source_rows: dict[int, dict[str, Any]]) -> list[list[Any]]:
-    rows: list[list[Any]] = []
-    for _, record in event_hits.iterrows():
-        point_id = int(record["point_id"])
-        source_row = source_rows.get(point_id, {})
-        rows.append(
-            [
-                point_id,
-                source_row.get("Obligor_ID"),
-                source_row.get("Facility_ID"),
-                parse_date(record.get("study_period_end")),
-                build_id_adr(record),
-                None,
-                bool_to_int(record.get("point_buffer_flood_hit")),
-                bool_to_int(record.get("buffer_flood_hit")),
-                parse_date(record.get("start_date")),
-                parse_date(record.get("end_date")),
-                record.get("buffer_max_depth_cm"),
-                record.get("buffer_median_depth_cm"),
-                record.get("buffer_min_depth_cm"),
-                duration_days(record.get("start_date"), record.get("end_date")),
-                1,
-                None,
-                None,
-                "JRC",
-            ]
+def read_workbook_sheet(workbook_path: Path | None, sheet_name: str) -> pd.DataFrame:
+    if workbook_path is None or not workbook_path.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_excel(workbook_path, sheet_name=sheet_name)
+    except ValueError:
+        return pd.DataFrame()
+    return df.dropna(how="all").copy()
+
+
+def standardize_date_bounds(df: pd.DataFrame, start_col: str, end_col: str) -> pd.DataFrame:
+    if df.empty:
+        return df.copy()
+    result = df.copy()
+    result[start_col] = result[start_col].map(parse_date) if start_col in result.columns else pd.NaT
+    result[end_col] = result[end_col].map(parse_date) if end_col in result.columns else pd.NaT
+    if start_col in result.columns and end_col in result.columns:
+        result[start_col] = result[start_col].where(result[start_col].notna(), result[end_col])
+        result[end_col] = result[end_col].where(result[end_col].notna(), result[start_col])
+    return result
+
+
+def build_jrc_event_frame(event_hits: pd.DataFrame) -> pd.DataFrame:
+    if event_hits.empty or "point_id" not in event_hits.columns:
+        return pd.DataFrame(columns=_standard_event_columns())
+    jrc_df = standardize_date_bounds(event_hits, "start_date", "end_date")
+    jrc_df["point_id"] = normalize_point_id_series(jrc_df["point_id"])
+    point_flag = coerce_bool_series(jrc_df, "point_buffer_flood_hit").astype(int)
+    area_flag = (
+        coerce_bool_series(jrc_df, "surrounding_buffer_flood_hit")
+        | coerce_bool_series(jrc_df, "buffer_flood_hit")
+    ).astype(int)
+    jrc_df = jrc_df[point_flag.eq(1) | area_flag.eq(1)].copy()
+    if jrc_df.empty:
+        return pd.DataFrame(columns=_standard_event_columns())
+
+    jrc_df["source_label"] = "JRC"
+    jrc_df["source_priority"] = 0
+    jrc_df["source_event_uid"] = jrc_df.get("event_id", pd.Series(range(1, len(jrc_df) + 1), index=jrc_df.index))
+    jrc_df["event_start_date"] = jrc_df["start_date"]
+    jrc_df["event_end_date"] = jrc_df["end_date"]
+    jrc_df["Flag_JRC"] = point_flag.loc[jrc_df.index]
+    jrc_df["Flag_GASPAR"] = 0
+    jrc_df["Flag_HANZE"] = 0
+    jrc_df["Flag_JRC_AREA"] = area_flag.loc[jrc_df.index]
+    jrc_df["Flag_GASPAR_AREA"] = 0
+    jrc_df["Flag_HANZE_AREA"] = 0
+    jrc_df["point_source_active"] = jrc_df["Flag_JRC"].eq(1)
+    jrc_df["area_source_active"] = jrc_df["Flag_JRC_AREA"].eq(1)
+    jrc_df["jrc_point_depth_mean"] = pd.to_numeric(jrc_df.get("point_buffer_mean_depth_cm"), errors="coerce")
+    jrc_df["jrc_area_depth_mean"] = pd.to_numeric(jrc_df.get("buffer_mean_depth_cm"), errors="coerce")
+    jrc_df["jrc_point_depth_max"] = pd.to_numeric(jrc_df.get("point_buffer_max_depth_cm"), errors="coerce")
+    jrc_df["jrc_area_depth_max"] = pd.to_numeric(jrc_df.get("buffer_max_depth_cm"), errors="coerce")
+    return jrc_df[_standard_event_columns()].copy()
+
+
+def build_fallback_event_frame(
+    candidate_df: pd.DataFrame,
+    hits_df: pd.DataFrame,
+    *,
+    source_label: str,
+    event_uid_col: str,
+    start_col: str,
+    end_col: str,
+) -> pd.DataFrame:
+    if candidate_df.empty or "point_id" not in candidate_df.columns or event_uid_col not in candidate_df.columns:
+        return pd.DataFrame(columns=_standard_event_columns())
+    fallback_df = candidate_df[candidate_df[event_uid_col].notna()].copy()
+    if fallback_df.empty:
+        return pd.DataFrame(columns=_standard_event_columns())
+
+    fallback_df = standardize_date_bounds(fallback_df, start_col, end_col)
+    fallback_df["point_id"] = normalize_point_id_series(fallback_df["point_id"])
+    fallback_df[event_uid_col] = fallback_df[event_uid_col].map(normalize_text_value)
+
+    point_keys: set[tuple[Any, str]] = set()
+    if not hits_df.empty and "point_id" in hits_df.columns and event_uid_col in hits_df.columns:
+        normalized_hits = hits_df.copy()
+        normalized_hits["point_id"] = normalize_point_id_series(normalized_hits["point_id"])
+        normalized_hits[event_uid_col] = normalized_hits[event_uid_col].map(normalize_text_value)
+        point_keys = {
+            (row_point_id, row_event_uid)
+            for row_point_id, row_event_uid in zip(
+                normalized_hits["point_id"],
+                normalized_hits[event_uid_col],
+                strict=False,
+            )
+            if pd.notna(row_point_id) and row_event_uid
+        }
+
+    event_keys = list(zip(fallback_df["point_id"], fallback_df[event_uid_col], strict=False))
+    point_flag = pd.Series(
+        [int((point_id, event_uid) in point_keys) for point_id, event_uid in event_keys],
+        index=fallback_df.index,
+    )
+    area_flag = pd.Series(1, index=fallback_df.index)
+
+    fallback_df["source_label"] = source_label
+    fallback_df["source_priority"] = SOURCE_PRIORITY.index(source_label)
+    fallback_df["source_event_uid"] = fallback_df[event_uid_col]
+    fallback_df["event_start_date"] = fallback_df[start_col]
+    fallback_df["event_end_date"] = fallback_df[end_col]
+    fallback_df["Flag_JRC"] = 0
+    fallback_df["Flag_GASPAR"] = 0
+    fallback_df["Flag_HANZE"] = 0
+    fallback_df["Flag_JRC_AREA"] = 0
+    fallback_df["Flag_GASPAR_AREA"] = 0
+    fallback_df["Flag_HANZE_AREA"] = 0
+    fallback_df[f"Flag_{source_label}"] = point_flag
+    fallback_df[f"Flag_{source_label}_AREA"] = area_flag
+    fallback_df["point_source_active"] = point_flag.eq(1)
+    fallback_df["area_source_active"] = area_flag.eq(1)
+    fallback_df["jrc_point_depth_mean"] = np.nan
+    fallback_df["jrc_area_depth_mean"] = np.nan
+    fallback_df["jrc_point_depth_max"] = np.nan
+    fallback_df["jrc_area_depth_max"] = np.nan
+    return fallback_df[_standard_event_columns()].copy()
+
+
+def _standard_event_columns() -> list[str]:
+    return [
+        "point_id",
+        "source_label",
+        "source_priority",
+        "source_event_uid",
+        "event_start_date",
+        "event_end_date",
+        "Flag_JRC",
+        "Flag_GASPAR",
+        "Flag_HANZE",
+        "Flag_JRC_AREA",
+        "Flag_GASPAR_AREA",
+        "Flag_HANZE_AREA",
+        "point_source_active",
+        "area_source_active",
+        "jrc_point_depth_mean",
+        "jrc_area_depth_mean",
+        "jrc_point_depth_max",
+        "jrc_area_depth_max",
+    ]
+
+
+def build_all_event_rows(
+    jrc_event_hits: pd.DataFrame,
+    gaspar_candidates: pd.DataFrame,
+    gaspar_hits: pd.DataFrame,
+    hanze_candidates: pd.DataFrame,
+    hanze_hits: pd.DataFrame,
+) -> pd.DataFrame:
+    frames = [
+        build_jrc_event_frame(jrc_event_hits),
+        build_fallback_event_frame(
+            gaspar_candidates,
+            gaspar_hits,
+            source_label="GASPAR",
+            event_uid_col="gaspar_event_uid",
+            start_col="gaspar_start_date",
+            end_col="gaspar_end_date",
+        ),
+        build_fallback_event_frame(
+            hanze_candidates,
+            hanze_hits,
+            source_label="HANZE",
+            event_uid_col="hanze_event_uid",
+            start_col="hanze_start_date",
+            end_col="hanze_end_date",
+        ),
+    ]
+    non_empty = [frame for frame in frames if not frame.empty]
+    if not non_empty:
+        return pd.DataFrame(columns=_standard_event_columns())
+    return pd.concat(non_empty, ignore_index=True)
+
+
+def cluster_point_events(point_events: pd.DataFrame, merge_gap_days: int) -> pd.DataFrame:
+    if point_events.empty:
+        return point_events.copy()
+    events = point_events.copy()
+    events["event_start_date"] = pd.to_datetime(events["event_start_date"], errors="coerce")
+    events["event_end_date"] = pd.to_datetime(events["event_end_date"], errors="coerce")
+    events = events.sort_values(
+        ["event_start_date", "event_end_date", "source_priority", "source_label", "source_event_uid"],
+        kind="stable",
+        na_position="last",
+    ).reset_index(drop=True)
+
+    cluster_ids: list[int] = []
+    current_cluster_id = 1
+    current_cluster_end = pd.NaT
+
+    for _, row in events.iterrows():
+        start_date = row["event_start_date"]
+        end_date = row["event_end_date"]
+        if pd.isna(start_date) and pd.isna(end_date):
+            if cluster_ids:
+                current_cluster_id += 1
+            cluster_ids.append(current_cluster_id)
+            current_cluster_end = pd.NaT
+            continue
+
+        event_start = start_date if pd.notna(start_date) else end_date
+        event_end = end_date if pd.notna(end_date) else start_date
+        if not cluster_ids:
+            cluster_ids.append(current_cluster_id)
+            current_cluster_end = event_end
+            continue
+
+        if pd.isna(current_cluster_end) or pd.isna(event_start):
+            current_cluster_id += 1
+            cluster_ids.append(current_cluster_id)
+            current_cluster_end = event_end
+            continue
+
+        gap_days = (event_start.normalize() - current_cluster_end.normalize()).days
+        if gap_days <= merge_gap_days:
+            cluster_ids.append(current_cluster_id)
+            if pd.notna(event_end) and (pd.isna(current_cluster_end) or event_end > current_cluster_end):
+                current_cluster_end = event_end
+        else:
+            current_cluster_id += 1
+            cluster_ids.append(current_cluster_id)
+            current_cluster_end = event_end
+
+    events["cluster_id"] = cluster_ids
+    return events
+
+
+def choose_priority_source(row: pd.Series, area: bool = False) -> str | pd.NA:
+    suffix = "_AREA" if area else ""
+    for label in SOURCE_PRIORITY:
+        if int(row.get(f"Flag_{label}{suffix}", 0) or 0) == 1:
+            return label
+    return pd.NA
+
+
+def select_source_rows(
+    cluster_df: pd.DataFrame,
+    source_label: str | pd.NA,
+    *,
+    point_level: bool,
+) -> pd.DataFrame:
+    if pd.isna(source_label):
+        return cluster_df.iloc[0:0].copy()
+
+    active_column = "point_source_active" if point_level else "area_source_active"
+    selected = cluster_df[
+        cluster_df["source_label"].eq(source_label)
+        & cluster_df[active_column].fillna(False)
+    ].copy()
+    if selected.empty:
+        selected = cluster_df[cluster_df["source_label"].eq(source_label)].copy()
+    return selected
+
+
+def aggregate_cluster_rows(cluster_df: pd.DataFrame) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for label in SOURCE_PRIORITY:
+        result[f"Flag_{label}"] = int(cluster_df[f"Flag_{label}"].max()) if f"Flag_{label}" in cluster_df.columns else 0
+        result[f"Flag_{label}_AREA"] = int(cluster_df[f"Flag_{label}_AREA"].max()) if f"Flag_{label}_AREA" in cluster_df.columns else 0
+
+    result["FLOOD_DATA_SOURCE"] = choose_priority_source(pd.Series(result), area=False)
+    result["FLOOD_DATA_SOURCE_AREA"] = choose_priority_source(pd.Series(result), area=True)
+    result["FLAG_FLOOD_ADR"] = int(any(result[f"Flag_{label}"] == 1 for label in SOURCE_PRIORITY))
+    result["FLAG_FLOOD_ADR_AREA"] = int(any(result[f"Flag_{label}_AREA"] == 1 for label in SOURCE_PRIORITY))
+
+    point_source = result["FLOOD_DATA_SOURCE"]
+    area_source = result["FLOOD_DATA_SOURCE_AREA"]
+
+    result["DATE_REF_FLOOD"] = pd.NaT
+    result["DATE_END_FLOOD"] = pd.NaT
+    if pd.notna(point_source):
+        selected_source_rows = select_source_rows(cluster_df, point_source, point_level=True)
+        result["DATE_REF_FLOOD"] = selected_source_rows["event_start_date"].min()
+        result["DATE_END_FLOOD"] = selected_source_rows["event_end_date"].max()
+    elif pd.notna(area_source):
+        selected_area_rows = select_source_rows(cluster_df, area_source, point_level=False)
+        result["DATE_REF_FLOOD"] = selected_area_rows["event_start_date"].min()
+        result["DATE_END_FLOOD"] = selected_area_rows["event_end_date"].max()
+
+    jrc_point_rows = cluster_df[cluster_df["Flag_JRC"].eq(1)]
+    jrc_area_rows = cluster_df[cluster_df["Flag_JRC_AREA"].eq(1)]
+    result["FLOOD_DEPTH_MOY"] = (
+        pd.to_numeric(jrc_point_rows["jrc_point_depth_mean"], errors="coerce").max()
+        if pd.notna(point_source) and point_source == "JRC" and not jrc_point_rows.empty
+        else np.nan
+    )
+    result["FLOOD_DEPTH_MOY_AREA"] = (
+        pd.to_numeric(jrc_area_rows["jrc_area_depth_mean"], errors="coerce").max()
+        if pd.notna(area_source) and area_source == "JRC" and not jrc_area_rows.empty
+        else np.nan
+    )
+    result["FLOOD_DEPTH_MAX"] = (
+        pd.to_numeric(jrc_point_rows["jrc_point_depth_max"], errors="coerce").max()
+        if pd.notna(point_source) and point_source == "JRC" and not jrc_point_rows.empty
+        else np.nan
+    )
+    result["FLOOD_DEPTH_MAX_AREA"] = (
+        pd.to_numeric(jrc_area_rows["jrc_area_depth_max"], errors="coerce").max()
+        if pd.notna(area_source) and area_source == "JRC" and not jrc_area_rows.empty
+        else np.nan
+    )
+    return result
+
+
+def build_source_export_base(source_df: pd.DataFrame) -> pd.DataFrame:
+    base = source_df.copy()
+    base["point_id"] = normalize_point_id_series(base["point_id"])
+    for column in ["Obligor_ID", "Facility_ID", "CLOSED_DEFAULT_DATE", "ID_ADR", "TYPE_ADR"]:
+        if column not in base.columns:
+            base[column] = pd.NA
+    if "point_order" not in base.columns:
+        base["point_order"] = range(len(base))
+    return base[
+        [
+            "point_id",
+            "Obligor_ID",
+            "Facility_ID",
+            "CLOSED_DEFAULT_DATE",
+            "ID_ADR",
+            "TYPE_ADR",
+            "point_order",
+        ]
+    ].copy()
+
+
+def build_flood_lgd_dataframe(
+    source_df: pd.DataFrame,
+    jrc_event_hits: pd.DataFrame,
+    gaspar_candidates: pd.DataFrame,
+    gaspar_hits: pd.DataFrame,
+    hanze_candidates: pd.DataFrame,
+    hanze_hits: pd.DataFrame,
+    *,
+    merge_gap_days: int = 30,
+) -> pd.DataFrame:
+    """Build the final T20 flood export at point x consolidated-flood-episode level.
+
+    Input workbooks stay source-specific:
+    - JRC contributes raster-confirmed event hits
+    - GASPAR contributes commune candidates plus point-positive hits
+    - HANZE contributes department candidates plus point-positive hits
+
+    The final output is one consolidated table. Events across sources are merged
+    per `point_id` when their intervals overlap or stay within `merge_gap_days`,
+    then source priority `JRC > GASPAR > HANZE` is used for the retained source
+    fields. Points with no flood evidence are still emitted once with zero flags
+    and missing flood dates.
+    """
+    base_df = build_source_export_base(source_df)
+    event_rows = build_all_event_rows(
+        jrc_event_hits=jrc_event_hits,
+        gaspar_candidates=gaspar_candidates,
+        gaspar_hits=gaspar_hits,
+        hanze_candidates=hanze_candidates,
+        hanze_hits=hanze_hits,
+    )
+    if event_rows.empty:
+        no_flood_df = base_df.copy()
+        for column in OUTPUT_COLUMNS:
+            if column not in no_flood_df.columns:
+                no_flood_df[column] = pd.NA
+        for flag_column in [
+            "Flag_JRC",
+            "Flag_GASPAR",
+            "Flag_HANZE",
+            "Flag_JRC_AREA",
+            "Flag_GASPAR_AREA",
+            "Flag_HANZE_AREA",
+            "FLAG_FLOOD_ADR",
+            "FLAG_FLOOD_ADR_AREA",
+        ]:
+            no_flood_df[flag_column] = 0
+        no_flood_df["DATE_REF_FLOOD"] = pd.NaT
+        no_flood_df["DATE_END_FLOOD"] = pd.NaT
+        no_flood_df["FLOOD_DEPTH_MOY"] = np.nan
+        no_flood_df["FLOOD_DEPTH_MOY_AREA"] = np.nan
+        no_flood_df["FLOOD_DEPTH_MAX"] = np.nan
+        no_flood_df["FLOOD_DEPTH_MAX_AREA"] = np.nan
+        return no_flood_df[OUTPUT_COLUMNS].copy()
+
+    clustered_frames: list[pd.DataFrame] = []
+    for point_id, point_events in event_rows.groupby("point_id", sort=False):
+        point_clustered = cluster_point_events(point_events, merge_gap_days=merge_gap_days)
+        point_clustered["point_id"] = point_id
+        clustered_frames.append(point_clustered)
+    clustered_events = pd.concat(clustered_frames, ignore_index=True)
+
+    output_rows: list[dict[str, Any]] = []
+    flooded_point_ids = set(clustered_events["point_id"].dropna().tolist())
+    metadata_by_point = base_df.set_index("point_id").to_dict(orient="index")
+
+    for (point_id, cluster_id), cluster_df in clustered_events.groupby(["point_id", "cluster_id"], sort=False):
+        row = dict(metadata_by_point.get(point_id, {}))
+        row["point_id"] = point_id
+        row["cluster_id"] = cluster_id
+        row.update(aggregate_cluster_rows(cluster_df))
+        output_rows.append(row)
+
+    for point_id, metadata in metadata_by_point.items():
+        if point_id in flooded_point_ids:
+            continue
+        output_rows.append(
+            {
+                **metadata,
+                "point_id": point_id,
+                "Flag_JRC": 0,
+                "Flag_GASPAR": 0,
+                "Flag_HANZE": 0,
+                "Flag_JRC_AREA": 0,
+                "Flag_GASPAR_AREA": 0,
+                "Flag_HANZE_AREA": 0,
+                "FLOOD_DATA_SOURCE": pd.NA,
+                "FLOOD_DATA_SOURCE_AREA": pd.NA,
+                "FLAG_FLOOD_ADR": 0,
+                "FLAG_FLOOD_ADR_AREA": 0,
+                "DATE_REF_FLOOD": pd.NaT,
+                "DATE_END_FLOOD": pd.NaT,
+                "FLOOD_DEPTH_MOY": np.nan,
+                "FLOOD_DEPTH_MOY_AREA": np.nan,
+                "FLOOD_DEPTH_MAX": np.nan,
+                "FLOOD_DEPTH_MAX_AREA": np.nan,
+            }
         )
-    return rows
 
-
-def build_gaspar_rows(event_hits: pd.DataFrame, source_rows: dict[int, dict[str, Any]]) -> list[list[Any]]:
-    rows: list[list[Any]] = []
-    for _, record in event_hits.iterrows():
-        point_id = int(record["point_id"])
-        source_row = source_rows.get(point_id, {})
-        rows.append(
-            [
-                point_id,
-                source_row.get("Obligor_ID"),
-                source_row.get("Facility_ID"),
-                parse_date(record.get("study_period_end")),
-                build_id_adr(record),
-                None,
-                1,
-                1,
-                parse_date(record.get("gaspar_start_date")),
-                parse_date(record.get("gaspar_end_date")),
-                None,
-                None,
-                None,
-                duration_days(record.get("gaspar_start_date"), record.get("gaspar_end_date")),
-                None,
-                1,
-                None,
-                "GASPAR",
-            ]
-        )
-    return rows
-
-
-def build_flood_lgd_rows(event_hits: pd.DataFrame, source_rows: dict[int, dict[str, Any]], source_label: str) -> list[list[Any]]:
-    if source_label == "JRC":
-        return build_jrc_rows(event_hits, source_rows)
-    if source_label == "GASPAR":
-        return build_gaspar_rows(event_hits, source_rows)
-    raise ValueError(f"Unsupported source label: {source_label}")
-
-
-def rows_to_dataframe(rows: list[list[Any]]) -> pd.DataFrame:
-    return pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
+    result = pd.DataFrame(output_rows)
+    result = result.merge(base_df[["point_id", "point_order"]], on="point_id", how="left", suffixes=("", "_base"))
+    result["sort_date"] = pd.to_datetime(result["DATE_REF_FLOOD"], errors="coerce")
+    result = result.sort_values(["point_order", "sort_date"], kind="stable", na_position="last").reset_index(drop=True)
+    for flag_column in [
+        "Flag_JRC",
+        "Flag_GASPAR",
+        "Flag_HANZE",
+        "Flag_JRC_AREA",
+        "Flag_GASPAR_AREA",
+        "Flag_HANZE_AREA",
+        "FLAG_FLOOD_ADR",
+        "FLAG_FLOOD_ADR_AREA",
+    ]:
+        result[flag_column] = pd.to_numeric(result[flag_column], errors="coerce").fillna(0).astype(int)
+    return result[OUTPUT_COLUMNS].copy()
 
 
 def style_worksheet(worksheet) -> None:
@@ -271,27 +723,37 @@ def style_worksheet(worksheet) -> None:
     if max_row < 2:
         return
 
-    for column_letter in ("D", "I", "J"):
+    for column_letter in ("D", "Q", "R"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "yyyy-mm-dd"
 
-    for column_letter in ("G", "H", "N", "O", "P", "Q"):
+    for column_letter in ("G", "H", "I", "K", "L", "M", "O", "P"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0"
 
-    for column_letter in ("K", "L", "M"):
+    for column_letter in ("S", "T", "U", "V"):
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0.##"
+
+
+def normalize_excel_cell(value: Any) -> Any:
+    if pd.isna(value):
+        return None
+    if isinstance(value, pd.Timestamp):
+        return value.to_pydatetime()
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
 
 
 def write_sheet_into_existing_workbook(
     workbook_path: Path,
     output_path: Path,
     sheet_name: str,
-    rows: list[list[Any]],
+    df: pd.DataFrame,
     *,
     replace_sheet: bool,
 ) -> None:
@@ -306,9 +768,9 @@ def write_sheet_into_existing_workbook(
         del workbook[sheet_name]
 
     worksheet = workbook.create_sheet(title=sheet_name)
-    worksheet.append(OUTPUT_COLUMNS)
-    for row in rows:
-        worksheet.append(row)
+    worksheet.append(list(df.columns))
+    for row in df.itertuples(index=False, name=None):
+        worksheet.append([normalize_excel_cell(value) for value in row])
     style_worksheet(worksheet)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -318,70 +780,34 @@ def write_sheet_into_existing_workbook(
 def write_standalone_workbook(
     output_path: Path,
     sheet_name: str,
-    rows: list[list[Any]],
+    df: pd.DataFrame,
 ) -> None:
     workbook = Workbook()
     worksheet = workbook.active
     worksheet.title = sheet_name
-    worksheet.append(OUTPUT_COLUMNS)
-    for row in rows:
-        worksheet.append(row)
+    worksheet.append(list(df.columns))
+    for row in df.itertuples(index=False, name=None):
+        worksheet.append([normalize_excel_cell(value) for value in row])
     style_worksheet(worksheet)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     workbook.save(output_path)
 
 
-def write_csv_output(output_path: Path, rows: list[list[Any]]) -> None:
-    df = rows_to_dataframe(rows)
+def write_csv_output(output_path: Path, df: pd.DataFrame) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False, encoding="utf-8")
 
 
-def build_output_path(input_path: Path, sheet_name: str, mode: str) -> Path:
+def build_output_path(source_workbook: Path, sheet_name: str, mode: str) -> Path:
     safe_sheet_name = sheet_name.replace(" ", "_")
     if mode == "copy":
-        return Path(f"{input_path.stem}_with_{safe_sheet_name}{input_path.suffix}")
+        return Path(f"{source_workbook.stem}_with_{safe_sheet_name}{source_workbook.suffix}")
     if mode == "standalone":
-        return Path(f"{input_path.stem}_{safe_sheet_name}_only.xlsx")
+        return Path(f"{source_workbook.stem}_{safe_sheet_name}_only.xlsx")
     if mode == "csv":
-        return Path(f"{input_path.stem}_{safe_sheet_name}.csv")
+        return Path(f"{source_workbook.stem}_{safe_sheet_name}.csv")
     raise ValueError(f"Unsupported mode: {mode}")
-
-
-def process_target(
-    target: FloodTarget,
-    *,
-    output_dir: Path,
-    sheet_name: str,
-    source_rows: dict[int, dict[str, Any]],
-    mode: str,
-    replace_sheet: bool,
-) -> Path:
-    event_hits = pd.read_excel(target.input_path, sheet_name="event_hits")
-    rows = build_flood_lgd_rows(event_hits, source_rows, target.source_label)
-    output_path = output_dir / build_output_path(target.input_path, sheet_name, mode)
-
-    if mode == "copy":
-        write_sheet_into_existing_workbook(
-            target.input_path,
-            output_path,
-            sheet_name,
-            rows,
-            replace_sheet=replace_sheet,
-        )
-    elif mode == "standalone":
-        write_standalone_workbook(output_path, sheet_name, rows)
-    elif mode == "csv":
-        write_csv_output(output_path, rows)
-    else:
-        raise ValueError(f"Unsupported mode: {mode}")
-
-    print(
-        f"Wrote {output_path} with {len(rows)} {sheet_name} rows from "
-        f"{target.source_label} using mode={mode}."
-    )
-    return output_path
 
 
 def main() -> None:
@@ -390,27 +816,52 @@ def main() -> None:
     source_workbook = Path(args.source_workbook)
     jrc_workbook = Path(args.jrc_workbook)
     gaspar_workbook = Path(args.gaspar_workbook)
+    hanze_workbook = Path(args.hanze_workbook)
     output_dir = Path(args.output_dir)
 
     ensure_required_file(source_workbook, "source workbook")
     ensure_required_file(jrc_workbook, "JRC workbook")
     ensure_required_file(gaspar_workbook, "Gaspar workbook")
+    if not hanze_workbook.exists():
+        print(f"HANZE workbook not found at {hanze_workbook}. HANZE columns will stay zero/NA.")
 
-    source_rows = load_source_rows(source_workbook)
-    targets = [
-        FloodTarget(input_path=jrc_workbook, source_label="JRC"),
-        FloodTarget(input_path=gaspar_workbook, source_label="GASPAR"),
-    ]
+    source_df = load_source_frame(source_workbook)
+    jrc_event_hits = read_workbook_sheet(jrc_workbook, "event_hits")
+    gaspar_candidates = read_workbook_sheet(gaspar_workbook, "candidate_events")
+    gaspar_hits = read_workbook_sheet(gaspar_workbook, "event_hits")
+    hanze_candidates = read_workbook_sheet(hanze_workbook, "candidate_events")
+    hanze_hits = read_workbook_sheet(hanze_workbook, "event_hits")
 
-    for target in targets:
-        process_target(
-            target,
-            output_dir=output_dir,
-            sheet_name=args.sheet_name,
-            source_rows=source_rows,
-            mode=args.mode,
+    flood_lgd_df = build_flood_lgd_dataframe(
+        source_df=source_df,
+        jrc_event_hits=jrc_event_hits,
+        gaspar_candidates=gaspar_candidates,
+        gaspar_hits=gaspar_hits,
+        hanze_candidates=hanze_candidates,
+        hanze_hits=hanze_hits,
+        merge_gap_days=args.merge_gap_days,
+    )
+
+    output_path = output_dir / build_output_path(source_workbook, args.sheet_name, args.mode)
+    if args.mode == "copy":
+        write_sheet_into_existing_workbook(
+            source_workbook,
+            output_path,
+            args.sheet_name,
+            flood_lgd_df,
             replace_sheet=args.replace_sheet,
         )
+    elif args.mode == "standalone":
+        write_standalone_workbook(output_path, args.sheet_name, flood_lgd_df)
+    elif args.mode == "csv":
+        write_csv_output(output_path, flood_lgd_df)
+    else:
+        raise ValueError(f"Unsupported mode: {args.mode}")
+
+    print(
+        f"Wrote {output_path} with {len(flood_lgd_df):,} consolidated {args.sheet_name} rows "
+        f"using merge_gap_days={args.merge_gap_days}."
+    )
 
 
 if __name__ == "__main__":

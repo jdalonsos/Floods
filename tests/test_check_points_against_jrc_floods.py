@@ -28,6 +28,8 @@ from check_points_against_jrc_floods import (  # noqa: E402
     build_detailed_sheet,
     build_gaspar_candidate_sheet,
     build_gaspar_hits_sheet,
+    build_hanze_candidate_sheet,
+    build_hanze_hits_sheet,
     build_point_flag_sheet,
     build_hits_sheet,
     build_summary_table,
@@ -57,8 +59,8 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(args.row_study_end_col, "last_date")
         self.assertEqual(args.study_start, "2000-01-01")
         self.assertEqual(
-            args.out_file,
-            "data/processed/france_points_jrc_flood_check_collaterals.xlsx",
+            Path(args.out_file),
+            Path("data/processed/france_points_jrc_flood_check_collaterals.xlsx"),
         )
 
     def test_longitude_aliases_accept_long(self) -> None:
@@ -866,6 +868,54 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
             summary.loc[0, "flag_flood_decision_path"],
             "no_jrc_hit_gaspar_outside_n_tri_and_riparian",
         )
+
+    def test_build_hanze_candidate_sheet_uses_tri_and_riparian_rules(self) -> None:
+        hanze_candidate_df = pd.DataFrame(
+            {
+                "point_id": [1, 2, 3],
+                "LAT": [48.1, 48.2, 48.3],
+                "LONG": [2.1, 2.2, 2.3],
+                "excel_row_number": [2, 3, 4],
+                "lau_code": ["FR_00001", "FR_00002", "FR_00003"],
+                "lau_name": ["Point A", "Point B", "Point C"],
+                "insee_com": ["00001", "00002", "00003"],
+                "insee_dep": ["01", "02", "03"],
+                "nuts3_code": ["FR101", "FR201", "FR301"],
+                "hanze_nuts3_name": ["Dept A", "Dept B", "Dept C"],
+                "hanze_event_uid": ["hanze-1", "hanze-2", "hanze-3"],
+                "hanze_event_id": ["1", "2", "3"],
+                "hanze_start_date": pd.to_datetime(["2020-01-01", "2020-02-01", "2020-03-01"]),
+                "hanze_end_date": pd.to_datetime(["2020-01-02", "2020-02-02", "2020-03-02"]),
+                "hanze_country_code": ["FR", "FR", "FR"],
+                "hanze_country_name": ["France", "France", "France"],
+                "hanze_event_type": ["Flood", "Flood", "Flood"],
+                "hanze_flood_source": ["River", "River", "River"],
+            }
+        )
+        tri_classification_df = pd.DataFrame(
+            {
+                "point_id": [1, 2, 3],
+                "tri_for_hit": [True, False, False],
+                "tri_boundary_hit": [False, True, False],
+                "tri_zone_status": ["for", "inside_n_tri_not_for", "outside_n_tri"],
+                "riparian_hit": [False, False, True],
+            }
+        )
+
+        candidate_sheet = build_hanze_candidate_sheet(
+            hanze_candidate_df=hanze_candidate_df,
+            point_columns=PointColumns(latitude="LAT", longitude="LONG", point_id="point_id", city=None),
+            tri_classification_df=tri_classification_df,
+        )
+        hits_sheet = build_hanze_hits_sheet(candidate_sheet)
+
+        self.assertEqual(candidate_sheet["flood_risk_area_value"].tolist(), ["high", "other", "out"])
+        self.assertEqual(candidate_sheet["hanze_spatial_hit"].tolist(), [True, False, True])
+        self.assertEqual(
+            candidate_sheet["hanze_hit_reason"].tolist(),
+            ["tri_for", "not_selected", "riparian_outside_n_tri"],
+        )
+        self.assertEqual(hits_sheet["point_id"].tolist(), [1, 3])
 
 
 if __name__ == "__main__":

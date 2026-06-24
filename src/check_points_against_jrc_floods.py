@@ -38,11 +38,13 @@ DEFAULT_FRANCE_OLD_INSEE_UPDATES = (
     Path("data/processed/france_lau_insee_documentation/fr_old_insee_to_current_update_ready.csv")
 )
 DEFAULT_GASPAR_FILE = DEFAULT_GASPAR_FULL_HISTORY_PROCESSED_PATH
+DEFAULT_HANZE_FILE = Path("data/processed/HANZE_events_v3_transformed.csv")
 DEFAULT_TRI_ARCHIVE = Path("data/raw/tri_2020_sig_di")
 DEFAULT_RIPARIAN_ROOT = Path("data/raw/France_Riparian")
 DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check.xlsx")
 DEFAULT_POINT_BUFFER_M = 40.0
 DEFAULT_SURROUNDING_BUFFER_KM = 1.0
+DEFAULT_HANZE_MIN_YEAR = 2000
 EXCEL_MAX_DATA_ROWS = 1_048_575
 TRI_ARCHIVE_ROOT = "tri_2020_sig_di"
 TRI_INONDABLE_PREFIX = "n_inondable_"
@@ -221,7 +223,51 @@ GASPAR_EVENT_HITS_COLUMNS = [
     "tri_boundary_hit",
     "tri_zone_status",
     "riparian_hit",
+    "flood_risk_area_value",
     "gaspar_hit_reason",
+]
+
+HANZE_REQUIRED_COLUMNS = [
+    "ID",
+    "Country code",
+    "Year",
+    "Country name",
+    "Start date",
+    "End date",
+    "Type",
+    "Flood source",
+    "NUTS3",
+    "NUTS3_name",
+]
+
+HANZE_EVENT_HITS_COLUMNS = [
+    "point_id",
+    "excel_row_number",
+    "point_latitude",
+    "point_longitude",
+    "lau_code",
+    "lau_name",
+    "insee_com",
+    "insee_dep",
+    "nuts3_code",
+    "nuts3_name",
+    "study_period_end",
+    "study_period_end_source",
+    "hanze_event_uid",
+    "hanze_event_id",
+    "hanze_start_date",
+    "hanze_end_date",
+    "hanze_country_code",
+    "hanze_country_name",
+    "hanze_event_type",
+    "hanze_flood_source",
+    "tri_for_hit",
+    "tri_boundary_hit",
+    "tri_zone_status",
+    "riparian_hit",
+    "flood_risk_area_value",
+    "hanze_spatial_hit",
+    "hanze_hit_reason",
 ]
 
 FRANCE_LOOKUP_COLUMNS = [
@@ -754,6 +800,171 @@ def build_gaspar_candidate_events(
     )
 
 
+def load_hanze_events(
+    hanze_file: Path,
+    france_lookup_file: Path,
+    target_department_codes: set[str],
+    *,
+    target_country_code: str,
+    min_year: int,
+) -> pd.DataFrame:
+    empty_columns = [
+        "hanze_event_uid",
+        "hanze_event_id",
+        "hanze_country_code",
+        "hanze_country_name",
+        "hanze_start_date",
+        "hanze_end_date",
+        "hanze_event_type",
+        "hanze_flood_source",
+        "nuts3_code",
+        "hanze_nuts3_name",
+        "insee_dep",
+    ]
+    if not target_department_codes:
+        return pd.DataFrame(columns=empty_columns)
+
+    hanze_df = pd.read_csv(
+        hanze_file,
+        dtype=str,
+        keep_default_na=False,
+        low_memory=False,
+        encoding="utf-8-sig",
+    )
+    hanze_df.columns = [str(column).strip() for column in hanze_df.columns]
+
+    missing_cols = [column for column in HANZE_REQUIRED_COLUMNS if column not in hanze_df.columns]
+    if missing_cols:
+        raise KeyError(f"Missing expected HANZE columns: {missing_cols}")
+
+    france_lookup_df = load_france_activity_lookup(france_lookup_file)
+    department_lookup = france_lookup_df[["nuts3_code", "nuts3_name", "insee_dep"]].dropna(
+        subset=["nuts3_code", "insee_dep"]
+    )
+    department_lookup = department_lookup.drop_duplicates(subset=["nuts3_code"]).copy()
+    for column in ["nuts3_code", "nuts3_name", "insee_dep"]:
+        department_lookup[column] = department_lookup[column].astype("string").str.strip()
+
+    hanze_df["Country code"] = hanze_df["Country code"].astype(str).str.strip().str.upper()
+    hanze_df["NUTS3"] = hanze_df["NUTS3"].astype(str).str.strip()
+    hanze_df = hanze_df[hanze_df["Country code"].eq(target_country_code.upper())].copy()
+    if hanze_df.empty:
+        return pd.DataFrame(columns=empty_columns)
+
+    hanze_df = hanze_df.merge(
+        department_lookup,
+        left_on="NUTS3",
+        right_on="nuts3_code",
+        how="left",
+    )
+    hanze_df = hanze_df[hanze_df["insee_dep"].isin(target_department_codes)].copy()
+    if hanze_df.empty:
+        return pd.DataFrame(columns=empty_columns)
+
+    hanze_df["hanze_start_date"] = parse_date_series(hanze_df["Start date"])
+    hanze_df["hanze_end_date"] = parse_date_series(hanze_df["End date"])
+    hanze_df["hanze_start_date"] = hanze_df["hanze_start_date"].combine_first(hanze_df["hanze_end_date"])
+    hanze_df["hanze_end_date"] = hanze_df["hanze_end_date"].combine_first(hanze_df["hanze_start_date"])
+    hanze_df["hanze_year"] = pd.to_numeric(hanze_df["Year"], errors="coerce")
+    hanze_df["hanze_year"] = (
+        hanze_df["hanze_year"]
+        .combine_first(hanze_df["hanze_start_date"].dt.year.astype("float"))
+        .combine_first(hanze_df["hanze_end_date"].dt.year.astype("float"))
+    )
+    hanze_df = hanze_df[hanze_df["hanze_year"].ge(float(min_year), fill_value=False)].copy()
+    if hanze_df.empty:
+        return pd.DataFrame(columns=empty_columns)
+
+    hanze_df["hanze_event_id"] = hanze_df["ID"].astype(str).str.strip()
+    hanze_df["nuts3_code"] = hanze_df["NUTS3"].astype(str).str.strip()
+    hanze_df["hanze_event_uid"] = [
+        f"{event_id}__{nuts3_code}__{index}"
+        for index, (event_id, nuts3_code) in enumerate(
+            zip(hanze_df["hanze_event_id"], hanze_df["nuts3_code"], strict=False),
+            start=1,
+        )
+    ]
+    hanze_df["hanze_country_code"] = hanze_df["Country code"].astype(str).str.strip()
+    hanze_df["hanze_country_name"] = hanze_df["Country name"].astype(str).str.strip()
+    hanze_df["hanze_event_type"] = hanze_df["Type"].astype(str).str.strip()
+    hanze_df["hanze_flood_source"] = hanze_df["Flood source"].astype(str).str.strip()
+    hanze_df["hanze_nuts3_name"] = (
+        hanze_df["NUTS3_name"]
+        .astype(str)
+        .str.strip()
+        .where(hanze_df["NUTS3_name"].astype(str).str.strip().ne(""), hanze_df["nuts3_name"])
+    )
+
+    keep_columns = [
+        "hanze_event_uid",
+        "hanze_event_id",
+        "hanze_country_code",
+        "hanze_country_name",
+        "hanze_start_date",
+        "hanze_end_date",
+        "hanze_event_type",
+        "hanze_flood_source",
+        "nuts3_code",
+        "hanze_nuts3_name",
+        "insee_dep",
+    ]
+    return hanze_df[keep_columns].drop_duplicates(subset=["hanze_event_uid"]).reset_index(drop=True)
+
+
+def build_hanze_candidate_events(
+    points_with_lau: pd.DataFrame,
+    point_columns: PointColumns,
+    hanze_events_df: pd.DataFrame,
+    row_study_period_columns: RowStudyPeriodColumns | None,
+) -> pd.DataFrame:
+    if hanze_events_df.empty:
+        return pd.DataFrame()
+
+    point_key_cols = [
+        point_columns.point_id,
+        point_columns.latitude,
+        point_columns.longitude,
+        "excel_row_number",
+        "lau_code",
+        "lau_code_local",
+        "lau_name",
+        "country_code",
+        "insee_com",
+        "insee_dep",
+        "insee_reg",
+        "nuts3_code",
+        "nuts3_name",
+    ]
+    if point_columns.city and point_columns.city in points_with_lau.columns:
+        point_key_cols.append(point_columns.city)
+    if row_study_period_columns:
+        for raw_col in [
+            row_study_period_columns.anchor,
+            row_study_period_columns.primary_end,
+            row_study_period_columns.fallback_end,
+        ]:
+            if raw_col and raw_col in points_with_lau.columns and raw_col not in point_key_cols:
+                point_key_cols.append(raw_col)
+    for derived_col in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+        if derived_col in points_with_lau.columns and derived_col not in point_key_cols:
+            point_key_cols.append(derived_col)
+
+    point_base = points_with_lau[point_key_cols].copy()
+    hanze_candidate_df = point_base.merge(
+        hanze_events_df,
+        on="insee_dep",
+        how="left",
+        suffixes=("", "_hanze"),
+    )
+    return filter_candidate_events_by_interval_columns(
+        hanze_candidate_df,
+        start_col="study_period_start",
+        end_col="study_period_end",
+        event_start_col="hanze_start_date",
+        event_end_col="hanze_end_date",
+    )
+
+
 def normalize_tri_scenario_key(value: Any) -> str:
     if pd.isna(value):
         return ""
@@ -1012,6 +1223,13 @@ def classify_points_against_tri(
                 "tri_boundary_hit",
                 "tri_zone_status",
                 "riparian_hit",
+                "flood_risk_area_value",
+                "TRI",
+                "tri_flood_risk_high_hit",
+                "tri_flood_risk_medium_hit",
+                "tri_flood_risk_low_hit",
+                "tri_flood_risk_other_hit",
+                "riparian_zone_hit",
             ]
         )
 
@@ -1059,6 +1277,23 @@ def classify_points_against_tri(
         ],
         default="outside_n_tri",
     )
+    classification_df["flood_risk_area_value"] = np.select(
+        [
+            classification_df["tri_for_hit"],
+            ~classification_df["tri_for_hit"] & classification_df["tri_boundary_hit"],
+        ],
+        [
+            "high",
+            "other",
+        ],
+        default="out",
+    )
+    classification_df["TRI"] = classification_df["flood_risk_area_value"]
+    classification_df["tri_flood_risk_high_hit"] = classification_df["tri_for_hit"]
+    classification_df["tri_flood_risk_medium_hit"] = False
+    classification_df["tri_flood_risk_low_hit"] = False
+    classification_df["tri_flood_risk_other_hit"] = classification_df["tri_boundary_hit"]
+    classification_df["riparian_zone_hit"] = classification_df["riparian_hit"]
     return classification_df
 
 
@@ -1907,6 +2142,7 @@ def build_gaspar_candidate_sheet(
         "tri_boundary_hit",
         "tri_zone_status",
         "riparian_hit",
+        "flood_risk_area_value",
         "gaspar_spatial_hit",
         "gaspar_hit_reason",
     ]
@@ -1934,6 +2170,7 @@ def build_gaspar_candidate_sheet(
         "tri_boundary_hit",
         "tri_zone_status",
         "riparian_hit",
+        "flood_risk_area_value",
     ]
     tri_merge_cols = [column for column in tri_merge_cols if column in tri_classification_df.columns]
     if tri_merge_cols:
@@ -1958,6 +2195,21 @@ def build_gaspar_candidate_sheet(
         gaspar_only["tri_zone_status"] = "outside_n_tri"
     gaspar_only["tri_zone_status"] = (
         gaspar_only["tri_zone_status"].astype("string").fillna("outside_n_tri").str.lower()
+    )
+    if "flood_risk_area_value" not in gaspar_only.columns:
+        gaspar_only["flood_risk_area_value"] = np.select(
+            [
+                gaspar_only["tri_for_hit"],
+                ~gaspar_only["tri_for_hit"] & gaspar_only["tri_boundary_hit"],
+            ],
+            [
+                "high",
+                "other",
+            ],
+            default="out",
+        )
+    gaspar_only["flood_risk_area_value"] = (
+        gaspar_only["flood_risk_area_value"].astype("string").fillna("out").str.lower()
     )
 
     riparian_mask = ~gaspar_only["tri_for_hit"] & ~gaspar_only["tri_boundary_hit"] & gaspar_only["riparian_hit"]
@@ -1995,6 +2247,7 @@ def build_gaspar_candidate_sheet(
         "tri_boundary_hit",
         "tri_zone_status",
         "riparian_hit",
+        "flood_risk_area_value",
         "gaspar_spatial_hit",
         "gaspar_hit_reason",
     ]
@@ -2023,6 +2276,188 @@ def build_gaspar_hits_sheet(gaspar_candidate_sheet: pd.DataFrame) -> pd.DataFram
     hits = gaspar_candidate_sheet[gaspar_candidate_sheet["gaspar_spatial_hit"].fillna(False)].copy()
     available = [column for column in GASPAR_EVENT_HITS_COLUMNS if column in hits.columns]
     return hits[available].copy()
+
+
+def build_hanze_candidate_sheet(
+    hanze_candidate_df: pd.DataFrame,
+    point_columns: PointColumns,
+    tri_classification_df: pd.DataFrame,
+    row_study_period_columns: RowStudyPeriodColumns | None = None,
+) -> pd.DataFrame:
+    """Build the France HANZE candidate dataset with the T20 point-selection rule.
+
+    This sheet stays at candidate-event granularity. A row is kept for each
+    `point_id x HANZE event` pair that survives the department/date prefilter.
+
+    The point-level positive flag is then derived from the TRI/riparian logic:
+
+    - `high` flood-risk area (`tri_for_hit`) -> positive
+    - `other` flood-risk area (`inside_n_tri_not_for`) -> negative
+    - `out` of TRI -> positive only when the point is also inside a riparian zone
+    """
+    expected_columns = [
+        "point_id",
+        "point_latitude",
+        "point_longitude",
+        "excel_row_number",
+        "lau_code",
+        "lau_name",
+        "insee_com",
+        "insee_dep",
+        "nuts3_code",
+        "nuts3_name",
+        "hanze_event_uid",
+        "hanze_event_id",
+        "hanze_start_date",
+        "hanze_end_date",
+        "hanze_country_code",
+        "hanze_country_name",
+        "hanze_event_type",
+        "hanze_flood_source",
+        "tri_for_hit",
+        "tri_boundary_hit",
+        "tri_zone_status",
+        "riparian_hit",
+        "flood_risk_area_value",
+        "hanze_spatial_hit",
+        "hanze_hit_reason",
+    ]
+    if hanze_candidate_df.empty or "hanze_event_uid" not in hanze_candidate_df.columns:
+        return pd.DataFrame(columns=expected_columns)
+
+    point_id_col = point_columns.point_id
+    hanze_only = hanze_candidate_df[hanze_candidate_df["hanze_event_uid"].notna()].copy()
+    if hanze_only.empty:
+        return pd.DataFrame(columns=expected_columns)
+
+    hanze_only = hanze_only.rename(
+        columns={
+            point_id_col: "point_id",
+            point_columns.latitude: "point_latitude",
+            point_columns.longitude: "point_longitude",
+            "hanze_nuts3_name": "nuts3_name",
+        }
+    )
+    if point_columns.city and point_columns.city in hanze_only.columns:
+        hanze_only = hanze_only.rename(columns={point_columns.city: "point_city"})
+
+    tri_merge_columns = [
+        point_id_col,
+        "tri_for_hit",
+        "tri_boundary_hit",
+        "tri_zone_status",
+        "riparian_hit",
+        "flood_risk_area_value",
+    ]
+    tri_merge_columns = [column for column in tri_merge_columns if column in tri_classification_df.columns]
+    if tri_merge_columns:
+        hanze_only = hanze_only.merge(
+            tri_classification_df[tri_merge_columns].drop_duplicates(subset=[point_id_col]).rename(
+                columns={point_id_col: "point_id"}
+            ),
+            on="point_id",
+            how="left",
+        )
+
+    for column, default_value in {
+        "tri_for_hit": False,
+        "tri_boundary_hit": False,
+        "riparian_hit": False,
+    }.items():
+        if column not in hanze_only.columns:
+            hanze_only[column] = default_value
+        hanze_only[column] = hanze_only[column].fillna(default_value).astype(bool)
+
+    if "tri_zone_status" not in hanze_only.columns:
+        hanze_only["tri_zone_status"] = "outside_n_tri"
+    hanze_only["tri_zone_status"] = (
+        hanze_only["tri_zone_status"].astype("string").fillna("outside_n_tri").str.lower()
+    )
+    if "flood_risk_area_value" not in hanze_only.columns:
+        hanze_only["flood_risk_area_value"] = np.select(
+            [
+                hanze_only["tri_for_hit"],
+                ~hanze_only["tri_for_hit"] & hanze_only["tri_boundary_hit"],
+            ],
+            [
+                "high",
+                "other",
+            ],
+            default="out",
+        )
+    hanze_only["flood_risk_area_value"] = (
+        hanze_only["flood_risk_area_value"].astype("string").fillna("out").str.lower()
+    )
+
+    riparian_mask = ~hanze_only["tri_for_hit"] & ~hanze_only["tri_boundary_hit"] & hanze_only["riparian_hit"]
+    hanze_only["hanze_spatial_hit"] = (hanze_only["tri_for_hit"] | riparian_mask).astype(bool)
+    hanze_only["hanze_hit_reason"] = np.select(
+        [
+            hanze_only["tri_for_hit"],
+            riparian_mask,
+        ],
+        [
+            "tri_for",
+            "riparian_outside_n_tri",
+        ],
+        default="not_selected",
+    )
+
+    preferred_order = [
+        "point_id",
+        "point_city",
+        "excel_row_number",
+        "point_latitude",
+        "point_longitude",
+        "lau_code",
+        "lau_name",
+        "insee_com",
+        "insee_dep",
+        "nuts3_code",
+        "nuts3_name",
+        "hanze_event_uid",
+        "hanze_event_id",
+        "hanze_start_date",
+        "hanze_end_date",
+        "hanze_country_code",
+        "hanze_country_name",
+        "hanze_event_type",
+        "hanze_flood_source",
+        "tri_for_hit",
+        "tri_boundary_hit",
+        "tri_zone_status",
+        "riparian_hit",
+        "flood_risk_area_value",
+        "hanze_spatial_hit",
+        "hanze_hit_reason",
+    ]
+    if row_study_period_columns:
+        for raw_col in [
+            row_study_period_columns.anchor,
+            row_study_period_columns.primary_end,
+            row_study_period_columns.fallback_end,
+        ]:
+            if raw_col and raw_col in hanze_only.columns and raw_col not in preferred_order:
+                preferred_order.append(raw_col)
+        for column in ROW_STUDY_PERIOD_OUTPUT_COLUMNS:
+            if column in hanze_only.columns and column not in preferred_order:
+                preferred_order.append(column)
+
+    available_columns = [column for column in preferred_order if column in hanze_only.columns]
+    sort_columns = [column for column in ["point_id", "hanze_start_date", "hanze_event_uid"] if column in hanze_only.columns]
+    result = hanze_only[available_columns].copy()
+    if sort_columns:
+        result = result.sort_values(sort_columns)
+    return result
+
+
+def build_hanze_hits_sheet(hanze_candidate_sheet: pd.DataFrame) -> pd.DataFrame:
+    """Keep only the HANZE candidate rows that are point-positive."""
+    if hanze_candidate_sheet.empty or "hanze_spatial_hit" not in hanze_candidate_sheet.columns:
+        return hanze_candidate_sheet.copy()
+    hits = hanze_candidate_sheet[hanze_candidate_sheet["hanze_spatial_hit"].fillna(False)].copy()
+    available_columns = [column for column in HANZE_EVENT_HITS_COLUMNS if column in hits.columns]
+    return hits[available_columns].copy()
 
 
 def build_tri_reference_sheet() -> pd.DataFrame:
@@ -2134,6 +2569,24 @@ def write_gaspar_output_workbook(
     )
 
 
+def write_hanze_output_workbook(
+    output_path: Path,
+    point_flag_sheet: pd.DataFrame,
+    detailed_sheet: pd.DataFrame,
+    candidate_sheet: pd.DataFrame,
+    hits_sheet: pd.DataFrame,
+) -> None:
+    write_workbook_streaming(
+        output_path,
+        [
+            ("point_flags", point_flag_sheet),
+            ("Detailed", detailed_sheet),
+            ("candidate_events", candidate_sheet),
+            ("event_hits", hits_sheet),
+        ],
+    )
+
+
 def derive_gaspar_output_path(output_path: Path) -> Path:
     stem = output_path.stem
     if "jrc_flood_check" in stem:
@@ -2143,6 +2596,17 @@ def derive_gaspar_output_path(output_path: Path) -> Path:
     if combined_stem == stem:
         combined_stem = f"{stem}_gaspar_check"
     return output_path.with_name(f"{combined_stem}{output_path.suffix}")
+
+
+def derive_hanze_output_path(output_path: Path) -> Path:
+    stem = output_path.stem
+    if "jrc_flood_check" in stem:
+        hanze_stem = stem.replace("jrc_flood_check", "hanze_check")
+    else:
+        hanze_stem = f"{stem}_hanze_check"
+    if hanze_stem == stem:
+        hanze_stem = f"{stem}_hanze_check"
+    return output_path.with_name(f"{hanze_stem}{output_path.suffix}")
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
@@ -2179,10 +2643,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
             "The full-history builder also writes this legacy-compatible sheet name."
         ),
     )
+    parser.add_argument("--hanze-file", default=str(DEFAULT_HANZE_FILE), help="Expanded HANZE events CSV used for the France fallback branch.")
+    parser.add_argument("--hanze-country-code", default="FR", help="HANZE country code filter. Default: FR.")
+    parser.add_argument("--hanze-min-year", type=int, default=DEFAULT_HANZE_MIN_YEAR, help=f"Minimum HANZE event year kept by the France fallback branch. Default: {DEFAULT_HANZE_MIN_YEAR}.")
     parser.add_argument("--france-old-insee-updates-file", default=str(DEFAULT_FRANCE_OLD_INSEE_UPDATES), help="Historical old-INSEE to current-INSEE CSV used to resolve Gaspar communes.")
     parser.add_argument("--tri-archive", default=str(DEFAULT_TRI_ARCHIVE), help="National TRI source used for the simplified Gaspar fallback branch. Only the plain TRI For polygons and the n_tri territory boundaries are used. Accepts either the unpacked folder or the original zip archive.")
     parser.add_argument("--riparian-root", default=str(DEFAULT_RIPARIAN_ROOT), help="Root folder containing the unzipped France riparian shapefiles used only when a Gaspar point is outside both TRI For polygons and n_tri boundaries.")
     parser.add_argument("--disable-gaspar-fallback", action="store_true", help="Disable the Gaspar plus TRI plus riparian fallback branch and keep the final flood flag JRC-only.")
+    parser.add_argument("--disable-hanze-fallback", action="store_true", help="Disable the HANZE plus TRI plus riparian fallback branch.")
     parser.add_argument("--study-start", default=None, help="Optional study-period start date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--study-end", default=None, help="Optional study-period end date (YYYY-MM-DD). Keeps only events whose intervals overlap this bound.")
     parser.add_argument("--row-study-anchor-col", default=None, help="Optional workbook column used as the per-row anchor date when a lookback window is requested.")
@@ -2194,6 +2662,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--threshold-cm", type=float, default=0.0, help="Minimum depth in cm to count as flooded. Default: 0.0.")
     parser.add_argument("--out-file", default=str(DEFAULT_OUTPUT), help="Output Excel workbook.")
     parser.add_argument("--gaspar-out-file", default=None, help="Optional Gaspar workbook. Default derives a sibling file next to --out-file using a _gaspar_check name.")
+    parser.add_argument("--hanze-out-file", default=None, help="Optional HANZE workbook. Default derives a sibling file next to --out-file using a _hanze_check name.")
     parser.add_argument("--combined-out-file", default=None, help=argparse.SUPPRESS)
     return parser
 
@@ -2205,6 +2674,7 @@ def run(args: argparse.Namespace) -> None:
     flood_dir = Path(args.flood_dir)
     france_lookup_file = Path(args.france_lookup_file) if args.france_lookup_file else None
     gaspar_file = Path(args.gaspar_file) if args.gaspar_file else None
+    hanze_file = Path(args.hanze_file) if args.hanze_file else None
     france_old_insee_updates_file = (
         Path(args.france_old_insee_updates_file) if args.france_old_insee_updates_file else None
     )
@@ -2216,6 +2686,11 @@ def run(args: argparse.Namespace) -> None:
         Path(gaspar_out_value)
         if gaspar_out_value
         else derive_gaspar_output_path(out_file)
+    )
+    hanze_out_file = (
+        Path(args.hanze_out_file)
+        if args.hanze_out_file
+        else derive_hanze_output_path(out_file)
     )
 
     target_countries = None
@@ -2342,20 +2817,33 @@ def run(args: argparse.Namespace) -> None:
     )
 
     gaspar_candidate_df = pd.DataFrame()
+    hanze_candidate_df = pd.DataFrame()
     tri_classification_df = pd.DataFrame()
     gaspar_fallback_enabled = not args.disable_gaspar_fallback
+    hanze_fallback_enabled = not args.disable_hanze_fallback
+    if gaspar_fallback_enabled or hanze_fallback_enabled:
+        if tri_archive is None or not tri_archive.exists():
+            print("TRI archive not found. Gaspar and HANZE point-level fallback checks will stay negative.")
+        else:
+            if riparian_root is None or not riparian_root.exists():
+                print("Riparian root not found. Riparian fallback checks will stay negative.")
+            print("Classifying points against national TRI flood-risk polygons...")
+            tri_classification_df = classify_points_against_tri(
+                points_gdf=points_gdf,
+                point_columns=point_columns,
+                tri_archive=tri_archive,
+                riparian_root=riparian_root,
+            )
+
     if gaspar_fallback_enabled:
         required_gaspar_paths = [
             gaspar_file,
             france_lookup_file,
             france_old_insee_updates_file,
-            tri_archive,
         ]
         if any(path is None or not path.exists() for path in required_gaspar_paths):
-            print("Gaspar fallback disabled at runtime because one or more required files are missing.")
+            print("Gaspar fallback candidate loading disabled at runtime because one or more required files are missing.")
         else:
-            if riparian_root is None or not riparian_root.exists():
-                print("Riparian root not found. Riparian fallback checks will stay negative.")
             print("Loading Gaspar commune events for fallback flag logic...")
             target_insee_codes = {
                 code
@@ -2382,12 +2870,40 @@ def run(args: argparse.Namespace) -> None:
                 gaspar_events_df=gaspar_events_df,
                 row_study_period_columns=row_study_period_columns,
             )
-            print("Classifying points against national TRI flood-risk polygons...")
-            tri_classification_df = classify_points_against_tri(
-                points_gdf=points_gdf,
+
+    if hanze_fallback_enabled:
+        required_hanze_paths = [
+            hanze_file,
+            france_lookup_file,
+        ]
+        if any(path is None or not path.exists() for path in required_hanze_paths):
+            print("HANZE fallback candidate loading disabled at runtime because one or more required files are missing.")
+        else:
+            print("Loading HANZE department events for fallback flag logic...")
+            target_department_codes = {
+                code
+                for code in points_with_lau["insee_dep"].dropna().astype(str).str.strip().tolist()
+                if code
+            }
+            hanze_events_df = load_hanze_events(
+                hanze_file=hanze_file,
+                france_lookup_file=france_lookup_file,
+                target_department_codes=target_department_codes,
+                target_country_code=args.hanze_country_code,
+                min_year=args.hanze_min_year,
+            )
+            hanze_events_df = filter_records_by_global_interval(
+                hanze_events_df,
+                event_start_col="hanze_start_date",
+                event_end_col="hanze_end_date",
+                study_start=args.study_start,
+                study_end=args.study_end,
+            )
+            hanze_candidate_df = build_hanze_candidate_events(
+                points_with_lau=points_with_lau,
                 point_columns=point_columns,
-                tri_archive=tri_archive,
-                riparian_root=riparian_root,
+                hanze_events_df=hanze_events_df,
+                row_study_period_columns=row_study_period_columns,
             )
 
     print("Building summary tables...")
@@ -2445,6 +2961,24 @@ def run(args: argparse.Namespace) -> None:
         point_columns.point_id,
         gaspar_hit_point_ids,
     )
+    hanze_candidate_sheet = build_hanze_candidate_sheet(
+        hanze_candidate_df=pd.DataFrame(hanze_candidate_df.drop(columns="geometry", errors="ignore")),
+        point_columns=point_columns,
+        tri_classification_df=tri_classification_df,
+        row_study_period_columns=row_study_period_columns,
+    )
+    hanze_hits_sheet = build_hanze_hits_sheet(hanze_candidate_sheet)
+    hanze_hit_point_ids = set(hanze_hits_sheet.get("point_id", pd.Series(dtype="object")).dropna().tolist())
+    hanze_point_flag_sheet = build_point_flag_sheet(
+        points_df,
+        point_columns.point_id,
+        hanze_hit_point_ids,
+    )
+    hanze_detailed_sheet = build_detailed_sheet(
+        points_df,
+        point_columns.point_id,
+        hanze_hit_point_ids,
+    )
 
     print("Writing JRC workbook...")
     write_output_workbook(
@@ -2462,10 +2996,19 @@ def run(args: argparse.Namespace) -> None:
         candidate_sheet=gaspar_candidate_sheet,
         hits_sheet=gaspar_hits_sheet,
     )
+    print("Writing HANZE workbook...")
+    write_hanze_output_workbook(
+        output_path=hanze_out_file,
+        point_flag_sheet=hanze_point_flag_sheet,
+        detailed_sheet=hanze_detailed_sheet,
+        candidate_sheet=hanze_candidate_sheet,
+        hits_sheet=hanze_hits_sheet,
+    )
 
     print("Done.")
     print(f"JRC workbook: {out_file.resolve()}")
     print(f"Gaspar workbook: {gaspar_out_file.resolve()}")
+    print(f"HANZE workbook: {hanze_out_file.resolve()}")
     print(
         {
             "n_points": int(len(summary_df)),
@@ -2475,6 +3018,9 @@ def run(args: argparse.Namespace) -> None:
             "n_gaspar_points_flagged": int(gaspar_point_flag_sheet["flag_flood"].sum()),
             "n_gaspar_candidate_rows": int(len(gaspar_candidate_sheet)),
             "n_gaspar_event_hits": int(len(gaspar_hits_sheet)),
+            "n_hanze_points_flagged": int(hanze_point_flag_sheet["flag_flood"].sum()),
+            "n_hanze_candidate_rows": int(len(hanze_candidate_sheet)),
+            "n_hanze_event_hits": int(len(hanze_hits_sheet)),
         }
     )
 
