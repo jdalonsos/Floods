@@ -18,6 +18,8 @@ DEFAULT_HANZE_WORKBOOK = Path("data/processed/T20_Anonymised_hanze_check.xlsx")
 DEFAULT_OUTPUT_DIR = Path("outputs/flood_lgd_export")
 DEFAULT_SHEET_NAME = "FLOOD_LGD"
 DEFAULT_MODE = "copy"
+DEFAULT_PROGRESS_EVERY_POINTS = 5_000
+DEFAULT_CSV_CHUNK_SIZE = 200_000
 SOURCE_PRIORITY = ("JRC", "GASPAR", "HANZE")
 LATITUDE_ALIASES = ("LAT", "Latitude", "Lat", "Y")
 LONGITUDE_ALIASES = ("LONG", "Longitude", "Long", "Lon", "Lng", "X")
@@ -82,6 +84,13 @@ THIN_BORDER = Border(
 )
 
 
+def log_progress(message: str, *, enabled: bool = True) -> None:
+    if not enabled:
+        return
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    print(f"[{timestamp}] {message}", flush=True)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -96,6 +105,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Folder where the outputs will be written.")
     parser.add_argument("--sheet-name", default=DEFAULT_SHEET_NAME, help="Name of the derived sheet.")
     parser.add_argument("--merge-gap-days", type=int, default=30, help="Maximum day gap used to merge source rows into one consolidated flood episode. Default: 30.")
+    parser.add_argument("--progress-every-points", type=int, default=DEFAULT_PROGRESS_EVERY_POINTS, help=f"Print a clustering progress update every N point_ids/clusters. Default: {DEFAULT_PROGRESS_EVERY_POINTS:,}.")
+    parser.add_argument("--csv-chunk-size", type=int, default=DEFAULT_CSV_CHUNK_SIZE, help=f"When --mode csv is used, write the csv in chunks of this many rows so progress can be printed. Default: {DEFAULT_CSV_CHUNK_SIZE:,}.")
+    parser.add_argument("--quiet", action="store_true", help="Disable progress logging and only print the final completion message.")
     parser.add_argument(
         "--mode",
         default=DEFAULT_MODE,
@@ -260,14 +272,28 @@ def load_source_frame(source_workbook: Path) -> pd.DataFrame:
     return source_df
 
 
-def read_workbook_sheet(workbook_path: Path | None, sheet_name: str) -> pd.DataFrame:
+def read_workbook_sheet(
+    workbook_path: Path | None,
+    sheet_name: str,
+    *,
+    label: str,
+    verbose: bool,
+) -> pd.DataFrame:
     if workbook_path is None or not workbook_path.exists():
+        log_progress(f"Skipping missing {label}: {workbook_path}", enabled=verbose)
         return pd.DataFrame()
+    log_progress(f"Loading {label} from sheet '{sheet_name}'...", enabled=verbose)
     try:
         df = pd.read_excel(workbook_path, sheet_name=sheet_name)
     except ValueError:
+        log_progress(f"Sheet '{sheet_name}' not found in {workbook_path.name}; using an empty {label}.", enabled=verbose)
         return pd.DataFrame()
-    return df.dropna(how="all").copy()
+    result = df.dropna(how="all").copy()
+    log_progress(
+        f"Loaded {label}: {len(result):,} non-empty rows from {workbook_path.name}.",
+        enabled=verbose,
+    )
+    return result
 
 
 def standardize_date_bounds(df: pd.DataFrame, start_col: str, end_col: str) -> pd.DataFrame:
@@ -408,7 +434,10 @@ def build_all_event_rows(
     gaspar_hits: pd.DataFrame,
     hanze_candidates: pd.DataFrame,
     hanze_hits: pd.DataFrame,
+    *,
+    verbose: bool = False,
 ) -> pd.DataFrame:
+    log_progress("Building source-specific event rows...", enabled=verbose)
     frames = [
         build_jrc_event_frame(jrc_event_hits),
         build_fallback_event_frame(
@@ -430,8 +459,15 @@ def build_all_event_rows(
     ]
     non_empty = [frame for frame in frames if not frame.empty]
     if not non_empty:
+        log_progress("No positive or candidate flood event rows were built from the source workbooks.", enabled=verbose)
         return pd.DataFrame(columns=_standard_event_columns())
-    return pd.concat(non_empty, ignore_index=True)
+    result = pd.concat(non_empty, ignore_index=True)
+    log_progress(
+        "Built event rows: "
+        f"JRC={len(frames[0]):,}, GASPAR={len(frames[1]):,}, HANZE={len(frames[2]):,}, total={len(result):,}.",
+        enabled=verbose,
+    )
+    return result
 
 
 def cluster_point_events(point_events: pd.DataFrame, merge_gap_days: int) -> pd.DataFrame:
@@ -594,6 +630,8 @@ def build_flood_lgd_dataframe(
     hanze_hits: pd.DataFrame,
     *,
     merge_gap_days: int = 30,
+    progress_every_points: int = DEFAULT_PROGRESS_EVERY_POINTS,
+    verbose: bool = False,
 ) -> pd.DataFrame:
     """Build the final T20 flood export at point x consolidated-flood-episode level.
 
@@ -609,14 +647,17 @@ def build_flood_lgd_dataframe(
     and missing flood dates.
     """
     base_df = build_source_export_base(source_df)
+    log_progress(f"Prepared source base table with {len(base_df):,} point rows.", enabled=verbose)
     event_rows = build_all_event_rows(
         jrc_event_hits=jrc_event_hits,
         gaspar_candidates=gaspar_candidates,
         gaspar_hits=gaspar_hits,
         hanze_candidates=hanze_candidates,
         hanze_hits=hanze_hits,
+        verbose=verbose,
     )
     if event_rows.empty:
+        log_progress("No flood events remained after source normalization; emitting one zero row per point.", enabled=verbose)
         no_flood_df = base_df.copy()
         for column in OUTPUT_COLUMNS:
             if column not in no_flood_df.columns:
@@ -641,22 +682,70 @@ def build_flood_lgd_dataframe(
         return no_flood_df[OUTPUT_COLUMNS].copy()
 
     clustered_frames: list[pd.DataFrame] = []
-    for point_id, point_events in event_rows.groupby("point_id", sort=False):
+    point_groups = event_rows.groupby("point_id", sort=False)
+    total_points_with_events = point_groups.ngroups
+    processed_points = 0
+    processed_event_rows = 0
+    progress_step = max(1, progress_every_points)
+    log_progress(
+        f"Clustering {len(event_rows):,} source rows across {total_points_with_events:,} point_ids...",
+        enabled=verbose,
+    )
+    for point_id, point_events in point_groups:
         point_clustered = cluster_point_events(point_events, merge_gap_days=merge_gap_days)
         point_clustered["point_id"] = point_id
         clustered_frames.append(point_clustered)
+        processed_points += 1
+        processed_event_rows += len(point_events)
+        if (
+            verbose
+            and (
+                processed_points == 1
+                or processed_points % progress_step == 0
+                or processed_points == total_points_with_events
+            )
+        ):
+            log_progress(
+                f"Clustered {processed_points:,}/{total_points_with_events:,} point_ids "
+                f"({processed_event_rows:,}/{len(event_rows):,} source rows processed).",
+                enabled=True,
+            )
     clustered_events = pd.concat(clustered_frames, ignore_index=True)
+    log_progress(
+        f"Finished clustering: {len(clustered_events):,} source rows assigned to clusters.",
+        enabled=verbose,
+    )
 
     output_rows: list[dict[str, Any]] = []
     flooded_point_ids = set(clustered_events["point_id"].dropna().tolist())
     metadata_by_point = base_df.set_index("point_id").to_dict(orient="index")
 
-    for (point_id, cluster_id), cluster_df in clustered_events.groupby(["point_id", "cluster_id"], sort=False):
+    cluster_groups = clustered_events.groupby(["point_id", "cluster_id"], sort=False)
+    total_clusters = cluster_groups.ngroups
+    processed_clusters = 0
+    log_progress(
+        f"Aggregating {total_clusters:,} consolidated flood clusters into final rows...",
+        enabled=verbose,
+    )
+    for (point_id, cluster_id), cluster_df in cluster_groups:
         row = dict(metadata_by_point.get(point_id, {}))
         row["point_id"] = point_id
         row["cluster_id"] = cluster_id
         row.update(aggregate_cluster_rows(cluster_df))
         output_rows.append(row)
+        processed_clusters += 1
+        if (
+            verbose
+            and (
+                processed_clusters == 1
+                or processed_clusters % progress_step == 0
+                or processed_clusters == total_clusters
+            )
+        ):
+            log_progress(
+                f"Aggregated {processed_clusters:,}/{total_clusters:,} consolidated clusters.",
+                enabled=True,
+            )
 
     for point_id, metadata in metadata_by_point.items():
         if point_id in flooded_point_ids:
@@ -683,6 +772,10 @@ def build_flood_lgd_dataframe(
                 "FLOOD_DEPTH_MAX_AREA": np.nan,
             }
         )
+    log_progress(
+        f"Added no-flood rows for {len(base_df) - len(flooded_point_ids):,} point_ids without any merged flood cluster.",
+        enabled=verbose,
+    )
 
     result = pd.DataFrame(output_rows)
     result = result.merge(base_df[["point_id", "point_order"]], on="point_id", how="left", suffixes=("", "_base"))
@@ -699,6 +792,7 @@ def build_flood_lgd_dataframe(
         "FLAG_FLOOD_ADR_AREA",
     ]:
         result[flag_column] = pd.to_numeric(result[flag_column], errors="coerce").fillna(0).astype(int)
+    log_progress(f"Final FLOOD_LGD dataframe contains {len(result):,} rows.", enabled=verbose)
     return result[OUTPUT_COLUMNS].copy()
 
 
@@ -794,9 +888,40 @@ def write_standalone_workbook(
     workbook.save(output_path)
 
 
-def write_csv_output(output_path: Path, df: pd.DataFrame) -> None:
+def write_csv_output(
+    output_path: Path,
+    df: pd.DataFrame,
+    *,
+    chunk_size: int,
+    verbose: bool,
+) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False, encoding="utf-8")
+    effective_chunk_size = max(1, chunk_size)
+    total_rows = len(df)
+    log_progress(
+        f"Writing csv output to {output_path} in chunks of {effective_chunk_size:,} rows...",
+        enabled=verbose,
+    )
+    if total_rows == 0:
+        df.to_csv(output_path, index=False, encoding="utf-8")
+        log_progress(f"Wrote empty csv with headers to {output_path}.", enabled=verbose)
+        return
+
+    first_chunk = True
+    for start_idx in range(0, total_rows, effective_chunk_size):
+        end_idx = min(start_idx + effective_chunk_size, total_rows)
+        df.iloc[start_idx:end_idx].to_csv(
+            output_path,
+            index=False,
+            encoding="utf-8",
+            mode="w" if first_chunk else "a",
+            header=first_chunk,
+        )
+        first_chunk = False
+        log_progress(
+            f"Wrote {end_idx:,}/{total_rows:,} csv rows to {output_path.name}.",
+            enabled=verbose,
+        )
 
 
 def build_output_path(source_workbook: Path, sheet_name: str, mode: str) -> Path:
@@ -812,6 +937,7 @@ def build_output_path(source_workbook: Path, sheet_name: str, mode: str) -> Path
 
 def main() -> None:
     args = parse_args()
+    verbose = not args.quiet
 
     source_workbook = Path(args.source_workbook)
     jrc_workbook = Path(args.jrc_workbook)
@@ -823,15 +949,28 @@ def main() -> None:
     ensure_required_file(jrc_workbook, "JRC workbook")
     ensure_required_file(gaspar_workbook, "Gaspar workbook")
     if not hanze_workbook.exists():
-        print(f"HANZE workbook not found at {hanze_workbook}. HANZE columns will stay zero/NA.")
+        log_progress(f"HANZE workbook not found at {hanze_workbook}. HANZE columns will stay zero/NA.", enabled=verbose)
 
+    log_progress(f"Loading source workbook from {source_workbook}...", enabled=verbose)
     source_df = load_source_frame(source_workbook)
-    jrc_event_hits = read_workbook_sheet(jrc_workbook, "event_hits")
-    gaspar_candidates = read_workbook_sheet(gaspar_workbook, "candidate_events")
-    gaspar_hits = read_workbook_sheet(gaspar_workbook, "event_hits")
-    hanze_candidates = read_workbook_sheet(hanze_workbook, "candidate_events")
-    hanze_hits = read_workbook_sheet(hanze_workbook, "event_hits")
+    log_progress(f"Loaded source workbook with {len(source_df):,} rows.", enabled=verbose)
+    jrc_event_hits = read_workbook_sheet(jrc_workbook, "event_hits", label="JRC event hits", verbose=verbose)
+    gaspar_candidates = read_workbook_sheet(
+        gaspar_workbook,
+        "candidate_events",
+        label="GASPAR candidate events",
+        verbose=verbose,
+    )
+    gaspar_hits = read_workbook_sheet(gaspar_workbook, "event_hits", label="GASPAR event hits", verbose=verbose)
+    hanze_candidates = read_workbook_sheet(
+        hanze_workbook,
+        "candidate_events",
+        label="HANZE candidate events",
+        verbose=verbose,
+    )
+    hanze_hits = read_workbook_sheet(hanze_workbook, "event_hits", label="HANZE event hits", verbose=verbose)
 
+    log_progress("Starting FLOOD_LGD consolidation...", enabled=verbose)
     flood_lgd_df = build_flood_lgd_dataframe(
         source_df=source_df,
         jrc_event_hits=jrc_event_hits,
@@ -840,10 +979,13 @@ def main() -> None:
         hanze_candidates=hanze_candidates,
         hanze_hits=hanze_hits,
         merge_gap_days=args.merge_gap_days,
+        progress_every_points=args.progress_every_points,
+        verbose=verbose,
     )
 
     output_path = output_dir / build_output_path(source_workbook, args.sheet_name, args.mode)
     if args.mode == "copy":
+        log_progress(f"Writing Excel copy output to {output_path}...", enabled=verbose)
         write_sheet_into_existing_workbook(
             source_workbook,
             output_path,
@@ -852,9 +994,15 @@ def main() -> None:
             replace_sheet=args.replace_sheet,
         )
     elif args.mode == "standalone":
+        log_progress(f"Writing standalone workbook to {output_path}...", enabled=verbose)
         write_standalone_workbook(output_path, args.sheet_name, flood_lgd_df)
     elif args.mode == "csv":
-        write_csv_output(output_path, flood_lgd_df)
+        write_csv_output(
+            output_path,
+            flood_lgd_df,
+            chunk_size=args.csv_chunk_size,
+            verbose=verbose,
+        )
     else:
         raise ValueError(f"Unsupported mode: {args.mode}")
 
