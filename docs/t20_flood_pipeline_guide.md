@@ -5,6 +5,10 @@ This guide explains the split between the two scripts used for the T20 flood wor
 - [src/check_points_against_jrc_floods.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py)
 - [src/build_flood_lgd_exports.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports.py)
 
+For a detailed internal walkthrough of the consolidation script itself, see:
+
+- [docs/build_flood_lgd_exports_deep_guide.md](D:/M2_MoSEF/DataCollection/docs/build_flood_lgd_exports_deep_guide.md)
+
 The short answer is:
 
 - `check_points_against_jrc_floods.py` now produces **three source-specific checked datasets/workbooks**
