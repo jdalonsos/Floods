@@ -91,7 +91,7 @@ def log_progress(message: str, *, enabled: bool = True) -> None:
     print(f"[{timestamp}] {message}", flush=True)
 
 
-def parse_args() -> argparse.Namespace:
+def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Build a consolidated FLOOD_LGD export from the checked JRC, Gaspar, and HANZE workbooks. "
@@ -99,6 +99,15 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--source-workbook", default=str(DEFAULT_SOURCE_WORKBOOK), help="Original T20 workbook used to recover point metadata such as Obligor_ID and Facility_ID.")
+    parser.add_argument("--source-sheet-name", default=None, help="Optional source workbook sheet name. Default uses the first sheet.")
+    parser.add_argument("--source-point-id-col", default=None, help="Optional source point identifier column override. Leave blank to auto-detect.")
+    parser.add_argument("--source-latitude-col", default=None, help="Optional source latitude column override. Leave blank to auto-detect.")
+    parser.add_argument("--source-longitude-col", default=None, help="Optional source longitude column override. Leave blank to auto-detect.")
+    parser.add_argument("--source-closed-default-col", default=None, help="Optional source row-end date column override used to fill CLOSED_DEFAULT_DATE.")
+    parser.add_argument("--source-obligor-id-col", default=None, help="Optional source obligor identifier column override.")
+    parser.add_argument("--source-facility-id-col", default=None, help="Optional source facility identifier column override.")
+    parser.add_argument("--source-type-adr-col", default=None, help="Optional source TYPE_ADR column override.")
+    parser.add_argument("--source-type-adr-value", default=None, help="Optional constant value used to fill TYPE_ADR when no source column exists.")
     parser.add_argument("--jrc-workbook", default=str(DEFAULT_JRC_WORKBOOK), help="JRC checked workbook containing candidate_events and event_hits sheets.")
     parser.add_argument("--gaspar-workbook", default=str(DEFAULT_GASPAR_WORKBOOK), help="Gaspar checked workbook containing candidate_events and event_hits sheets.")
     parser.add_argument("--hanze-workbook", default=str(DEFAULT_HANZE_WORKBOOK), help="HANZE checked workbook containing candidate_events and event_hits sheets.")
@@ -119,7 +128,11 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--replace-sheet", action="store_true", help="In copy mode, replace the target sheet if it already exists in the copied workbook.")
-    return parser.parse_args()
+    return parser
+
+
+def parse_args() -> argparse.Namespace:
+    return build_argument_parser().parse_args()
 
 
 def ensure_required_file(path: Path, label: str) -> None:
@@ -144,6 +157,12 @@ def resolve_column_name(columns: list[str], aliases: tuple[str, ...]) -> str | N
         if alias_norm in normalized_to_original:
             return normalized_to_original[alias_norm]
     return None
+
+
+def build_aliases(requested: str | None, aliases: tuple[str, ...]) -> tuple[str, ...]:
+    if requested:
+        return (requested, *aliases)
+    return aliases
 
 
 def parse_date(value: Any) -> datetime | None:
@@ -235,35 +254,85 @@ def build_id_adr(latitude_value: Any, longitude_value: Any) -> str | None:
     return f"{latitude}, {longitude}"
 
 
-def load_source_frame(source_workbook: Path) -> pd.DataFrame:
-    source_df = pd.read_excel(source_workbook).dropna(how="all").copy()
+def load_source_frame(
+    source_workbook: Path,
+    *,
+    sheet_name: str | int | None = None,
+    point_id_col: str | None = None,
+    latitude_col: str | None = None,
+    longitude_col: str | None = None,
+    closed_default_col: str | None = None,
+    obligor_id_col: str | None = None,
+    facility_id_col: str | None = None,
+    type_adr_col: str | None = None,
+    default_type_adr: str | None = None,
+) -> pd.DataFrame:
+    read_kwargs: dict[str, Any] = {}
+    if sheet_name is not None:
+        read_kwargs["sheet_name"] = sheet_name
+    source_df = pd.read_excel(source_workbook, **read_kwargs)
+    if isinstance(source_df, dict):
+        if not source_df:
+            raise ValueError(f"No sheets found in source workbook: {source_workbook}")
+        source_df = next(iter(source_df.values()))
+    source_df = source_df.dropna(how="all").copy()
     source_df.columns = [str(column).strip() for column in source_df.columns]
 
-    point_id_col = resolve_column_name(source_df.columns.tolist(), ("point_id", "Point ID", "#", "id"))
-    if point_id_col is None:
+    resolved_point_id_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(point_id_col, ("point_id", "Point ID", "#", "id", "ID_geoloc")),
+    )
+    if resolved_point_id_col is None:
         source_df["point_id"] = range(1, len(source_df) + 1)
     else:
-        source_df["point_id"] = normalize_point_id_series(source_df[point_id_col])
+        source_df["point_id"] = normalize_point_id_series(source_df[resolved_point_id_col])
         missing_mask = source_df["point_id"].isna()
         if missing_mask.any():
             source_df.loc[missing_mask, "point_id"] = range(1, int(missing_mask.sum()) + 1)
 
-    latitude_col = resolve_column_name(source_df.columns.tolist(), LATITUDE_ALIASES)
-    longitude_col = resolve_column_name(source_df.columns.tolist(), LONGITUDE_ALIASES)
-    closed_default_col = resolve_column_name(
+    resolved_latitude_col = resolve_column_name(
         source_df.columns.tolist(),
-        ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date"),
+        build_aliases(latitude_col, LATITUDE_ALIASES),
     )
-    type_adr_col = resolve_column_name(source_df.columns.tolist(), ("TYPE_ADR", "Type_ADR", "Type ADR"))
+    resolved_longitude_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(longitude_col, LONGITUDE_ALIASES),
+    )
+    resolved_closed_default_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(
+            closed_default_col,
+            ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date", "last_date", "Last Date"),
+        ),
+    )
+    resolved_obligor_id_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(obligor_id_col, ("Obligor_ID", "Obligor ID")),
+    )
+    resolved_facility_id_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(facility_id_col, ("Facility_ID", "Facility ID")),
+    )
+    resolved_type_adr_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(type_adr_col, ("TYPE_ADR", "Type_ADR", "Type ADR")),
+    )
 
-    source_df["point_latitude"] = source_df[latitude_col] if latitude_col else pd.NA
-    source_df["point_longitude"] = source_df[longitude_col] if longitude_col else pd.NA
+    source_df["point_latitude"] = source_df[resolved_latitude_col] if resolved_latitude_col else pd.NA
+    source_df["point_longitude"] = source_df[resolved_longitude_col] if resolved_longitude_col else pd.NA
     source_df["CLOSED_DEFAULT_DATE"] = (
-        source_df[closed_default_col].map(parse_date)
-        if closed_default_col
+        source_df[resolved_closed_default_col].map(parse_date)
+        if resolved_closed_default_col
         else pd.Series(pd.NaT, index=source_df.index)
     )
-    source_df["TYPE_ADR"] = source_df[type_adr_col] if type_adr_col else pd.NA
+    source_df["Obligor_ID"] = source_df[resolved_obligor_id_col] if resolved_obligor_id_col else pd.NA
+    source_df["Facility_ID"] = source_df[resolved_facility_id_col] if resolved_facility_id_col else pd.NA
+    if resolved_type_adr_col:
+        source_df["TYPE_ADR"] = source_df[resolved_type_adr_col]
+    elif default_type_adr is not None:
+        source_df["TYPE_ADR"] = default_type_adr
+    else:
+        source_df["TYPE_ADR"] = pd.NA
     source_df["ID_ADR"] = source_df.apply(
         lambda row: build_id_adr(row.get("point_latitude"), row.get("point_longitude")),
         axis=1,
@@ -935,9 +1004,11 @@ def build_output_path(source_workbook: Path, sheet_name: str, mode: str) -> Path
     raise ValueError(f"Unsupported mode: {mode}")
 
 
-def main() -> None:
-    args = parse_args()
+def run(args: argparse.Namespace) -> None:
     verbose = not args.quiet
+
+    if not args.source_workbook:
+        raise ValueError("Missing required source workbook path.")
 
     source_workbook = Path(args.source_workbook)
     jrc_workbook = Path(args.jrc_workbook)
@@ -952,7 +1023,18 @@ def main() -> None:
         log_progress(f"HANZE workbook not found at {hanze_workbook}. HANZE columns will stay zero/NA.", enabled=verbose)
 
     log_progress(f"Loading source workbook from {source_workbook}...", enabled=verbose)
-    source_df = load_source_frame(source_workbook)
+    source_df = load_source_frame(
+        source_workbook,
+        sheet_name=args.source_sheet_name,
+        point_id_col=args.source_point_id_col,
+        latitude_col=args.source_latitude_col,
+        longitude_col=args.source_longitude_col,
+        closed_default_col=args.source_closed_default_col,
+        obligor_id_col=args.source_obligor_id_col,
+        facility_id_col=args.source_facility_id_col,
+        type_adr_col=args.source_type_adr_col,
+        default_type_adr=args.source_type_adr_value,
+    )
     log_progress(f"Loaded source workbook with {len(source_df):,} rows.", enabled=verbose)
     jrc_event_hits = read_workbook_sheet(jrc_workbook, "event_hits", label="JRC event hits", verbose=verbose)
     gaspar_candidates = read_workbook_sheet(
@@ -1010,6 +1092,11 @@ def main() -> None:
         f"Wrote {output_path} with {len(flood_lgd_df):,} consolidated {args.sheet_name} rows "
         f"using merge_gap_days={args.merge_gap_days}."
     )
+
+
+def main() -> None:
+    args = parse_args()
+    run(args)
 
 
 if __name__ == "__main__":

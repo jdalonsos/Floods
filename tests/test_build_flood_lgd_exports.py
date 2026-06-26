@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 import pandas as pd
@@ -15,10 +16,68 @@ if str(SITE_PACKAGES) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from build_flood_lgd_exports import build_flood_lgd_dataframe  # noqa: E402
+from build_flood_lgd_exports import build_flood_lgd_dataframe, load_source_frame  # noqa: E402
+from build_flood_lgd_exports_collaterals import (  # noqa: E402
+    build_collaterals_export_argument_parser,
+)
 
 
 class BuildFloodLgdExportsTests(unittest.TestCase):
+    def test_collaterals_export_parser_uses_expected_defaults(self) -> None:
+        parser = build_collaterals_export_argument_parser()
+
+        args = parser.parse_args(["--source-workbook", "data/raw/my_collaterals_points.xlsx"])
+
+        self.assertEqual(args.source_point_id_col, "ID_geoloc")
+        self.assertEqual(args.source_latitude_col, "lat")
+        self.assertEqual(args.source_longitude_col, "lon")
+        self.assertEqual(args.source_closed_default_col, "last_date")
+        self.assertEqual(args.source_type_adr_value, "Collateral")
+        self.assertEqual(
+            Path(args.jrc_workbook),
+            Path("data/processed/france_points_jrc_flood_check_collaterals.xlsx"),
+        )
+        self.assertEqual(
+            Path(args.gaspar_workbook),
+            Path("data/processed/france_points_gaspar_check_collaterals.xlsx"),
+        )
+        self.assertEqual(
+            Path(args.hanze_workbook),
+            Path("data/processed/france_points_hanze_check_collaterals.xlsx"),
+        )
+
+    def test_load_source_frame_supports_collateral_columns(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            workbook_path = Path(tmp_dir) / "collaterals.xlsx"
+            pd.DataFrame(
+                {
+                    "ID_geoloc": ["A-1", "A-2"],
+                    "lat": [48.1, 48.2],
+                    "lon": [2.1, 2.2],
+                    "last_date": [pd.Timestamp("2020-01-05"), pd.Timestamp("2020-02-06")],
+                }
+            ).to_excel(workbook_path, index=False)
+
+            source_df = load_source_frame(
+                workbook_path,
+                point_id_col="ID_geoloc",
+                latitude_col="lat",
+                longitude_col="lon",
+                closed_default_col="last_date",
+                default_type_adr="Collateral",
+            )
+
+        self.assertEqual(source_df["point_id"].tolist(), ["A-1", "A-2"])
+        self.assertEqual(source_df["TYPE_ADR"].tolist(), ["Collateral", "Collateral"])
+        self.assertEqual(
+            source_df["CLOSED_DEFAULT_DATE"].tolist(),
+            [pd.Timestamp("2020-01-05"), pd.Timestamp("2020-02-06")],
+        )
+        self.assertEqual(
+            source_df["ID_ADR"].tolist(),
+            ["48.10000000, 2.10000000", "48.20000000, 2.20000000"],
+        )
+
     def test_build_flood_lgd_dataframe_keeps_zero_rows_without_events(self) -> None:
         source_df = pd.DataFrame(
             {
