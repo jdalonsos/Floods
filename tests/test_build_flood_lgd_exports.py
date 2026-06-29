@@ -20,6 +20,10 @@ from build_flood_lgd_exports import build_flood_lgd_dataframe, load_source_frame
 from build_flood_lgd_exports_collaterals import (  # noqa: E402
     build_collaterals_export_argument_parser,
 )
+from build_flood_lgd_exports_collaterals_italy import (  # noqa: E402
+    build_italy_collaterals_export_argument_parser,
+    run as run_italy_collaterals_export,
+)
 
 
 class BuildFloodLgdExportsTests(unittest.TestCase):
@@ -77,6 +81,91 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             source_df["ID_ADR"].tolist(),
             ["48.10000000, 2.10000000", "48.20000000, 2.20000000"],
         )
+
+    def test_italy_collaterals_export_parser_uses_expected_defaults(self) -> None:
+        parser = build_italy_collaterals_export_argument_parser()
+
+        args = parser.parse_args(["--source-workbook", "data/raw/my_italy_collaterals_points.xlsx"])
+
+        self.assertIsNone(args.source_point_id_col)
+        self.assertEqual(args.source_latitude_col, "lat")
+        self.assertEqual(args.source_longitude_col, "lon")
+        self.assertEqual(args.source_closed_default_col, "last_date")
+        self.assertEqual(args.source_facility_id_col, "KEY_COLLATERAL")
+        self.assertEqual(args.source_type_adr_value, "Collateral")
+        self.assertIsNone(args.gaspar_workbook)
+        self.assertEqual(
+            Path(args.jrc_workbook),
+            Path("data/processed/italy_points_jrc_flood_check_collaterals.xlsx"),
+        )
+        self.assertEqual(
+            Path(args.hanze_workbook),
+            Path("data/processed/italy_points_hanze_tri_check_collaterals.xlsx"),
+        )
+
+    def test_italy_collaterals_export_runs_without_gaspar_workbook(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            source_workbook = tmp_path / "italy_collaterals.xlsx"
+            jrc_workbook = tmp_path / "italy_jrc_check.xlsx"
+            hanze_workbook = tmp_path / "italy_hanze_check.xlsx"
+            output_dir = tmp_path / "out"
+
+            pd.DataFrame(
+                {
+                    "KEY_COLLATERAL": ["COLL-001", "COLL-001"],
+                    "lat": [41.09775, 41.16654],
+                    "lon": [16.77685, 16.40878],
+                    "last_date": [pd.Timestamp("2021-03-09"), pd.Timestamp("2022-09-21")],
+                }
+            ).to_excel(source_workbook, index=False)
+
+            with pd.ExcelWriter(jrc_workbook) as writer:
+                pd.DataFrame(columns=["point_id", "event_id"]).to_excel(
+                    writer,
+                    sheet_name="event_hits",
+                    index=False,
+                )
+
+            with pd.ExcelWriter(hanze_workbook) as writer:
+                pd.DataFrame(columns=["point_id", "hanze_event_uid"]).to_excel(
+                    writer,
+                    sheet_name="candidate_events",
+                    index=False,
+                )
+                pd.DataFrame(columns=["point_id", "hanze_event_uid"]).to_excel(
+                    writer,
+                    sheet_name="event_hits",
+                    index=False,
+                )
+
+            parser = build_italy_collaterals_export_argument_parser()
+            args = parser.parse_args(
+                [
+                    "--source-workbook",
+                    str(source_workbook),
+                    "--jrc-workbook",
+                    str(jrc_workbook),
+                    "--hanze-workbook",
+                    str(hanze_workbook),
+                    "--output-dir",
+                    str(output_dir),
+                    "--mode",
+                    "csv",
+                    "--quiet",
+                ]
+            )
+
+            run_italy_collaterals_export(args)
+
+            output_path = output_dir / "italy_collaterals_FLOOD_LGD.csv"
+            self.assertTrue(output_path.exists())
+
+            result = pd.read_csv(output_path)
+            self.assertEqual(result["point_id"].tolist(), [1, 2])
+            self.assertEqual(result["Facility_ID"].tolist(), ["COLL-001", "COLL-001"])
+            self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
+            self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
 
     def test_build_flood_lgd_dataframe_keeps_zero_rows_without_events(self) -> None:
         source_df = pd.DataFrame(

@@ -45,6 +45,9 @@ from check_points_against_jrc_floods import (  # noqa: E402
 from check_points_against_jrc_floods_collaterals import (  # noqa: E402
     build_collaterals_argument_parser,
 )
+from check_italy_points_against_jrc_hanze_collaterals import (  # noqa: E402
+    build_italy_collaterals_argument_parser,
+)
 
 
 class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
@@ -61,6 +64,22 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(
             Path(args.out_file),
             Path("data/processed/france_points_jrc_flood_check_collaterals.xlsx"),
+        )
+
+    def test_italy_collaterals_variant_parser_uses_expected_defaults(self) -> None:
+        parser = build_italy_collaterals_argument_parser()
+
+        args = parser.parse_args([])
+
+        self.assertEqual(args.latitude_col, "lat")
+        self.assertEqual(args.longitude_col, "lon")
+        self.assertIsNone(args.point_id_col)
+        self.assertEqual(args.city_col, "KEY_COLLATERAL")
+        self.assertEqual(args.row_study_end_col, "last_date")
+        self.assertEqual(args.study_start, "2000-01-01")
+        self.assertEqual(
+            Path(args.out_file),
+            Path("data/processed/italy_points_jrc_flood_check_collaterals.xlsx"),
         )
 
     def test_longitude_aliases_accept_long(self) -> None:

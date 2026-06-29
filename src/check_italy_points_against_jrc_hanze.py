@@ -558,10 +558,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
-    parser = build_argument_parser()
-    args = parser.parse_args()
-
+def run(args: argparse.Namespace) -> None:
     points_file = Path(args.points_file)
     lau_file = Path(args.lau_file)
     lau_nuts_lookup_file = Path(args.lau_nuts_lookup_file) if args.lau_nuts_lookup_file else None
@@ -753,6 +750,12 @@ def main() -> None:
             "n_hanze_event_hits": int(len(hanze_hits_sheet)),
         }
     )
+
+
+def main() -> None:
+    parser = build_argument_parser()
+    args = parser.parse_args()
+    run(args)
 
 
 if __name__ == "__main__":
