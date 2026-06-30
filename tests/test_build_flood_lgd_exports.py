@@ -161,7 +161,12 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             output_path = output_dir / "italy_collaterals_FLOOD_LGD.csv"
             self.assertTrue(output_path.exists())
 
-            result = pd.read_csv(output_path)
+            raw_text = output_path.read_text(encoding="utf-8")
+            self.assertIn(";", raw_text)
+            self.assertIn("41.09775000, 16.77685000", raw_text)
+            self.assertNotIn('"41.09775000, 16.77685000"', raw_text)
+
+            result = pd.read_csv(output_path, sep=";")
             self.assertEqual(result["point_id"].tolist(), [1, 2])
             self.assertEqual(result["Facility_ID"].tolist(), ["COLL-001", "COLL-001"])
             self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])

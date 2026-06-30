@@ -20,6 +20,7 @@ DEFAULT_SHEET_NAME = "FLOOD_LGD"
 DEFAULT_MODE = "copy"
 DEFAULT_PROGRESS_EVERY_POINTS = 5_000
 DEFAULT_CSV_CHUNK_SIZE = 200_000
+DEFAULT_CSV_SEPARATOR = ";"
 SOURCE_PRIORITY = ("JRC", "GASPAR", "HANZE")
 LATITUDE_ALIASES = ("LAT", "Latitude", "Lat", "Y")
 LONGITUDE_ALIASES = ("LONG", "Longitude", "Long", "Lon", "Lng", "X")
@@ -124,7 +125,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help=(
             "copy: duplicate the original source workbook and append the new sheet. "
             "standalone: create a small workbook containing only the FLOOD_LGD sheet. "
-            "csv: export only the FLOOD_LGD data as csv."
+            "csv: export only the FLOOD_LGD data as a semicolon-separated csv."
         ),
     )
     parser.add_argument("--replace-sheet", action="store_true", help="In copy mode, replace the target sheet if it already exists in the copied workbook.")
@@ -968,11 +969,11 @@ def write_csv_output(
     effective_chunk_size = max(1, chunk_size)
     total_rows = len(df)
     log_progress(
-        f"Writing csv output to {output_path} in chunks of {effective_chunk_size:,} rows...",
+        f"Writing semicolon-separated csv output to {output_path} in chunks of {effective_chunk_size:,} rows...",
         enabled=verbose,
     )
     if total_rows == 0:
-        df.to_csv(output_path, index=False, encoding="utf-8")
+        df.to_csv(output_path, index=False, encoding="utf-8", sep=DEFAULT_CSV_SEPARATOR)
         log_progress(f"Wrote empty csv with headers to {output_path}.", enabled=verbose)
         return
 
@@ -983,6 +984,7 @@ def write_csv_output(
             output_path,
             index=False,
             encoding="utf-8",
+            sep=DEFAULT_CSV_SEPARATOR,
             mode="w" if first_chunk else "a",
             header=first_chunk,
         )
