@@ -17,6 +17,10 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from build_flood_lgd_exports import build_flood_lgd_dataframe, load_source_frame  # noqa: E402
+from build_flood_lgd_exports_italy import (  # noqa: E402
+    build_italy_export_argument_parser,
+    run as run_italy_export,
+)
 from build_flood_lgd_exports_collaterals import (  # noqa: E402
     build_collaterals_export_argument_parser,
 )
@@ -169,6 +173,102 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             result = pd.read_csv(output_path, sep=";")
             self.assertEqual(result["point_id"].tolist(), [1, 2])
             self.assertEqual(result["Facility_ID"].tolist(), ["COLL-001", "COLL-001"])
+            self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
+            self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
+
+    def test_italy_export_parser_uses_expected_defaults(self) -> None:
+        parser = build_italy_export_argument_parser()
+
+        args = parser.parse_args([])
+
+        self.assertEqual(Path(args.source_workbook), Path("data/processed/T20_Anonymised.xlsx"))
+        self.assertEqual(args.source_point_id_col, "#")
+        self.assertEqual(args.source_latitude_col, "LAT")
+        self.assertEqual(args.source_longitude_col, "LONG")
+        self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")
+        self.assertEqual(args.source_obligor_id_col, "Obligor_ID")
+        self.assertEqual(args.source_facility_id_col, "Facility_ID")
+        self.assertEqual(args.source_type_adr_col, "TYPE_ADR")
+        self.assertIsNone(args.gaspar_workbook)
+        self.assertEqual(
+            Path(args.jrc_workbook),
+            Path("data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx"),
+        )
+        self.assertEqual(
+            Path(args.hanze_workbook),
+            Path("data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx"),
+        )
+
+    def test_italy_export_runs_without_gaspar_workbook(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            source_workbook = tmp_path / "t20_italy.xlsx"
+            jrc_workbook = tmp_path / "t20_italy_jrc_check.xlsx"
+            hanze_workbook = tmp_path / "t20_italy_hanze_check.xlsx"
+            output_dir = tmp_path / "out"
+
+            pd.DataFrame(
+                {
+                    "#": [1001, 1002],
+                    "Obligor_ID": ["OBL-1", "OBL-2"],
+                    "Facility_ID": ["FAC-1", "FAC-2"],
+                    "LAT": [41.09775, 41.16654],
+                    "LONG": [16.77685, 16.40878],
+                    "Closed_Default_Date": [pd.Timestamp("2021-03-09"), pd.Timestamp("2022-09-21")],
+                    "TYPE_ADR": ["Facility", "Facility"],
+                }
+            ).to_excel(source_workbook, index=False)
+
+            with pd.ExcelWriter(jrc_workbook) as writer:
+                pd.DataFrame(columns=["point_id", "event_id"]).to_excel(
+                    writer,
+                    sheet_name="event_hits",
+                    index=False,
+                )
+
+            with pd.ExcelWriter(hanze_workbook) as writer:
+                pd.DataFrame(columns=["point_id", "hanze_event_uid"]).to_excel(
+                    writer,
+                    sheet_name="candidate_events",
+                    index=False,
+                )
+                pd.DataFrame(columns=["point_id", "hanze_event_uid"]).to_excel(
+                    writer,
+                    sheet_name="event_hits",
+                    index=False,
+                )
+
+            parser = build_italy_export_argument_parser()
+            args = parser.parse_args(
+                [
+                    "--source-workbook",
+                    str(source_workbook),
+                    "--jrc-workbook",
+                    str(jrc_workbook),
+                    "--hanze-workbook",
+                    str(hanze_workbook),
+                    "--output-dir",
+                    str(output_dir),
+                    "--mode",
+                    "csv",
+                    "--quiet",
+                ]
+            )
+
+            run_italy_export(args)
+
+            output_path = output_dir / "t20_italy_FLOOD_LGD.csv"
+            self.assertTrue(output_path.exists())
+
+            raw_text = output_path.read_text(encoding="utf-8")
+            self.assertIn(";", raw_text)
+            self.assertIn("41.09775000, 16.77685000", raw_text)
+            self.assertNotIn('"41.09775000, 16.77685000"', raw_text)
+
+            result = pd.read_csv(output_path, sep=";")
+            self.assertEqual(result["point_id"].tolist(), [1001, 1002])
+            self.assertEqual(result["Obligor_ID"].tolist(), ["OBL-1", "OBL-2"])
+            self.assertEqual(result["Facility_ID"].tolist(), ["FAC-1", "FAC-2"])
             self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
             self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
 

@@ -5,6 +5,11 @@ This guide explains the split between the two scripts used for the T20 flood wor
 - [src/check_points_against_jrc_floods.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py)
 - [src/build_flood_lgd_exports.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports.py)
 
+Italy uses the same split with its own wrappers:
+
+- [src/check_italy_points_against_jrc_hanze.py](D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze.py)
+- [src/build_flood_lgd_exports_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_italy.py)
+
 For a detailed internal walkthrough of the consolidation script itself, see:
 
 - [docs/build_flood_lgd_exports_deep_guide.md](D:/M2_MoSEF/DataCollection/docs/build_flood_lgd_exports_deep_guide.md)
@@ -202,3 +207,12 @@ The implementation now follows this split:
 
 - **three source-specific checked datasets** from `check_points_against_jrc_floods.py`
 - **one consolidated final T20 dataset** from `build_flood_lgd_exports.py`
+
+For Italy, the equivalent split is:
+
+- **two source-specific checked datasets** from `check_italy_points_against_jrc_hanze.py`
+  - `JRC`
+  - `HANZE`
+- **one consolidated final T20 dataset** from `build_flood_lgd_exports_italy.py`
+  - source priority `JRC > HANZE`
+  - same `30-day` merge rule

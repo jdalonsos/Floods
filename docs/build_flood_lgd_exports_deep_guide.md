@@ -6,6 +6,9 @@ It is the **consolidation** step of the T20 flood workflow.
 
 The same consolidation core is also reused by these preset wrappers:
 
+- [src/build_flood_lgd_exports_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_italy.py)
+  - Italy T20 preset
+  - uses only `JRC` plus `HANZE`, so the effective retained-source priority becomes `JRC > HANZE`
 - [src/build_flood_lgd_exports_collaterals.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals.py)
   - France collaterals preset
 - [src/build_flood_lgd_exports_collaterals_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals_italy.py)
@@ -136,6 +139,17 @@ Main inputs:
   - default: `data/processed/T20_Anonymised_gaspar_check.xlsx`
 - HANZE checked workbook
   - default: `data/processed/T20_Anonymised_hanze_check.xlsx`
+
+Italy T20 wrapper defaults:
+
+- original source workbook
+  - default: `data/processed/T20_Anonymised.xlsx`
+- JRC checked workbook
+  - default: `data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx`
+- HANZE checked workbook
+  - default: `data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx`
+- GASPAR
+  - not used in the Italy T20 wrapper
 
 Expected sheets:
 
@@ -831,6 +845,34 @@ This wrapper reuses the same consolidation logic, but its source defaults are:
 - `source_type_adr_value = Collateral`
 
 ### 23.4 Italy Collaterals CSV Run
+
+```bash
+./.venv/Scripts/python.exe src/build_flood_lgd_exports_italy.py \
+  --source-workbook data/processed/T20_Anonymised.xlsx \
+  --jrc-workbook data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx \
+  --hanze-workbook data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx \
+  --output-dir outputs/flood_lgd_export \
+  --sheet-name FLOOD_LGD \
+  --merge-gap-days 30 \
+  --mode csv
+```
+
+This wrapper reuses the same `30-day` consolidation rule, but it differs from the France T20 exporter in two important ways:
+
+- it loads only `JRC` plus `HANZE`
+- it expects the Italy checker output family `*_italy_jrc_flood_check.xlsx` and `*_italy_hanze_tri_check.xlsx`
+
+Its source defaults are:
+
+- `source_point_id_col = #`
+- `source_latitude_col = LAT`
+- `source_longitude_col = LONG`
+- `source_closed_default_col = Closed_Default_Date`
+- `source_obligor_id_col = Obligor_ID`
+- `source_facility_id_col = Facility_ID`
+- `source_type_adr_col = TYPE_ADR`
+
+### 23.5 Italy Collaterals CSV Run
 
 ```bash
 ./.venv/Scripts/python.exe src/build_flood_lgd_exports_collaterals_italy.py \
