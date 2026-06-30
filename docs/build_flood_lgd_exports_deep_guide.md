@@ -4,6 +4,14 @@ This document explains the logic of [src/build_flood_lgd_exports.py](D:/M2_MoSEF
 
 It is the **consolidation** step of the T20 flood workflow.
 
+The same consolidation core is also reused by these preset wrappers:
+
+- [src/build_flood_lgd_exports_collaterals.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals.py)
+  - France collaterals preset
+- [src/build_flood_lgd_exports_collaterals_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals_italy.py)
+  - Italy collaterals preset
+  - uses only `JRC` plus `HANZE`, so the effective retained-source priority becomes `JRC > HANZE`
+
 It assumes that the upstream source-check step has already been run with:
 
 - [src/check_points_against_jrc_floods.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py)
@@ -78,9 +86,18 @@ It can write that table in three modes:
 - `standalone`
   - create a small Excel workbook containing only `FLOOD_LGD`
 - `csv`
-  - create only a CSV file
+  - create only a semicolon-separated CSV file
 
 For large outputs, `csv` is the safest mode.
+
+The CSV export intentionally uses `;` instead of `,`.
+
+That matters because:
+
+- `ID_ADR` is built from latitude and longitude text
+- so one cell often looks like `41.09775000, 16.77685000`
+- with a comma-separated CSV, pandas would need to wrap that cell in double quotes
+- with a semicolon-separated CSV, the `ID_ADR` cell can stay unquoted
 
 ## 3. Granularity
 
@@ -796,6 +813,45 @@ That allows the exporter to still run in a partially available setup.
   --progress-every-points 1000 \
   --csv-chunk-size 100000
 ```
+
+### 23.3 France Collaterals CSV Run
+
+```bash
+./.venv/Scripts/python.exe src/build_flood_lgd_exports_collaterals.py \
+  --source-workbook data/raw/my_collaterals_points.xlsx \
+  --mode csv
+```
+
+This wrapper reuses the same consolidation logic, but its source defaults are:
+
+- `source_point_id_col = ID_geoloc`
+- `source_latitude_col = lat`
+- `source_longitude_col = lon`
+- `source_closed_default_col = last_date`
+- `source_type_adr_value = Collateral`
+
+### 23.4 Italy Collaterals CSV Run
+
+```bash
+./.venv/Scripts/python.exe src/build_flood_lgd_exports_collaterals_italy.py \
+  --source-workbook data/raw/my_italy_collaterals_points.xlsx \
+  --mode csv
+```
+
+This wrapper also reuses the same `30-day` consolidation rule, but it differs in two important ways:
+
+- it loads only `JRC` plus `HANZE`
+- it writes semicolon-separated CSV output in the same way as the main exporter
+
+Its source defaults are:
+
+- `source_point_id_col = None`
+  - a sequential `point_id` is created per workbook row
+- `source_latitude_col = lat`
+- `source_longitude_col = lon`
+- `source_closed_default_col = last_date`
+- `source_facility_id_col = KEY_COLLATERAL`
+- `source_type_adr_value = Collateral`
 
 ## 24. Worked End-To-End Example
 

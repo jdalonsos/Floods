@@ -835,6 +835,7 @@ Its default output files are:
 
 - `data/processed/france_points_jrc_flood_check_collaterals.xlsx`
 - `data/processed/france_points_gaspar_check_collaterals.xlsx`
+- `data/processed/france_points_hanze_check_collaterals.xlsx`
 
 To keep all floods from another start year up to each row's `last_date`:
 

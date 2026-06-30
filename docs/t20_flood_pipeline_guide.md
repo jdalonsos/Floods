@@ -62,6 +62,14 @@ Its role is to merge the checked JRC/GASPAR/HANZE evidence into **one final T20 
 
 This script outputs **one final dataset**, not three.
 
+If you run the exporter in `--mode csv`, the output is now semicolon-separated.
+
+That is intentional because:
+
+- `ID_ADR` stores latitude and longitude in one text cell
+- so values look like `48.10000000, 2.10000000`
+- using `;` avoids unnecessary double quotes around that field in CSV output
+
 ## 2. Granularity
 
 The final export is **not** one row per point.

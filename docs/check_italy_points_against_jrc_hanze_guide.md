@@ -5,6 +5,11 @@ This document explains the Italy-specific workflow implemented in
 
 It is the companion guide for the Italy version of the point-screening logic.
 
+The same core logic is also reused by:
+
+- `src/check_italy_points_against_jrc_hanze_collaterals.py`
+  - Italy collaterals preset
+
 For the output-column definitions, see:
 
 - `docs/italy_flood_workbook_column_dictionary.md`
@@ -91,9 +96,46 @@ Default outputs:
   derived automatically as
   `data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx`
 
+### 3.1 Italy Collaterals Preset
+
+For Italy collateral-style workbooks, use:
+
+- `src/check_italy_points_against_jrc_hanze_collaterals.py`
+
+That preset assumes the workbook uses:
+
+- `KEY_COLLATERAL`
+- `lat`
+- `lon`
+- `last_date`
+
+Its default temporal rule is:
+
+- start = `2000-01-01`
+- end = each row's `last_date`
+
+Its default point-identifier behavior is:
+
+- `point_id_col = None`
+- so the pipeline creates a sequential `point_id` per workbook row
+
+That is intentional because:
+
+- `KEY_COLLATERAL` can repeat across several rows
+- the final flood workflow still needs a unique row-level `point_id`
+
+The preset keeps `KEY_COLLATERAL` as the point label column through `city_col`.
+
+Default preset outputs:
+
+- JRC workbook:
+  `data/processed/italy_points_jrc_flood_check_collaterals.xlsx`
+- HANZE plus TRI workbook:
+  `data/processed/italy_points_hanze_tri_check_collaterals.xlsx`
+
 ## 4. High-Level Flow
 
-Inside `main()`, the workflow is:
+Inside `run(args)`, the workflow is:
 
 1. Load the point workbook.
 2. Optionally derive row-level study windows.
@@ -304,6 +346,31 @@ python src/check_italy_points_against_jrc_hanze.py \
 ```
 
 That one command writes both output workbooks.
+
+### 9.1 Italy Collaterals Preset
+
+Typical Italy collaterals run:
+
+```bash
+python src/check_italy_points_against_jrc_hanze_collaterals.py \
+  --points-file data/raw/my_italy_collaterals_points.xlsx
+```
+
+To keep all floods only from another lower bound onward:
+
+```bash
+python src/check_italy_points_against_jrc_hanze_collaterals.py \
+  --points-file data/raw/my_italy_collaterals_points.xlsx \
+  --study-start 2010-01-01
+```
+
+If the workbook tab is not the first one:
+
+```bash
+python src/check_italy_points_against_jrc_hanze_collaterals.py \
+  --points-file data/raw/my_italy_collaterals_points.xlsx \
+  --sheet-name Sheet1
+```
 
 ## 10. Important Limitations
 
