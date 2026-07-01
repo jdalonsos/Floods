@@ -27,16 +27,19 @@ def build_italy_collaterals_export_argument_parser() -> argparse.ArgumentParser:
     parser = build_argument_parser()
     parser.description = (
         "Build a consolidated FLOOD_LGD export for Italy collateral-style workbooks "
-        "that use KEY_COLLATERAL, lat, lon, and last_date columns. The final "
-        "consolidation uses JRC plus HANZE evidence only, merges source rows with the "
-        "same 30-day rule, and retains source priority JRC > HANZE."
+        "that use KEY_COLLATERAL, lat, lon, Default_Date, Closed_Default_Date, "
+        "and Cut_off_Date columns. The final consolidation uses JRC plus HANZE "
+        "evidence only, merges source rows with the same 30-day rule, retains "
+        "source priority JRC > HANZE, and leaves CLOSED_DEFAULT_DATE empty when "
+        "Closed_Default_Date is empty in the source workbook."
     )
     parser.set_defaults(
         source_workbook=None,
         source_point_id_col=None,
         source_latitude_col="lat",
         source_longitude_col="lon",
-        source_closed_default_col="last_date",
+        source_closed_default_col="Closed_Default_Date",
+        source_closed_default_fallback_col=None,
         source_default_date_col="Default_Date",
         source_facility_id_col="KEY_COLLATERAL",
         source_type_adr_value="Collateral",

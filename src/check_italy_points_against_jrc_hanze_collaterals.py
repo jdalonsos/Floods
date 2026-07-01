@@ -15,14 +15,16 @@ def build_italy_collaterals_argument_parser() -> argparse.ArgumentParser:
         "Check Italy collateral coordinates against processed JRC flood events and "
         "against HANZE plus Italy TRI high-hazard polygons. By default, the script "
         "creates a sequential point_id per workbook row, keeps KEY_COLLATERAL as the "
-        "point label, and retains events from 2000-01-01 through each row's last_date."
+        "point label, and retains events from 2000-01-01 through each row's "
+        "Closed_Default_Date, falling back to Cut_off_Date when needed."
     )
     parser.set_defaults(
         latitude_col="lat",
         longitude_col="lon",
         point_id_col=None,
         city_col="KEY_COLLATERAL",
-        row_study_end_col="last_date",
+        row_study_end_col="Closed_Default_Date",
+        row_study_end_fallback_col="Cut_off_Date",
         study_start="2000-01-01",
         out_file=str(DEFAULT_OUTPUT),
     )

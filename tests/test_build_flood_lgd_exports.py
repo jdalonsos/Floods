@@ -172,7 +172,8 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertIsNone(args.source_point_id_col)
         self.assertEqual(args.source_latitude_col, "lat")
         self.assertEqual(args.source_longitude_col, "lon")
-        self.assertEqual(args.source_closed_default_col, "last_date")
+        self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")
+        self.assertIsNone(args.source_closed_default_fallback_col)
         self.assertEqual(args.source_default_date_col, "Default_Date")
         self.assertEqual(args.source_facility_id_col, "KEY_COLLATERAL")
         self.assertEqual(args.source_type_adr_value, "Collateral")
@@ -199,8 +200,9 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
                     "KEY_COLLATERAL": ["COLL-001", "COLL-001"],
                     "lat": [41.09775, 41.16654],
                     "lon": [16.77685, 16.40878],
-                    "last_date": [pd.Timestamp("2021-03-09"), pd.Timestamp("2022-09-21")],
+                    "Cut_off_Date": [pd.Timestamp("2024-12-31"), pd.Timestamp("2024-12-31")],
                     "Default_Date": [pd.Timestamp("2020-06-30"), pd.Timestamp("2021-07-15")],
+                    "Closed_Default_Date": [pd.Timestamp("2021-03-09"), pd.NaT],
                 }
             ).to_excel(source_workbook, index=False)
 
@@ -254,6 +256,8 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             self.assertEqual(result["point_id"].tolist(), [1, 2])
             self.assertEqual(result["Facility_ID"].tolist(), ["COLL-001", "COLL-001"])
             self.assertEqual(result["Default_Date"].tolist(), ["2020-06-30", "2021-07-15"])
+            self.assertEqual(result["CLOSED_DEFAULT_DATE"].iloc[0], "2021-03-09")
+            self.assertTrue(pd.isna(result["CLOSED_DEFAULT_DATE"].iloc[1]))
             self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
             self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
 

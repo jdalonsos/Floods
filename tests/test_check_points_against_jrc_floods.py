@@ -78,7 +78,8 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(args.longitude_col, "lon")
         self.assertIsNone(args.point_id_col)
         self.assertEqual(args.city_col, "KEY_COLLATERAL")
-        self.assertEqual(args.row_study_end_col, "last_date")
+        self.assertEqual(args.row_study_end_col, "Closed_Default_Date")
+        self.assertEqual(args.row_study_end_fallback_col, "Cut_off_Date")
         self.assertEqual(args.study_start, "2000-01-01")
         self.assertEqual(
             Path(args.out_file),
