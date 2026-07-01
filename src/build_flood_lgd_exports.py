@@ -132,6 +132,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source-latitude-col", default=None, help="Optional source latitude column override. Leave blank to auto-detect.")
     parser.add_argument("--source-longitude-col", default=None, help="Optional source longitude column override. Leave blank to auto-detect.")
     parser.add_argument("--source-closed-default-col", default=None, help="Optional source row-end date column override used to fill CLOSED_DEFAULT_DATE.")
+    parser.add_argument("--source-closed-default-fallback-col", default=None, help="Optional fallback source row-end date column used when the preferred CLOSED_DEFAULT_DATE column is empty.")
     parser.add_argument("--source-default-date-col", default=None, help="Optional source default-date column override used to fill Default_Date.")
     parser.add_argument("--source-obligor-id-col", default=None, help="Optional source obligor identifier column override.")
     parser.add_argument("--source-facility-id-col", default=None, help="Optional source facility identifier column override.")
@@ -291,6 +292,7 @@ def load_source_frame(
     latitude_col: str | None = None,
     longitude_col: str | None = None,
     closed_default_col: str | None = None,
+    closed_default_fallback_col: str | None = None,
     default_date_col: str | None = None,
     obligor_id_col: str | None = None,
     facility_id_col: str | None = None,
@@ -335,6 +337,13 @@ def load_source_frame(
             ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date", "last_date", "Last Date"),
         ),
     )
+    resolved_closed_default_fallback_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(
+            closed_default_fallback_col,
+            ("Cut_off_Date", "Cut off Date", "CUT_OFF_DATE"),
+        ),
+    )
     resolved_default_date_col = resolve_column_name(
         source_df.columns.tolist(),
         build_aliases(default_date_col, ("Default_Date", "Default Date", "DEFAULT_DATE")),
@@ -352,13 +361,19 @@ def load_source_frame(
         build_aliases(type_adr_col, ("TYPE_ADR", "Type_ADR", "Type ADR")),
     )
 
-    source_df["point_latitude"] = source_df[resolved_latitude_col] if resolved_latitude_col else pd.NA
-    source_df["point_longitude"] = source_df[resolved_longitude_col] if resolved_longitude_col else pd.NA
-    source_df["CLOSED_DEFAULT_DATE"] = (
+    primary_closed_default_dates = (
         source_df[resolved_closed_default_col].map(parse_date)
         if resolved_closed_default_col
         else pd.Series(pd.NaT, index=source_df.index)
     )
+    fallback_closed_default_dates = (
+        source_df[resolved_closed_default_fallback_col].map(parse_date)
+        if resolved_closed_default_fallback_col
+        else pd.Series(pd.NaT, index=source_df.index)
+    )
+    source_df["point_latitude"] = source_df[resolved_latitude_col] if resolved_latitude_col else pd.NA
+    source_df["point_longitude"] = source_df[resolved_longitude_col] if resolved_longitude_col else pd.NA
+    source_df["CLOSED_DEFAULT_DATE"] = primary_closed_default_dates.combine_first(fallback_closed_default_dates)
     source_df["Default_Date"] = (
         source_df[resolved_default_date_col].map(parse_date)
         if resolved_default_date_col
@@ -1088,6 +1103,7 @@ def run(args: argparse.Namespace) -> None:
         latitude_col=args.source_latitude_col,
         longitude_col=args.source_longitude_col,
         closed_default_col=args.source_closed_default_col,
+        closed_default_fallback_col=args.source_closed_default_fallback_col,
         default_date_col=args.source_default_date_col,
         obligor_id_col=args.source_obligor_id_col,
         facility_id_col=args.source_facility_id_col,

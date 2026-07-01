@@ -59,8 +59,11 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
         self.assertEqual(args.latitude_col, "lat")
         self.assertEqual(args.longitude_col, "lon")
         self.assertEqual(args.point_id_col, "ID_geoloc")
-        self.assertEqual(args.row_study_end_col, "last_date")
-        self.assertEqual(args.study_start, "2000-01-01")
+        self.assertEqual(args.city_col, "Facility_ID")
+        self.assertEqual(args.row_study_anchor_col, "Reference_Date")
+        self.assertEqual(args.row_study_end_col, "Closed_Default_Date")
+        self.assertEqual(args.row_study_end_fallback_col, "Cut_off_Date")
+        self.assertIsNone(args.study_start)
         self.assertEqual(
             Path(args.out_file),
             Path("data/processed/france_points_jrc_flood_check_collaterals.xlsx"),

@@ -15,14 +15,19 @@ def build_collaterals_export_argument_parser() -> argparse.ArgumentParser:
     parser = build_argument_parser()
     parser.description = (
         "Build a consolidated FLOOD_LGD export for collateral-style workbooks that "
-        "use ID_geoloc, lat, lon, and last_date columns."
+        "use ID_geoloc, lat, lon, Reference_Date, Closed_Default_Date, and "
+        "Cut_off_Date columns."
     )
     parser.set_defaults(
         source_workbook=None,
         source_point_id_col="ID_geoloc",
         source_latitude_col="lat",
         source_longitude_col="lon",
-        source_closed_default_col="last_date",
+        source_closed_default_col="Closed_Default_Date",
+        source_closed_default_fallback_col="Cut_off_Date",
+        source_default_date_col="Default_Date",
+        source_obligor_id_col="Obligor_ID",
+        source_facility_id_col="Facility_ID",
         source_type_adr_value="Collateral",
         jrc_workbook=str(DEFAULT_JRC_WORKBOOK),
         gaspar_workbook=str(DEFAULT_GASPAR_WORKBOOK),

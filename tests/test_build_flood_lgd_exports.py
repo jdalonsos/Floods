@@ -41,7 +41,11 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertEqual(args.source_point_id_col, "ID_geoloc")
         self.assertEqual(args.source_latitude_col, "lat")
         self.assertEqual(args.source_longitude_col, "lon")
-        self.assertEqual(args.source_closed_default_col, "last_date")
+        self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")
+        self.assertEqual(args.source_closed_default_fallback_col, "Cut_off_Date")
+        self.assertEqual(args.source_default_date_col, "Default_Date")
+        self.assertEqual(args.source_obligor_id_col, "Obligor_ID")
+        self.assertEqual(args.source_facility_id_col, "Facility_ID")
         self.assertEqual(args.source_type_adr_value, "Collateral")
         self.assertEqual(
             Path(args.jrc_workbook),
@@ -56,15 +60,18 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             Path("data/processed/france_points_hanze_check_collaterals.xlsx"),
         )
 
-    def test_load_source_frame_supports_collateral_columns(self) -> None:
+    def test_load_source_frame_supports_t20_style_collateral_columns(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             workbook_path = Path(tmp_dir) / "collaterals.xlsx"
             pd.DataFrame(
                 {
                     "ID_geoloc": ["A-1", "A-2"],
+                    "Obligor_ID": ["OBL-1", "OBL-2"],
+                    "Facility_ID": ["FAC-1", "FAC-2"],
                     "lat": [48.1, 48.2],
                     "lon": [2.1, 2.2],
-                    "last_date": [pd.Timestamp("2020-01-05"), pd.Timestamp("2020-02-06")],
+                    "Closed_Default_Date": [pd.Timestamp("2020-01-05"), pd.NaT],
+                    "Cut_off_Date": [pd.Timestamp("2020-06-07"), pd.Timestamp("2020-02-06")],
                     "Default_Date": [pd.Timestamp("2020-03-07"), pd.Timestamp("2020-04-08")],
                 }
             ).to_excel(workbook_path, index=False)
@@ -74,11 +81,14 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
                 point_id_col="ID_geoloc",
                 latitude_col="lat",
                 longitude_col="lon",
-                closed_default_col="last_date",
+                closed_default_col="Closed_Default_Date",
+                closed_default_fallback_col="Cut_off_Date",
                 default_type_adr="Collateral",
             )
 
         self.assertEqual(source_df["point_id"].tolist(), ["A-1", "A-2"])
+        self.assertEqual(source_df["Obligor_ID"].tolist(), ["OBL-1", "OBL-2"])
+        self.assertEqual(source_df["Facility_ID"].tolist(), ["FAC-1", "FAC-2"])
         self.assertEqual(source_df["TYPE_ADR"].tolist(), ["Collateral", "Collateral"])
         self.assertEqual(
             source_df["CLOSED_DEFAULT_DATE"].tolist(),

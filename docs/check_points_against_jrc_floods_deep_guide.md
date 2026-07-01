@@ -824,12 +824,16 @@ This preset expects:
 - `ID_geoloc`
 - `lat`
 - `lon`
-- `last_date`
+- `Reference_Date`
+- `Closed_Default_Date`
+- `Cut_off_Date`
+- usually also `Obligor_ID` and `Facility_ID`
 
 Its default temporal window is:
 
-- start = `2000-01-01`
-- end = each row's `last_date`
+- start = full history
+- end = `Closed_Default_Date`
+- fallback end = `Cut_off_Date` when `Closed_Default_Date` is empty
 
 Its default output files are:
 
@@ -837,7 +841,7 @@ Its default output files are:
 - `data/processed/france_points_gaspar_check_collaterals.xlsx`
 - `data/processed/france_points_hanze_check_collaterals.xlsx`
 
-To keep all floods from another start year up to each row's `last_date`:
+To keep all floods only from another global lower bound onward:
 
 ```bash
 python src/check_points_against_jrc_floods_collaterals.py \
@@ -851,6 +855,16 @@ If the workbook tab is not the first one:
 python src/check_points_against_jrc_floods_collaterals.py \
   --points-file data/raw/my_collaterals_points.xlsx \
   --sheet-name Sheet1
+```
+
+If you want to override the default T20-style date columns explicitly:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date
 ```
 
 If you want the older bounded lookback behavior:

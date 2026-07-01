@@ -844,7 +844,11 @@ This wrapper reuses the same consolidation logic, but its source defaults are:
 - `source_point_id_col = ID_geoloc`
 - `source_latitude_col = lat`
 - `source_longitude_col = lon`
-- `source_closed_default_col = last_date`
+- `source_closed_default_col = Closed_Default_Date`
+- `source_closed_default_fallback_col = Cut_off_Date`
+- `source_default_date_col = Default_Date`
+- `source_obligor_id_col = Obligor_ID`
+- `source_facility_id_col = Facility_ID`
 - `source_type_adr_value = Collateral`
 
 ### 23.4 Italy Collaterals CSV Run

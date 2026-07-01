@@ -12,16 +12,20 @@ DEFAULT_OUTPUT = Path("data/processed/france_points_jrc_flood_check_collaterals.
 def build_collaterals_argument_parser() -> argparse.ArgumentParser:
     parser = build_argument_parser()
     parser.description = (
-        "Check point coordinates against processed JRC flood events for workbooks that "
-        "use ID_geoloc, lat, lon, and last_date columns. By default, the script keeps "
-        "events from 2000-01-01 through each row's last_date."
+        "Check France collateral coordinates against JRC, GASPAR, and HANZE using "
+        "T20-style collateral columns such as ID_geoloc, lat, lon, Reference_Date, "
+        "Closed_Default_Date, and Cut_off_Date. By default, the study window keeps "
+        "the full event history up to each row's Closed_Default_Date, falling back "
+        "to Cut_off_Date when needed."
     )
     parser.set_defaults(
         latitude_col="lat",
         longitude_col="lon",
         point_id_col="ID_geoloc",
-        row_study_end_col="last_date",
-        study_start="2000-01-01",
+        city_col="Facility_ID",
+        row_study_anchor_col="Reference_Date",
+        row_study_end_col="Closed_Default_Date",
+        row_study_end_fallback_col="Cut_off_Date",
         out_file=str(DEFAULT_OUTPUT),
     )
     return parser
