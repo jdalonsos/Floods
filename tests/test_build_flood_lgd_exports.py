@@ -173,6 +173,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertEqual(args.source_latitude_col, "lat")
         self.assertEqual(args.source_longitude_col, "lon")
         self.assertEqual(args.source_closed_default_col, "last_date")
+        self.assertEqual(args.source_default_date_col, "Default_Date")
         self.assertEqual(args.source_facility_id_col, "KEY_COLLATERAL")
         self.assertEqual(args.source_type_adr_value, "Collateral")
         self.assertIsNone(args.gaspar_workbook)
@@ -199,6 +200,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
                     "lat": [41.09775, 41.16654],
                     "lon": [16.77685, 16.40878],
                     "last_date": [pd.Timestamp("2021-03-09"), pd.Timestamp("2022-09-21")],
+                    "Default_Date": [pd.Timestamp("2020-06-30"), pd.Timestamp("2021-07-15")],
                 }
             ).to_excel(source_workbook, index=False)
 
@@ -251,6 +253,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             result = pd.read_csv(output_path, sep=";")
             self.assertEqual(result["point_id"].tolist(), [1, 2])
             self.assertEqual(result["Facility_ID"].tolist(), ["COLL-001", "COLL-001"])
+            self.assertEqual(result["Default_Date"].tolist(), ["2020-06-30", "2021-07-15"])
             self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
             self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
 
@@ -264,6 +267,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertEqual(args.source_latitude_col, "LAT")
         self.assertEqual(args.source_longitude_col, "LONG")
         self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")
+        self.assertEqual(args.source_default_date_col, "Default_Date")
         self.assertEqual(args.source_obligor_id_col, "Obligor_ID")
         self.assertEqual(args.source_facility_id_col, "Facility_ID")
         self.assertEqual(args.source_type_adr_col, "TYPE_ADR")
@@ -293,6 +297,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
                     "LAT": [41.09775, 41.16654],
                     "LONG": [16.77685, 16.40878],
                     "Closed_Default_Date": [pd.Timestamp("2021-03-09"), pd.Timestamp("2022-09-21")],
+                    "Default_Date": [pd.Timestamp("2020-05-20"), pd.Timestamp("2021-08-11")],
                     "TYPE_ADR": ["Facility", "Facility"],
                 }
             ).to_excel(source_workbook, index=False)
@@ -347,6 +352,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             self.assertEqual(result["point_id"].tolist(), [1001, 1002])
             self.assertEqual(result["Obligor_ID"].tolist(), ["OBL-1", "OBL-2"])
             self.assertEqual(result["Facility_ID"].tolist(), ["FAC-1", "FAC-2"])
+            self.assertEqual(result["Default_Date"].tolist(), ["2020-05-20", "2021-08-11"])
             self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
             self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
 

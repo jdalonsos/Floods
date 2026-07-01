@@ -38,6 +38,7 @@ def build_italy_export_argument_parser() -> argparse.ArgumentParser:
         source_latitude_col="LAT",
         source_longitude_col="LONG",
         source_closed_default_col="Closed_Default_Date",
+        source_default_date_col="Default_Date",
         source_obligor_id_col="Obligor_ID",
         source_facility_id_col="Facility_ID",
         source_type_adr_col="TYPE_ADR",

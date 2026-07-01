@@ -37,6 +37,7 @@ def build_italy_collaterals_export_argument_parser() -> argparse.ArgumentParser:
         source_latitude_col="lat",
         source_longitude_col="lon",
         source_closed_default_col="last_date",
+        source_default_date_col="Default_Date",
         source_facility_id_col="KEY_COLLATERAL",
         source_type_adr_value="Collateral",
         gaspar_workbook=None,
