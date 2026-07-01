@@ -25,7 +25,7 @@ def build_collaterals_export_argument_parser() -> argparse.ArgumentParser:
         source_latitude_col="lat",
         source_longitude_col="lon",
         source_closed_default_col="Closed_Default_Date",
-        source_closed_default_fallback_col="Cut_off_Date",
+        source_closed_default_fallback_col=None,
         source_default_date_col="Default_Date",
         source_obligor_id_col="Obligor_ID",
         source_facility_id_col="Facility_ID",

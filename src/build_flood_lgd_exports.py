@@ -337,13 +337,16 @@ def load_source_frame(
             ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date", "last_date", "Last Date"),
         ),
     )
-    resolved_closed_default_fallback_col = resolve_column_name(
-        source_df.columns.tolist(),
-        build_aliases(
-            closed_default_fallback_col,
-            ("Cut_off_Date", "Cut off Date", "CUT_OFF_DATE"),
-        ),
-    )
+    if closed_default_fallback_col:
+        resolved_closed_default_fallback_col = resolve_column_name(
+            source_df.columns.tolist(),
+            build_aliases(
+                closed_default_fallback_col,
+                ("Cut_off_Date", "Cut off Date", "CUT_OFF_DATE"),
+            ),
+        )
+    else:
+        resolved_closed_default_fallback_col = None
     resolved_default_date_col = resolve_column_name(
         source_df.columns.tolist(),
         build_aliases(default_date_col, ("Default_Date", "Default Date", "DEFAULT_DATE")),

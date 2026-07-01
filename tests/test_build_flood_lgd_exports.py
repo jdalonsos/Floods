@@ -42,7 +42,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertEqual(args.source_latitude_col, "lat")
         self.assertEqual(args.source_longitude_col, "lon")
         self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")
-        self.assertEqual(args.source_closed_default_fallback_col, "Cut_off_Date")
+        self.assertIsNone(args.source_closed_default_fallback_col)
         self.assertEqual(args.source_default_date_col, "Default_Date")
         self.assertEqual(args.source_obligor_id_col, "Obligor_ID")
         self.assertEqual(args.source_facility_id_col, "Facility_ID")
@@ -136,6 +136,33 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             )
 
         self.assertEqual(source_df["point_id"].tolist(), [1, 2, 3])
+
+    def test_load_source_frame_leaves_closed_default_empty_without_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            workbook_path = Path(tmp_dir) / "collaterals.xlsx"
+            pd.DataFrame(
+                {
+                    "Obligor_ID": ["OBL-1", "OBL-2"],
+                    "Facility_ID": ["FAC-1", "FAC-2"],
+                    "lat": [48.1, 48.2],
+                    "lon": [2.1, 2.2],
+                    "Closed_Default_Date": [pd.Timestamp("2020-01-05"), pd.NaT],
+                    "Cut_off_Date": [pd.Timestamp("2020-06-07"), pd.Timestamp("2020-02-06")],
+                }
+            ).to_excel(workbook_path, index=False)
+
+            source_df = load_source_frame(
+                workbook_path,
+                point_id_col=None,
+                latitude_col="lat",
+                longitude_col="lon",
+                closed_default_col="Closed_Default_Date",
+                closed_default_fallback_col=None,
+                default_type_adr="Collateral",
+            )
+
+        self.assertEqual(source_df["CLOSED_DEFAULT_DATE"].iloc[0], pd.Timestamp("2020-01-05"))
+        self.assertTrue(pd.isna(source_df["CLOSED_DEFAULT_DATE"].iloc[1]))
 
     def test_italy_collaterals_export_parser_uses_expected_defaults(self) -> None:
         parser = build_italy_collaterals_export_argument_parser()
