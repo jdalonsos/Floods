@@ -103,6 +103,40 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
             ["48.10000000, 2.10000000", "48.20000000, 2.20000000"],
         )
 
+    def test_load_source_frame_ignores_id_geoloc_when_point_id_not_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            workbook_path = Path(tmp_dir) / "collaterals.xlsx"
+            pd.DataFrame(
+                {
+                    "ID_geoloc": ["DUPLICATE", "DUPLICATE", pd.NA],
+                    "Obligor_ID": ["OBL-1", "OBL-2", "OBL-3"],
+                    "Facility_ID": ["FAC-1", "FAC-2", "FAC-3"],
+                    "lat": [48.1, 48.2, 48.3],
+                    "lon": [2.1, 2.2, 2.3],
+                    "Closed_Default_Date": [
+                        pd.Timestamp("2020-01-05"),
+                        pd.Timestamp("2020-02-06"),
+                        pd.Timestamp("2020-03-07"),
+                    ],
+                    "Default_Date": [
+                        pd.Timestamp("2020-03-07"),
+                        pd.Timestamp("2020-04-08"),
+                        pd.Timestamp("2020-05-09"),
+                    ],
+                }
+            ).to_excel(workbook_path, index=False)
+
+            source_df = load_source_frame(
+                workbook_path,
+                point_id_col=None,
+                latitude_col="lat",
+                longitude_col="lon",
+                closed_default_col="Closed_Default_Date",
+                default_type_adr="Collateral",
+            )
+
+        self.assertEqual(source_df["point_id"].tolist(), [1, 2, 3])
+
     def test_italy_collaterals_export_parser_uses_expected_defaults(self) -> None:
         parser = build_italy_collaterals_export_argument_parser()
 

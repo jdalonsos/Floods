@@ -312,7 +312,7 @@ def load_source_frame(
 
     resolved_point_id_col = resolve_column_name(
         source_df.columns.tolist(),
-        build_aliases(point_id_col, ("point_id", "Point ID", "#", "id", "ID_geoloc")),
+        build_aliases(point_id_col, ("point_id", "Point ID", "#", "id")),
     )
     if resolved_point_id_col is None:
         source_df["point_id"] = range(1, len(source_df) + 1)
