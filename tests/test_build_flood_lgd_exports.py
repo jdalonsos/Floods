@@ -38,7 +38,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
 
         args = parser.parse_args(["--source-workbook", "data/raw/my_collaterals_points.xlsx"])
 
-        self.assertEqual(args.source_point_id_col, "ID_geoloc")
+        self.assertIsNone(args.source_point_id_col)
         self.assertEqual(args.source_latitude_col, "lat")
         self.assertEqual(args.source_longitude_col, "lon")
         self.assertEqual(args.source_closed_default_col, "Closed_Default_Date")

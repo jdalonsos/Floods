@@ -58,7 +58,7 @@ class CheckPointsAgainstJrcFloodsTests(unittest.TestCase):
 
         self.assertEqual(args.latitude_col, "lat")
         self.assertEqual(args.longitude_col, "lon")
-        self.assertEqual(args.point_id_col, "ID_geoloc")
+        self.assertIsNone(args.point_id_col)
         self.assertEqual(args.city_col, "Facility_ID")
         self.assertEqual(args.row_study_anchor_col, "Reference_Date")
         self.assertEqual(args.row_study_end_col, "Closed_Default_Date")

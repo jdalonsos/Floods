@@ -16,11 +16,12 @@ def build_collaterals_export_argument_parser() -> argparse.ArgumentParser:
     parser.description = (
         "Build a consolidated FLOOD_LGD export for collateral-style workbooks that "
         "use ID_geoloc, lat, lon, Reference_Date, Closed_Default_Date, and "
-        "Cut_off_Date columns."
+        "Cut_off_Date columns. The wrapper recreates the row-level point_id used "
+        "by the collateral flood-check step instead of grouping directly by ID_geoloc."
     )
     parser.set_defaults(
         source_workbook=None,
-        source_point_id_col="ID_geoloc",
+        source_point_id_col=None,
         source_latitude_col="lat",
         source_longitude_col="lon",
         source_closed_default_col="Closed_Default_Date",
