@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 import sys
 import tempfile
@@ -16,6 +17,7 @@ if str(SITE_PACKAGES) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+from add_default_date_to_flood_lgd import run as run_add_default_date_to_flood_lgd  # noqa: E402
 from build_flood_lgd_exports import build_flood_lgd_dataframe, load_source_frame  # noqa: E402
 from build_flood_lgd_exports_italy import (  # noqa: E402
     build_italy_export_argument_parser,
@@ -63,6 +65,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
                     "lat": [48.1, 48.2],
                     "lon": [2.1, 2.2],
                     "last_date": [pd.Timestamp("2020-01-05"), pd.Timestamp("2020-02-06")],
+                    "Default_Date": [pd.Timestamp("2020-03-07"), pd.Timestamp("2020-04-08")],
                 }
             ).to_excel(workbook_path, index=False)
 
@@ -80,6 +83,10 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         self.assertEqual(
             source_df["CLOSED_DEFAULT_DATE"].tolist(),
             [pd.Timestamp("2020-01-05"), pd.Timestamp("2020-02-06")],
+        )
+        self.assertEqual(
+            source_df["Default_Date"].tolist(),
+            [pd.Timestamp("2020-03-07"), pd.Timestamp("2020-04-08")],
         )
         self.assertEqual(
             source_df["ID_ADR"].tolist(),
@@ -276,6 +283,7 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
         source_df = pd.DataFrame(
             {
                 "point_id": [1, 2],
+                "Default_Date": [pd.Timestamp("2020-03-07"), pd.Timestamp("2020-04-08")],
                 "ID_ADR": ["48.10000000, 2.10000000", "48.20000000, 2.20000000"],
                 "TYPE_ADR": ["Collateral", "Facility"],
                 "point_order": [0, 1],
@@ -293,12 +301,104 @@ class BuildFloodLgdExportsTests(unittest.TestCase):
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result["point_id"].tolist(), [1, 2])
+        self.assertEqual(
+            result["Default_Date"].tolist(),
+            [pd.Timestamp("2020-03-07"), pd.Timestamp("2020-04-08")],
+        )
         self.assertTrue(result["Obligor_ID"].isna().all())
         self.assertTrue(result["Facility_ID"].isna().all())
         self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [0, 0])
         self.assertEqual(result["FLAG_FLOOD_ADR_AREA"].tolist(), [0, 0])
         self.assertTrue(result["DATE_REF_FLOOD"].isna().all())
         self.assertTrue(result["DATE_END_FLOOD"].isna().all())
+
+    def test_add_default_date_to_existing_flood_lgd_csv_without_reclustering(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            source_workbook = tmp_path / "t20_source.xlsx"
+            export_csv = tmp_path / "t20_FLOOD_LGD.csv"
+            output_csv = tmp_path / "t20_FLOOD_LGD_with_default_date.csv"
+
+            pd.DataFrame(
+                {
+                    "#": [101, 202],
+                    "Default_Date": [pd.Timestamp("2009-10-20"), pd.Timestamp("2022-09-09")],
+                }
+            ).to_excel(source_workbook, index=False)
+
+            pd.DataFrame(
+                {
+                    "point_id": [101, 101, 202],
+                    "FLAG_FLOOD_ADR": [1, 0, 1],
+                    "DATE_REF_FLOOD": [
+                        pd.Timestamp("2020-01-01"),
+                        pd.Timestamp("2020-03-01"),
+                        pd.Timestamp("2021-02-02"),
+                    ],
+                }
+            ).to_csv(export_csv, index=False, sep=";")
+
+            args = argparse.Namespace(
+                source_workbook=str(source_workbook),
+                flood_lgd_file=str(export_csv),
+                output_file=str(output_csv),
+                in_place=False,
+                sheet_name="FLOOD_LGD",
+                source_sheet_name=None,
+                source_point_id_col="#",
+                source_default_date_col="Default_Date",
+                quiet=True,
+            )
+
+            run_add_default_date_to_flood_lgd(args)
+
+            self.assertTrue(output_csv.exists())
+            result = pd.read_csv(output_csv, sep=";")
+            self.assertEqual(result.columns.tolist(), ["point_id", "Default_Date", "FLAG_FLOOD_ADR", "DATE_REF_FLOOD"])
+            self.assertEqual(result["Default_Date"].tolist(), ["2009-10-20", "2009-10-20", "2022-09-09"])
+            self.assertEqual(result["FLAG_FLOOD_ADR"].tolist(), [1, 0, 1])
+
+    def test_add_default_date_to_existing_collateral_flood_lgd_csv(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            source_workbook = tmp_path / "france_collaterals_source.xlsx"
+            export_csv = tmp_path / "france_collaterals_FLOOD_LGD.csv"
+            output_csv = tmp_path / "france_collaterals_FLOOD_LGD_with_default_date.csv"
+
+            pd.DataFrame(
+                {
+                    "ID_geoloc": ["ADR-001", "ADR-002"],
+                    "Default_Date": [pd.Timestamp("2018-06-30"), pd.Timestamp("2020-11-15")],
+                }
+            ).to_excel(source_workbook, index=False)
+
+            pd.DataFrame(
+                {
+                    "point_id": ["ADR-001", "ADR-001", "ADR-002"],
+                    "Facility_ID": ["COLL-A", "COLL-A", "COLL-B"],
+                    "FLAG_FLOOD_ADR": [1, 0, 1],
+                }
+            ).to_csv(export_csv, index=False, sep=";")
+
+            args = argparse.Namespace(
+                source_workbook=str(source_workbook),
+                flood_lgd_file=str(export_csv),
+                output_file=str(output_csv),
+                in_place=False,
+                sheet_name="FLOOD_LGD",
+                source_sheet_name=None,
+                source_point_id_col="ID_geoloc",
+                source_default_date_col="Default_Date",
+                quiet=True,
+            )
+
+            run_add_default_date_to_flood_lgd(args)
+
+            self.assertTrue(output_csv.exists())
+            result = pd.read_csv(output_csv, sep=";")
+            self.assertEqual(result.columns.tolist(), ["point_id", "Facility_ID", "Default_Date", "FLAG_FLOOD_ADR"])
+            self.assertEqual(result["Default_Date"].tolist(), ["2018-06-30", "2018-06-30", "2020-11-15"])
+            self.assertEqual(result["point_id"].tolist(), ["ADR-001", "ADR-001", "ADR-002"])
 
     def test_build_flood_lgd_dataframe_merges_sources_within_30_days(self) -> None:
         source_df = pd.DataFrame(

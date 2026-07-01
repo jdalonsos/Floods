@@ -56,6 +56,7 @@ Its role is to merge the checked JRC/GASPAR/HANZE evidence into **one final T20 
 
 - `point_id`
 - `Obligor_ID`
+- `Default_Date`
 - `Flag_JRC`
 - `Flag_GASPAR`
 - `Flag_HANZE`
@@ -216,3 +217,19 @@ For Italy, the equivalent split is:
 - **one consolidated final T20 dataset** from `build_flood_lgd_exports_italy.py`
   - source priority `JRC > HANZE`
   - same `30-day` merge rule
+
+If the final FLOOD_LGD file is already built and you only need to add the
+source metadata field `Default_Date`, use:
+
+- [src/add_default_date_to_flood_lgd.py](D:/M2_MoSEF/DataCollection/src/add_default_date_to_flood_lgd.py)
+
+That helper updates an existing CSV/XLSX by `point_id` without rerunning the
+cross-source flood merge.
+
+The same helper also works for collaterals:
+
+- France collaterals:
+  use `--source-point-id-col ID_geoloc`
+- Italy collaterals:
+  omit `--source-point-id-col` when the export used the sequential generated
+  `point_id`

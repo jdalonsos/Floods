@@ -30,6 +30,7 @@ OUTPUT_COLUMNS = [
     "Obligor_ID",
     "Facility_ID",
     "CLOSED_DEFAULT_DATE",
+    "Default_Date",
     "ID_ADR",
     "TYPE_ADR",
     "Flag_JRC",
@@ -51,28 +52,54 @@ OUTPUT_COLUMNS = [
 ]
 
 COLUMN_WIDTHS = {
-    "A": 12,
-    "B": 16,
-    "C": 16,
-    "D": 22,
-    "E": 28,
-    "F": 14,
-    "G": 11,
-    "H": 14,
-    "I": 13,
-    "J": 20,
-    "K": 14,
-    "L": 17,
-    "M": 16,
-    "N": 25,
-    "O": 16,
-    "P": 20,
-    "Q": 18,
-    "R": 18,
-    "S": 18,
-    "T": 20,
-    "U": 18,
-    "V": 20,
+    "point_id": 12,
+    "Obligor_ID": 16,
+    "Facility_ID": 16,
+    "CLOSED_DEFAULT_DATE": 22,
+    "Default_Date": 18,
+    "ID_ADR": 28,
+    "TYPE_ADR": 14,
+    "Flag_JRC": 11,
+    "Flag_GASPAR": 14,
+    "Flag_HANZE": 13,
+    "FLOOD_DATA_SOURCE": 20,
+    "Flag_JRC_AREA": 14,
+    "Flag_GASPAR_AREA": 17,
+    "Flag_HANZE_AREA": 16,
+    "FLOOD_DATA_SOURCE_AREA": 25,
+    "FLAG_FLOOD_ADR": 16,
+    "FLAG_FLOOD_ADR_AREA": 20,
+    "DATE_REF_FLOOD": 18,
+    "DATE_END_FLOOD": 18,
+    "FLOOD_DEPTH_MOY": 18,
+    "FLOOD_DEPTH_MOY_AREA": 20,
+    "FLOOD_DEPTH_MAX": 18,
+    "FLOOD_DEPTH_MAX_AREA": 20,
+}
+
+DATE_FORMAT_COLUMNS = {
+    "CLOSED_DEFAULT_DATE",
+    "Default_Date",
+    "DATE_REF_FLOOD",
+    "DATE_END_FLOOD",
+}
+
+INTEGER_FORMAT_COLUMNS = {
+    "Flag_JRC",
+    "Flag_GASPAR",
+    "Flag_HANZE",
+    "Flag_JRC_AREA",
+    "Flag_GASPAR_AREA",
+    "Flag_HANZE_AREA",
+    "FLAG_FLOOD_ADR",
+    "FLAG_FLOOD_ADR_AREA",
+}
+
+FLOAT_FORMAT_COLUMNS = {
+    "FLOOD_DEPTH_MOY",
+    "FLOOD_DEPTH_MOY_AREA",
+    "FLOOD_DEPTH_MAX",
+    "FLOOD_DEPTH_MAX_AREA",
 }
 
 HEADER_FILL = PatternFill(fill_type="solid", fgColor="1F4E78")
@@ -105,6 +132,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source-latitude-col", default=None, help="Optional source latitude column override. Leave blank to auto-detect.")
     parser.add_argument("--source-longitude-col", default=None, help="Optional source longitude column override. Leave blank to auto-detect.")
     parser.add_argument("--source-closed-default-col", default=None, help="Optional source row-end date column override used to fill CLOSED_DEFAULT_DATE.")
+    parser.add_argument("--source-default-date-col", default=None, help="Optional source default-date column override used to fill Default_Date.")
     parser.add_argument("--source-obligor-id-col", default=None, help="Optional source obligor identifier column override.")
     parser.add_argument("--source-facility-id-col", default=None, help="Optional source facility identifier column override.")
     parser.add_argument("--source-type-adr-col", default=None, help="Optional source TYPE_ADR column override.")
@@ -263,6 +291,7 @@ def load_source_frame(
     latitude_col: str | None = None,
     longitude_col: str | None = None,
     closed_default_col: str | None = None,
+    default_date_col: str | None = None,
     obligor_id_col: str | None = None,
     facility_id_col: str | None = None,
     type_adr_col: str | None = None,
@@ -306,6 +335,10 @@ def load_source_frame(
             ("CLOSED_DEFAULT_DATE", "Closed_Default_Date", "Closed Default Date", "last_date", "Last Date"),
         ),
     )
+    resolved_default_date_col = resolve_column_name(
+        source_df.columns.tolist(),
+        build_aliases(default_date_col, ("Default_Date", "Default Date", "DEFAULT_DATE")),
+    )
     resolved_obligor_id_col = resolve_column_name(
         source_df.columns.tolist(),
         build_aliases(obligor_id_col, ("Obligor_ID", "Obligor ID")),
@@ -324,6 +357,11 @@ def load_source_frame(
     source_df["CLOSED_DEFAULT_DATE"] = (
         source_df[resolved_closed_default_col].map(parse_date)
         if resolved_closed_default_col
+        else pd.Series(pd.NaT, index=source_df.index)
+    )
+    source_df["Default_Date"] = (
+        source_df[resolved_default_date_col].map(parse_date)
+        if resolved_default_date_col
         else pd.Series(pd.NaT, index=source_df.index)
     )
     source_df["Obligor_ID"] = source_df[resolved_obligor_id_col] if resolved_obligor_id_col else pd.NA
@@ -673,7 +711,7 @@ def aggregate_cluster_rows(cluster_df: pd.DataFrame) -> dict[str, Any]:
 def build_source_export_base(source_df: pd.DataFrame) -> pd.DataFrame:
     base = source_df.copy()
     base["point_id"] = normalize_point_id_series(base["point_id"])
-    for column in ["Obligor_ID", "Facility_ID", "CLOSED_DEFAULT_DATE", "ID_ADR", "TYPE_ADR"]:
+    for column in ["Obligor_ID", "Facility_ID", "CLOSED_DEFAULT_DATE", "Default_Date", "ID_ADR", "TYPE_ADR"]:
         if column not in base.columns:
             base[column] = pd.NA
     if "point_order" not in base.columns:
@@ -684,6 +722,7 @@ def build_source_export_base(source_df: pd.DataFrame) -> pd.DataFrame:
             "Obligor_ID",
             "Facility_ID",
             "CLOSED_DEFAULT_DATE",
+            "Default_Date",
             "ID_ADR",
             "TYPE_ADR",
             "point_order",
@@ -880,24 +919,41 @@ def style_worksheet(worksheet) -> None:
         for cell in row:
             cell.border = THIN_BORDER
 
-    for column_letter, width in COLUMN_WIDTHS.items():
-        worksheet.column_dimensions[column_letter].width = width
+    header_cells = list(worksheet[1])
+    header_to_column_letter = {
+        cell.value: cell.column_letter
+        for cell in header_cells
+        if cell.value
+    }
+    for column_name, width in COLUMN_WIDTHS.items():
+        column_letter = header_to_column_letter.get(column_name)
+        if column_letter:
+            worksheet.column_dimensions[column_letter].width = width
 
     max_row = worksheet.max_row
     if max_row < 2:
         return
 
-    for column_letter in ("D", "Q", "R"):
+    for column_name in DATE_FORMAT_COLUMNS:
+        column_letter = header_to_column_letter.get(column_name)
+        if not column_letter:
+            continue
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "yyyy-mm-dd"
 
-    for column_letter in ("G", "H", "I", "K", "L", "M", "O", "P"):
+    for column_name in INTEGER_FORMAT_COLUMNS:
+        column_letter = header_to_column_letter.get(column_name)
+        if not column_letter:
+            continue
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0"
 
-    for column_letter in ("S", "T", "U", "V"):
+    for column_name in FLOAT_FORMAT_COLUMNS:
+        column_letter = header_to_column_letter.get(column_name)
+        if not column_letter:
+            continue
         for column_cells in worksheet[f"{column_letter}2:{column_letter}{max_row}"]:
             for cell in column_cells:
                 cell.number_format = "0.##"
@@ -1032,6 +1088,7 @@ def run(args: argparse.Namespace) -> None:
         latitude_col=args.source_latitude_col,
         longitude_col=args.source_longitude_col,
         closed_default_col=args.source_closed_default_col,
+        default_date_col=args.source_default_date_col,
         obligor_id_col=args.source_obligor_id_col,
         facility_id_col=args.source_facility_id_col,
         type_adr_col=args.source_type_adr_col,
