@@ -218,6 +218,10 @@ It normalizes the source workbook in the following way:
 Important detail:
 
 - `point_order` is only used later to restore a stable final ordering close to the original workbook order
+- `ID_geoloc` is no longer auto-detected as a point identifier in the shared
+  exporter core
+- that change is intentional because collateral business keys can repeat or be
+  empty, while the final flood workflow needs one unique row-level `point_id`
 
 ## 7. Date Parsing
 
@@ -841,17 +845,19 @@ That allows the exporter to still run in a partially available setup.
 
 This wrapper reuses the same consolidation logic, but its source defaults are:
 
-- `source_point_id_col = ID_geoloc`
+- `source_point_id_col = None`
+  - the exporter creates a sequential row-level `point_id`
 - `source_latitude_col = lat`
 - `source_longitude_col = lon`
 - `source_closed_default_col = Closed_Default_Date`
-- `source_closed_default_fallback_col = Cut_off_Date`
+- `source_closed_default_fallback_col = None`
+- `CLOSED_DEFAULT_DATE` stays empty when `Closed_Default_Date` is empty
 - `source_default_date_col = Default_Date`
 - `source_obligor_id_col = Obligor_ID`
 - `source_facility_id_col = Facility_ID`
 - `source_type_adr_value = Collateral`
 
-### 23.4 Italy Collaterals CSV Run
+### 23.4 Italy T20 CSV Run
 
 ```bash
 ./.venv/Scripts/python.exe src/build_flood_lgd_exports_italy.py \
@@ -875,6 +881,7 @@ Its source defaults are:
 - `source_latitude_col = LAT`
 - `source_longitude_col = LONG`
 - `source_closed_default_col = Closed_Default_Date`
+- `source_default_date_col = Default_Date`
 - `source_obligor_id_col = Obligor_ID`
 - `source_facility_id_col = Facility_ID`
 - `source_type_adr_col = TYPE_ADR`
@@ -898,7 +905,10 @@ Its source defaults are:
   - a sequential `point_id` is created per workbook row
 - `source_latitude_col = lat`
 - `source_longitude_col = lon`
-- `source_closed_default_col = last_date`
+- `source_closed_default_col = Closed_Default_Date`
+- `source_closed_default_fallback_col = None`
+- `CLOSED_DEFAULT_DATE` stays empty when `Closed_Default_Date` is empty
+- `source_default_date_col = Default_Date`
 - `source_facility_id_col = KEY_COLLATERAL`
 - `source_type_adr_value = Collateral`
 
@@ -929,15 +939,21 @@ If you want to overwrite the existing file in place, add:
   --in-place
 ```
 
-For France collaterals, the same helper works as long as you point it to the
-collateral source workbook and tell it that the row key is `ID_geoloc`:
+For current France collaterals, the same helper works with the generated
+row-level `point_id`, so you should omit `--source-point-id-col`:
 
 ```bash
 ./.venv/Scripts/python.exe src/add_default_date_to_flood_lgd.py \
   --source-workbook data/raw/my_collaterals_points.xlsx \
   --flood-lgd-file outputs/flood_lgd_export/my_collaterals_points_FLOOD_LGD.csv \
-  --source-point-id-col ID_geoloc \
   --source-default-date-col Default_Date
+```
+
+If you are patching an older France-collateral export created before the
+row-level `point_id` fix, that older file may still require:
+
+```bash
+  --source-point-id-col ID_geoloc
 ```
 
 For Italy collaterals, keep the same helper and omit `--source-point-id-col`

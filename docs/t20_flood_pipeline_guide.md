@@ -1,5 +1,9 @@
 # T20 Flood Pipeline Guide
 
+For the current high-level map of all four supported workflows, start with:
+
+- [docs/flood_pipeline_master_guide.md](D:/M2_MoSEF/DataCollection/docs/flood_pipeline_master_guide.md)
+
 This guide explains the split between the two scripts used for the T20 flood workflow:
 
 - [src/check_points_against_jrc_floods.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py)
@@ -9,6 +13,15 @@ Italy uses the same split with its own wrappers:
 
 - [src/check_italy_points_against_jrc_hanze.py](D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze.py)
 - [src/build_flood_lgd_exports_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_italy.py)
+
+Collateral workflows use the same split through their preset wrappers:
+
+- France collaterals:
+  - [src/check_points_against_jrc_floods_collaterals.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods_collaterals.py)
+  - [src/build_flood_lgd_exports_collaterals.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals.py)
+- Italy collaterals:
+  - [src/check_italy_points_against_jrc_hanze_collaterals.py](D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze_collaterals.py)
+  - [src/build_flood_lgd_exports_collaterals_italy.py](D:/M2_MoSEF/DataCollection/src/build_flood_lgd_exports_collaterals_italy.py)
 
 For a detailed internal walkthrough of the consolidation script itself, see:
 
@@ -226,10 +239,18 @@ source metadata field `Default_Date`, use:
 That helper updates an existing CSV/XLSX by `point_id` without rerunning the
 cross-source flood merge.
 
-The same helper also works for collaterals:
+The same helper also works for collaterals.
+
+Current rule:
 
 - France collaterals:
-  use `--source-point-id-col ID_geoloc`
+  omit `--source-point-id-col` because the current export uses generated
+  row-level `point_id`
 - Italy collaterals:
-  omit `--source-point-id-col` when the export used the sequential generated
-  `point_id`
+  omit `--source-point-id-col` for the same reason
+
+Legacy note:
+
+- if you need to patch an **older** France-collateral export created before the
+  row-level `point_id` fix, that older export may still need
+  `--source-point-id-col ID_geoloc`

@@ -107,12 +107,15 @@ That preset assumes the workbook uses:
 - `KEY_COLLATERAL`
 - `lat`
 - `lon`
-- `last_date`
+- `Default_Date`
+- `Closed_Default_Date`
+- `Cut_off_Date`
 
 Its default temporal rule is:
 
 - start = `2000-01-01`
-- end = each row's `last_date`
+- preferred end = each row's `Closed_Default_Date`
+- fallback end = each row's `Cut_off_Date` when `Closed_Default_Date` is empty
 
 Its default point-identifier behavior is:
 
@@ -125,6 +128,11 @@ That is intentional because:
 - the final flood workflow still needs a unique row-level `point_id`
 
 The preset keeps `KEY_COLLATERAL` as the point label column through `city_col`.
+
+Important detail:
+
+- `Default_Date` is carried later by the Italy-collaterals LGD build step
+- but it is not used by the check step itself for flood filtering
 
 Default preset outputs:
 
@@ -370,6 +378,15 @@ If the workbook tab is not the first one:
 python src/check_italy_points_against_jrc_hanze_collaterals.py \
   --points-file data/raw/my_italy_collaterals_points.xlsx \
   --sheet-name Sheet1
+```
+
+If you want to restate the current default collateral date logic explicitly:
+
+```bash
+python src/check_italy_points_against_jrc_hanze_collaterals.py \
+  --points-file data/raw/my_italy_collaterals_points.xlsx \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date
 ```
 
 ## 10. Important Limitations

@@ -829,6 +829,12 @@ This preset expects:
 - `Cut_off_Date`
 - usually also `Obligor_ID` and `Facility_ID`
 
+Important identity rule:
+
+- the preset does **not** use `ID_geoloc` as the final unique `point_id`
+- it creates a sequential row-level `point_id`
+- that is intentional because `ID_geoloc` can repeat or be empty
+
 Its default temporal window is:
 
 - start = full history

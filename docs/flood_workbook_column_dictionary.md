@@ -2,6 +2,15 @@
 
 This document explains the output columns used by the current flood-screening workbooks created by `src/check_points_against_jrc_floods.py`.
 
+The same sheet structure is also reused by the France collaterals preset:
+
+- [src/check_points_against_jrc_floods_collaterals.py](D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods_collaterals.py)
+
+Important difference for collaterals:
+
+- `point_id` is generated sequentially per workbook row
+- the preset does not rely on `ID_geoloc` as a unique identifier
+
 Current output files:
 
 - `data/processed/T20_Anonymised_jrc_flood_check.xlsx`

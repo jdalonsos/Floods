@@ -3,6 +3,16 @@
 This document explains the output columns written by
 `src/check_italy_points_against_jrc_hanze.py`.
 
+The same workbook structure is also reused by the Italy collaterals preset:
+
+- [src/check_italy_points_against_jrc_hanze_collaterals.py](D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze_collaterals.py)
+
+For Italy collaterals:
+
+- `point_id` is generated sequentially per workbook row
+- `KEY_COLLATERAL` is kept as the business label
+- the current source layout uses `Default_Date`, `Closed_Default_Date`, and `Cut_off_Date`
+
 Current output files:
 
 - `data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx`
