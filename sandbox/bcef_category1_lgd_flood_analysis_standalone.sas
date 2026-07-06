@@ -476,30 +476,57 @@ run;
   6. Build the analysis-ready Category 1 base
 ---------------------------------------------------------------------------*/
 
-proc contents data=&ANALYSIS_DS out=work._cat1_varmeta(keep=name type length varnum) noprint;
+proc contents data=&ANALYSIS_DS out=work._cat1_varmeta(keep=name type length varnum label format) noprint;
 run;
 
 data work._cat1_varmeta;
     set work._cat1_varmeta;
-    length ROLE $16 UPNAME $128;
+    length ROLE $16 UPNAME UPLABEL SEARCH_TEXT $512;
 
-    UPNAME = upcase(name);
-    STAGE = .;
+    call missing(ROLE, STAGE);
+    UPNAME = upcase(coalescec(name, ""));
+    UPLABEL = upcase(coalescec(label, ""));
+    SEARCH_TEXT = catx(" ", UPNAME, UPLABEL);
 
-    if prxmatch('/(\d+)$/', strip(UPNAME)) then
-        STAGE = input(prxchange('s/.*?(\d+)$/$1/', 1, strip(UPNAME)), best12.);
+    if prxmatch('/\d+/', strip(SEARCH_TEXT)) then
+        STAGE = input(prxchange('s/.*?(\d+)(?!.*\d).*/$1/', 1, strip(SEARCH_TEXT)), best12.);
 
-    if UPNAME in ("ADDITIONAL_REALISED_LGD", "ADDITIONAL_REALIZED_LGD", "ADDITIONAL_REAL_LGD") then ROLE = "OBS_EXTRA";
-    else if prxmatch('/(REALI[ZS]ED.*LGD|LGD.*REALI[ZS]ED).*\d+$/', UPNAME) then ROLE = "OBS_STAGE";
-    else if prxmatch('/(LGD.*ESTIMATE|ESTIMATE.*LGD|EST_LGD).*\d+$/', UPNAME) then ROLE = "EST_STAGE";
-    else if prxmatch('/(LGD.*GRADE|GRADE.*LGD).*\d+$/', UPNAME) then ROLE = "GRADE_STAGE";
-    else if prxmatch('/NON.*RATED|NONRATED|FLAG_NR/', UPNAME) then ROLE = "NON_RATED";
+    if prxmatch('/ADDITIONAL.*(REALI[ZS]|OBSERVED).*LGD|((REALI[ZS]|OBSERVED).*(LGD).*(ADDITIONAL))/', SEARCH_TEXT) then
+        ROLE = "OBS_EXTRA";
+    else if type = 1
+        and not missing(STAGE)
+        and prxmatch('/((REALI[ZS]|OBSERVED).*(LGD)|LGD.*(REALI[ZS]|OBSERVED))/', SEARCH_TEXT)
+        and not prxmatch('/ESTIMAT|EXPECTED/', SEARCH_TEXT)
+    then ROLE = "OBS_STAGE";
+    else if type = 1
+        and not missing(STAGE)
+        and prxmatch('/((EST|ESTIMAT|EXPECTED).*(LGD)|LGD.*(EST|ESTIMAT|EXPECTED))/', SEARCH_TEXT)
+    then ROLE = "EST_STAGE";
+    else if not missing(STAGE)
+        and prxmatch('/((GRADE|RATING).*(LGD)|LGD.*(GRADE|RATING))/', SEARCH_TEXT)
+    then ROLE = "GRADE_STAGE";
+    else if prxmatch('/(FLAG_)?NON.*RAT|NONRATED|NOT.?RATED|NR_FLAG/', SEARCH_TEXT) then
+        ROLE = "NON_RATED";
 run;
 
 data &LIBOUT..&OUT_PREFIX._VAR_AUDIT;
     set work._cat1_varmeta;
     where ROLE ne "";
 run;
+
+%let OBS_EXTRA_VARS =;
+%let OBS_STAGE_VARS_DESC =;
+%let OBS_STAGE_VARS_ASC =;
+%let OBS_STAGE_NUMS_ASC =;
+%let N_OBS_STAGE = 0;
+%let EST_STAGE_VARS_DESC =;
+%let EST_STAGE_VARS_ASC =;
+%let EST_STAGE_NUMS_ASC =;
+%let N_EST_STAGE = 0;
+%let GRADE_STAGE_VARS_DESC =;
+%let GRADE_STAGE_VARS_ASC =;
+%let N_GRADE_STAGE = 0;
+%let NONRATED_VAR =;
 
 proc sql noprint;
     select name into :OBS_EXTRA_VARS separated by ' '
@@ -570,13 +597,99 @@ proc sql noprint;
     from work._cat1_varmeta
     where ROLE = "GRADE_STAGE"
     ;
-
-    select name into :NONRATED_VAR trimmed
-    from work._cat1_varmeta
-    where ROLE = "NON_RATED"
-    order by varnum
-    ;
 quit;
+
+data _null_;
+    set work._cat1_varmeta;
+    where ROLE = "NON_RATED";
+    call symputx("NONRATED_VAR", name, "G");
+    stop;
+run;
+
+%macro assign_cat1_analysis_vars;
+    %local _g;
+    %if %length(%superq(OBS_EXTRA_VARS)) > 0 %then %do;
+        %if %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
+            OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS &OBS_STAGE_VARS_DESC);
+        %end;
+        %else %do;
+            OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS);
+        %end;
+    %end;
+    %else %if %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
+        OBS_LGD_FINAL = coalesce(of &OBS_STAGE_VARS_DESC);
+    %end;
+    %else %do;
+        call missing(OBS_LGD_FINAL);
+    %end;
+
+    %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 %then %do;
+        EST_LGD_DEFAULT = %scan(%superq(EST_STAGE_VARS_ASC), 1, %str( ));
+    %end;
+    %else %do;
+        call missing(EST_LGD_DEFAULT);
+    %end;
+
+    %if %length(%superq(EST_STAGE_VARS_DESC)) > 0 %then %do;
+        EST_LGD_LATEST = coalesce(of &EST_STAGE_VARS_DESC);
+    %end;
+    %else %do;
+        call missing(EST_LGD_LATEST);
+    %end;
+
+    length LGD_GRADE_DEFAULT LGD_GRADE_LATEST $40;
+
+    LGD_GRADE_DEFAULT = "";
+    %if %length(%superq(GRADE_STAGE_VARS_ASC)) > 0 %then %do;
+        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_ASC)));
+            if LGD_GRADE_DEFAULT = ""
+                and strip(vvaluex("%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( ))")) not in ("", ".")
+            then LGD_GRADE_DEFAULT = strip(vvaluex("%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( ))"));
+        %end;
+    %end;
+
+    LGD_GRADE_LATEST = "";
+    %if %length(%superq(GRADE_STAGE_VARS_DESC)) > 0 %then %do;
+        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_DESC)));
+            if LGD_GRADE_LATEST = ""
+                and strip(vvaluex("%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( ))")) not in ("", ".")
+            then LGD_GRADE_LATEST = strip(vvaluex("%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( ))"));
+        %end;
+    %end;
+
+    %if %length(%superq(NONRATED_VAR)) > 0 %then %do;
+        FLAG_NON_RATED_ANALYSIS = input(strip(vvaluex("&NONRATED_VAR")), ?? best12.);
+    %end;
+    %else %do;
+        FLAG_NON_RATED_ANALYSIS = 0;
+    %end;
+%mend;
+
+%macro emit_recovery_rows;
+    %if %length(%superq(OBS_STAGE_VARS_ASC)) > 0 and %eval(&N_OBS_STAGE > 0) %then %do;
+        array _real {*} &OBS_STAGE_VARS_ASC;
+        array _real_stage[&N_OBS_STAGE] _temporary_ (&OBS_STAGE_NUMS_ASC);
+
+        do _k = 1 to dim(_real);
+            STAGE = _real_stage[_k];
+            METRIC = "REALISED";
+            VALUE = _real[_k];
+            if not missing(VALUE) then output;
+        end;
+    %end;
+
+    %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 and %eval(&N_EST_STAGE > 0) %then %do;
+        array _est {*} &EST_STAGE_VARS_ASC;
+        array _est_stage[&N_EST_STAGE] _temporary_ (&EST_STAGE_NUMS_ASC);
+
+        do _k = 1 to dim(_est);
+            STAGE = _est_stage[_k];
+            METRIC = "ESTIMATED";
+            VALUE = _est[_k];
+            if not missing(VALUE) then output;
+        end;
+    %end;
+%mend;
 
 data work.cat1_bcef_base;
     set &ANALYSIS_DS;
@@ -606,57 +719,7 @@ data work.cat1_bcef_base;
         if missing(_flags[_i]) then _flags[_i] = 0;
     end;
 
-    %if %length(%superq(OBS_EXTRA_VARS)) > 0 and %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
-        OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS &OBS_STAGE_VARS_DESC);
-    %end;
-    %else %if %length(%superq(OBS_EXTRA_VARS)) > 0 %then %do;
-        OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS);
-    %end;
-    %else %if %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
-        OBS_LGD_FINAL = coalesce(of &OBS_STAGE_VARS_DESC);
-    %end;
-    %else %do;
-        call missing(OBS_LGD_FINAL);
-    %end;
-
-    %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 %then %do;
-        EST_LGD_DEFAULT = %scan(&EST_STAGE_VARS_ASC, 1, %str( ));
-    %end;
-    %else %do;
-        call missing(EST_LGD_DEFAULT);
-    %end;
-
-    %if %length(%superq(EST_STAGE_VARS_DESC)) > 0 %then %do;
-        EST_LGD_LATEST = coalesce(of &EST_STAGE_VARS_DESC);
-    %end;
-    %else %do;
-        call missing(EST_LGD_LATEST);
-    %end;
-
-    length LGD_GRADE_DEFAULT LGD_GRADE_LATEST $40;
-
-    LGD_GRADE_DEFAULT = "";
-    %if %length(%superq(GRADE_STAGE_VARS_ASC)) > 0 %then %do;
-        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_ASC)));
-            if LGD_GRADE_DEFAULT = "" and strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( )))) not in ("", ".")
-            then LGD_GRADE_DEFAULT = strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( ))));
-        %end;
-    %end;
-
-    LGD_GRADE_LATEST = "";
-    %if %length(%superq(GRADE_STAGE_VARS_DESC)) > 0 %then %do;
-        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_DESC)));
-            if LGD_GRADE_LATEST = "" and strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( )))) not in ("", ".")
-            then LGD_GRADE_LATEST = strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( ))));
-        %end;
-    %end;
-
-    %if %length(%superq(NONRATED_VAR)) > 0 %then %do;
-        FLAG_NON_RATED_ANALYSIS = input(strip(vvalue(&NONRATED_VAR)), best12.);
-    %end;
-    %else %do;
-        FLAG_NON_RATED_ANALYSIS = 0;
-    %end;
+    %assign_cat1_analysis_vars;
     if missing(FLAG_NON_RATED_ANALYSIS) then FLAG_NON_RATED_ANALYSIS = 0;
 
     length RATING_BUCKET $8;
@@ -970,11 +1033,13 @@ quit;
                 when sum(case when RATING_BUCKET in ("IG", "NIG") then 1 else 0 end) > 0
                 then sum(case when RATING_BUCKET = "IG" then 1 else 0 end)
                    / sum(case when RATING_BUCKET in ("IG", "NIG") then 1 else 0 end)
+                else .
             end as PCT_IG_RATED format=percent8.2,
             case
                 when sum(case when RATING_BUCKET in ("IG", "NIG") then 1 else 0 end) > 0
                 then sum(case when RATING_BUCKET = "NIG" then 1 else 0 end)
                    / sum(case when RATING_BUCKET in ("IG", "NIG") then 1 else 0 end)
+                else .
             end as PCT_NIG_RATED format=percent8.2
         from work._seg
         group by EXPOSURE_DEFINITION, EXPOSED_GROUP
@@ -1001,29 +1066,10 @@ quit;
     data work._recovery_long;
         set work._seg;
         length METRIC $12;
-        %if %length(%superq(OBS_STAGE_VARS_ASC)) > 0 %then %do;
-            array _real {*} &OBS_STAGE_VARS_ASC;
-            array _real_stage[&N_OBS_STAGE] _temporary_ (&OBS_STAGE_NUMS_ASC);
-
-            do _k = 1 to dim(_real);
-                STAGE = _real_stage[_k];
-                METRIC = "REALISED";
-                VALUE = _real[_k];
-                if not missing(VALUE) then output;
-            end;
-        %end;
-
-        %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 %then %do;
-            array _est {*} &EST_STAGE_VARS_ASC;
-            array _est_stage[&N_EST_STAGE] _temporary_ (&EST_STAGE_NUMS_ASC);
-
-            do _k = 1 to dim(_est);
-                STAGE = _est_stage[_k];
-                METRIC = "ESTIMATED";
-                VALUE = _est[_k];
-                if not missing(VALUE) then output;
-            end;
-        %end;
+        length STAGE VALUE 8;
+        call missing(METRIC, STAGE, VALUE);
+        %emit_recovery_rows;
+        delete;
 
         keep EXPOSURE_DEFINITION EXPOSED_GROUP METRIC STAGE VALUE;
     run;
@@ -1050,12 +1096,12 @@ quit;
         create table work._signal as
         select
             "&flag" as EXPOSURE_DEFINITION length=40,
-            max(case when EXPOSED_GROUP = "Exposed"     then AVG_REALISED_LGD    end) as EXPOSED_AVG_REALISED_LGD format=12.4,
-            max(case when EXPOSED_GROUP = "Non-Exposed" then AVG_REALISED_LGD    end) as NONEXP_AVG_REALISED_LGD format=12.4,
-            max(case when EXPOSED_GROUP = "Exposed"     then MEDIAN_REALISED_LGD end) as EXPOSED_MED_REALISED_LGD format=12.4,
-            max(case when EXPOSED_GROUP = "Non-Exposed" then MEDIAN_REALISED_LGD end) as NONEXP_MED_REALISED_LGD format=12.4,
-            max(case when EXPOSED_GROUP = "Exposed"     then MEDIAN_ESTIMATED_LGD end) as EXPOSED_MED_EST_LGD format=12.4,
-            max(case when EXPOSED_GROUP = "Non-Exposed" then MEDIAN_ESTIMATED_LGD end) as NONEXP_MED_EST_LGD format=12.4
+            max(case when EXPOSED_GROUP = "Exposed"     then AVG_REALISED_LGD    else . end) as EXPOSED_AVG_REALISED_LGD format=12.4,
+            max(case when EXPOSED_GROUP = "Non-Exposed" then AVG_REALISED_LGD    else . end) as NONEXP_AVG_REALISED_LGD format=12.4,
+            max(case when EXPOSED_GROUP = "Exposed"     then MEDIAN_REALISED_LGD else . end) as EXPOSED_MED_REALISED_LGD format=12.4,
+            max(case when EXPOSED_GROUP = "Non-Exposed" then MEDIAN_REALISED_LGD else . end) as NONEXP_MED_REALISED_LGD format=12.4,
+            max(case when EXPOSED_GROUP = "Exposed"     then MEDIAN_ESTIMATED_LGD else . end) as EXPOSED_MED_EST_LGD format=12.4,
+            max(case when EXPOSED_GROUP = "Non-Exposed" then MEDIAN_ESTIMATED_LGD else . end) as NONEXP_MED_EST_LGD format=12.4
         from work._summary
         ;
     quit;
