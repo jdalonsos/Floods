@@ -68,7 +68,8 @@ libname LGDSRC "/applis/25182-pumpp/data/car/backtesting/21_TRANSVERSAL/02 - ACC
 
 /* Category 1 reporting parameters */
 %let ANALYSIS_DS      = &LIBOUT..&OUT;
-%let OUT_PREFIX       = CAT1_BCEF_FLOOD_LGD;
+/* Keep this short: SAS member names are limited to 32 characters */
+%let OUT_PREFIX       = BCEFC1;
 %let MAIN_FLAG        = FLAG_FLOOD_AREA_DEF;
 %let REPORT_EST_VAR   = EST_LGD_LATEST;
 %let REPORT_GRADE_VAR = LGD_GRADE_LATEST;
@@ -475,6 +476,108 @@ run;
   6. Build the analysis-ready Category 1 base
 ---------------------------------------------------------------------------*/
 
+proc contents data=&ANALYSIS_DS out=work._cat1_varmeta(keep=name type length varnum) noprint;
+run;
+
+data work._cat1_varmeta;
+    set work._cat1_varmeta;
+    length ROLE $16 UPNAME $128;
+
+    UPNAME = upcase(name);
+    STAGE = .;
+
+    if prxmatch('/(\d+)$/', strip(UPNAME)) then
+        STAGE = input(prxchange('s/.*?(\d+)$/$1/', 1, strip(UPNAME)), best12.);
+
+    if UPNAME in ("ADDITIONAL_REALISED_LGD", "ADDITIONAL_REALIZED_LGD", "ADDITIONAL_REAL_LGD") then ROLE = "OBS_EXTRA";
+    else if prxmatch('/(REALI[ZS]ED.*LGD|LGD.*REALI[ZS]ED).*\d+$/', UPNAME) then ROLE = "OBS_STAGE";
+    else if prxmatch('/(LGD.*ESTIMATE|ESTIMATE.*LGD|EST_LGD).*\d+$/', UPNAME) then ROLE = "EST_STAGE";
+    else if prxmatch('/(LGD.*GRADE|GRADE.*LGD).*\d+$/', UPNAME) then ROLE = "GRADE_STAGE";
+    else if prxmatch('/NON.*RATED|NONRATED|FLAG_NR/', UPNAME) then ROLE = "NON_RATED";
+run;
+
+data &LIBOUT..&OUT_PREFIX._VAR_AUDIT;
+    set work._cat1_varmeta;
+    where ROLE ne "";
+run;
+
+proc sql noprint;
+    select name into :OBS_EXTRA_VARS separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "OBS_EXTRA"
+    order by varnum
+    ;
+
+    select name into :OBS_STAGE_VARS_DESC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "OBS_STAGE"
+    order by STAGE desc, varnum desc
+    ;
+
+    select name into :OBS_STAGE_VARS_ASC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "OBS_STAGE"
+    order by STAGE, varnum
+    ;
+
+    select put(STAGE, best12.) into :OBS_STAGE_NUMS_ASC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "OBS_STAGE"
+    order by STAGE, varnum
+    ;
+
+    select count(*) into :N_OBS_STAGE trimmed
+    from work._cat1_varmeta
+    where ROLE = "OBS_STAGE"
+    ;
+
+    select name into :EST_STAGE_VARS_DESC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "EST_STAGE"
+    order by STAGE desc, varnum desc
+    ;
+
+    select name into :EST_STAGE_VARS_ASC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "EST_STAGE"
+    order by STAGE, varnum
+    ;
+
+    select put(STAGE, best12.) into :EST_STAGE_NUMS_ASC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "EST_STAGE"
+    order by STAGE, varnum
+    ;
+
+    select count(*) into :N_EST_STAGE trimmed
+    from work._cat1_varmeta
+    where ROLE = "EST_STAGE"
+    ;
+
+    select name into :GRADE_STAGE_VARS_DESC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "GRADE_STAGE"
+    order by STAGE desc, varnum desc
+    ;
+
+    select name into :GRADE_STAGE_VARS_ASC separated by ' '
+    from work._cat1_varmeta
+    where ROLE = "GRADE_STAGE"
+    order by STAGE, varnum
+    ;
+
+    select count(*) into :N_GRADE_STAGE trimmed
+    from work._cat1_varmeta
+    where ROLE = "GRADE_STAGE"
+    ;
+
+    select name into :NONRATED_VAR trimmed
+    from work._cat1_varmeta
+    where ROLE = "NON_RATED"
+    order by varnum
+    ;
+quit;
+
 data work.cat1_bcef_base;
     set &ANALYSIS_DS;
 
@@ -503,45 +606,63 @@ data work.cat1_bcef_base;
         if missing(_flags[_i]) then _flags[_i] = 0;
     end;
 
-    OBS_LGD_FINAL = coalesce(
-        Additional_Realised_LGD,
-        Realised_LGD_06,
-        Realised_LGD_05,
-        Realised_LGD_04,
-        Realised_LGD_03,
-        Realised_LGD_02,
-        Realised_LGD_01
-    );
+    %if %length(%superq(OBS_EXTRA_VARS)) > 0 and %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
+        OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS &OBS_STAGE_VARS_DESC);
+    %end;
+    %else %if %length(%superq(OBS_EXTRA_VARS)) > 0 %then %do;
+        OBS_LGD_FINAL = coalesce(of &OBS_EXTRA_VARS);
+    %end;
+    %else %if %length(%superq(OBS_STAGE_VARS_DESC)) > 0 %then %do;
+        OBS_LGD_FINAL = coalesce(of &OBS_STAGE_VARS_DESC);
+    %end;
+    %else %do;
+        call missing(OBS_LGD_FINAL);
+    %end;
 
-    EST_LGD_DEFAULT = LGD_Estimate_01;
-    EST_LGD_LATEST  = coalesce(
-        LGD_Estimate_07,
-        LGD_Estimate_06,
-        LGD_Estimate_05,
-        LGD_Estimate_04,
-        LGD_Estimate_03,
-        LGD_Estimate_02,
-        LGD_Estimate_01
-    );
+    %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 %then %do;
+        EST_LGD_DEFAULT = %scan(&EST_STAGE_VARS_ASC, 1, %str( ));
+    %end;
+    %else %do;
+        call missing(EST_LGD_DEFAULT);
+    %end;
+
+    %if %length(%superq(EST_STAGE_VARS_DESC)) > 0 %then %do;
+        EST_LGD_LATEST = coalesce(of &EST_STAGE_VARS_DESC);
+    %end;
+    %else %do;
+        call missing(EST_LGD_LATEST);
+    %end;
 
     length LGD_GRADE_DEFAULT LGD_GRADE_LATEST $40;
 
-    if strip(vvalue(LGD_Grade_01)) not in ("", ".") then LGD_GRADE_DEFAULT = strip(vvalue(LGD_Grade_01));
-    else LGD_GRADE_DEFAULT = "";
+    LGD_GRADE_DEFAULT = "";
+    %if %length(%superq(GRADE_STAGE_VARS_ASC)) > 0 %then %do;
+        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_ASC)));
+            if LGD_GRADE_DEFAULT = "" and strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( )))) not in ("", ".")
+            then LGD_GRADE_DEFAULT = strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_ASC), &_g, %str( ))));
+        %end;
+    %end;
 
-    if strip(vvalue(LGD_Grade_07)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_07));
-    else if strip(vvalue(LGD_Grade_06)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_06));
-    else if strip(vvalue(LGD_Grade_05)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_05));
-    else if strip(vvalue(LGD_Grade_04)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_04));
-    else if strip(vvalue(LGD_Grade_03)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_03));
-    else if strip(vvalue(LGD_Grade_02)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_02));
-    else if strip(vvalue(LGD_Grade_01)) not in ("", ".") then LGD_GRADE_LATEST = strip(vvalue(LGD_Grade_01));
-    else LGD_GRADE_LATEST = "";
+    LGD_GRADE_LATEST = "";
+    %if %length(%superq(GRADE_STAGE_VARS_DESC)) > 0 %then %do;
+        %do _g = 1 %to %sysfunc(countw(%superq(GRADE_STAGE_VARS_DESC)));
+            if LGD_GRADE_LATEST = "" and strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( )))) not in ("", ".")
+            then LGD_GRADE_LATEST = strip(vvalue(%scan(%superq(GRADE_STAGE_VARS_DESC), &_g, %str( ))));
+        %end;
+    %end;
+
+    %if %length(%superq(NONRATED_VAR)) > 0 %then %do;
+        FLAG_NON_RATED_ANALYSIS = input(strip(vvalue(&NONRATED_VAR)), best12.);
+    %end;
+    %else %do;
+        FLAG_NON_RATED_ANALYSIS = 0;
+    %end;
+    if missing(FLAG_NON_RATED_ANALYSIS) then FLAG_NON_RATED_ANALYSIS = 0;
 
     length RATING_BUCKET $8;
     GRADE_NUM = input(compress(LGD_GRADE_LATEST, , "kd"), best12.);
 
-    if Flag_Non_Rated = 1 then RATING_BUCKET = "NR";
+    if FLAG_NON_RATED_ANALYSIS = 1 then RATING_BUCKET = "NR";
     else if index(upcase(LGD_GRADE_LATEST), "NIG") > 0 then RATING_BUCKET = "NIG";
     else if index(upcase(LGD_GRADE_LATEST), "NON-INV") > 0 then RATING_BUCKET = "NIG";
     else if index(upcase(LGD_GRADE_LATEST), "NON INVEST") > 0 then RATING_BUCKET = "NIG";
@@ -880,20 +1001,29 @@ quit;
     data work._recovery_long;
         set work._seg;
         length METRIC $12;
-        array _real[6] Realised_LGD_01-Realised_LGD_06;
-        array _est [7] LGD_Estimate_01-LGD_Estimate_07;
+        %if %length(%superq(OBS_STAGE_VARS_ASC)) > 0 %then %do;
+            array _real {*} &OBS_STAGE_VARS_ASC;
+            array _real_stage[&N_OBS_STAGE] _temporary_ (&OBS_STAGE_NUMS_ASC);
 
-        do STAGE = 1 to dim(_real);
-            METRIC = "REALISED";
-            VALUE = _real[STAGE];
-            if not missing(VALUE) then output;
-        end;
+            do _k = 1 to dim(_real);
+                STAGE = _real_stage[_k];
+                METRIC = "REALISED";
+                VALUE = _real[_k];
+                if not missing(VALUE) then output;
+            end;
+        %end;
 
-        do STAGE = 1 to dim(_est);
-            METRIC = "ESTIMATED";
-            VALUE = _est[STAGE];
-            if not missing(VALUE) then output;
-        end;
+        %if %length(%superq(EST_STAGE_VARS_ASC)) > 0 %then %do;
+            array _est {*} &EST_STAGE_VARS_ASC;
+            array _est_stage[&N_EST_STAGE] _temporary_ (&EST_STAGE_NUMS_ASC);
+
+            do _k = 1 to dim(_est);
+                STAGE = _est_stage[_k];
+                METRIC = "ESTIMATED";
+                VALUE = _est[_k];
+                if not missing(VALUE) then output;
+            end;
+        %end;
 
         keep EXPOSURE_DEFINITION EXPOSED_GROUP METRIC STAGE VALUE;
     run;
@@ -984,6 +1114,11 @@ ods excel file="&XLSX_OUT"
         sheet_interval="none"
         autofilter="all"
     );
+
+title "BCEF Flood x LGD - Variable audit";
+ods excel options(sheet_name="00_Var_Audit");
+proc print data=&LIBOUT..&OUT_PREFIX._VAR_AUDIT noobs;
+run;
 
 title "BCEF Flood x LGD - Data check";
 ods excel options(sheet_name="01_Data_Check");
