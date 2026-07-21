@@ -3,6 +3,7 @@
 Ce dossier contient trois éléments :
 
 - `build_rapport_alternance.py` : génère le rapport Word complet.
+- `build_note_synthese_alternance.py` : génère une note de synthèse en français au format MoSEF.
 - `generate_figures_for_other_pc.py` : prépare les figures finales à partir des sorties disponibles sur votre autre PC.
 - `generated_figures/` : dossier attendu par le builder pour remplacer automatiquement les placeholders.
 
@@ -17,6 +18,22 @@ python docs\alternance_report\build_rapport_alternance.py
 Le document est écrit dans :
 
 - `docs/alternance_report/rapport_alternance_data_collection.docx`
+
+## 1 bis. Générer la note de synthèse
+
+Depuis la racine du dépôt :
+
+```powershell
+python docs\alternance_report\build_note_synthese_alternance.py
+```
+
+Le document est écrit dans :
+
+- `docs/alternance_report/note_synthese_alternance_data_collection.docx`
+
+Un contrôle de conformité des consignes MoSEF est aussi disponible dans :
+
+- `docs/alternance_report/conformite_rapport_alternance_mosef.md`
 
 ## 2. Générer les figures finales sur l'autre PC
 
