@@ -241,6 +241,26 @@ cross-source flood merge.
 
 The same helper also works for collaterals.
 
+If the final FLOOD_LGD file is already built and you need map-ready regional
+fields from `ID_ADR`, use:
+
+- [src/add_nuts_to_flood_lgd.py](D:/M2_MoSEF/DataCollection/src/add_nuts_to_flood_lgd.py)
+
+That helper:
+
+- reads the existing CSV/XLSX
+- parses `ID_ADR`
+- spatially joins the point to the official Eurostat NUTS polygons
+- adds `nuts1`, `nuts2`, and `nuts3` codes and names
+- writes a sibling file with a `_with_nuts` suffix by default
+
+It uses the official GeoPackage:
+
+- `NUTS_RG_03M_2024_4326.gpkg`
+
+It also auto-detects whether the input CSV uses `;` or `,` and preserves that
+separator on output.
+
 Current rule:
 
 - France collaterals:

@@ -967,6 +967,68 @@ pipeline:
   --source-default-date-col Default_Date
 ```
 
+### 23.7 Fast NUTS 1/2/3 Enrichment On An Existing FLOOD_LGD File
+
+If the final FLOOD_LGD file is already built and you only need regional
+metadata for mapping, you do **not** need to rerun the France flood check or
+the final cross-source consolidation.
+
+Use:
+
+```bash
+./.venv/Scripts/python.exe src/add_nuts_to_flood_lgd.py \
+  --flood-lgd-file outputs/flood_lgd_export_csv/T20_Anonymised_jrc_flood_check_FLOOD_LGD.csv \
+  --nuts-file NUTS_RG_03M_2024_4326.gpkg
+```
+
+That helper:
+
+- reads the existing FLOOD_LGD CSV or XLSX
+- parses `ID_ADR`
+- builds point geometries in `EPSG:4326`
+- loads the official Eurostat NUTS GeoPackage
+- filters it to the requested country code
+- spatially joins the point to NUTS levels `1`, `2`, and `3`
+- writes a sibling file with a `_with_nuts` suffix by default
+
+For France, the default assumptions are:
+
+- `--id-adr-col ID_ADR`
+- `--country-code FR`
+- `--nuts-file NUTS_RG_03M_2024_4326.gpkg`
+
+The output adds:
+
+- `point_latitude`
+- `point_longitude`
+- `id_adr_coordinate_order`
+- `id_adr_order_resolution`
+- `nuts1_code`
+- `nuts1_name`
+- `nuts2_code`
+- `nuts2_name`
+- `nuts3_code`
+- `nuts3_name`
+
+The matching source files are:
+
+- the existing FLOOD_LGD export you pass in `--flood-lgd-file`
+- the official NUTS GeoPackage passed in `--nuts-file`
+
+The helper is conservative about coordinates:
+
+- it expects `ID_ADR` to contain two coordinates in one text cell
+- it defaults to `lat, lon`
+- it can still test both `lat, lon` and `lon, lat` if needed
+- it keeps the detected order and resolution path in the diagnostic columns
+
+CSV delimiter behavior:
+
+- newly built standalone `csv` exports still target `;`
+- some older or already-saved FLOOD_LGD CSV files can still be comma-delimited
+- this helper auto-detects `;` or `,` from the input file
+- it preserves the detected delimiter when writing the enriched output
+
 ## 24. Worked End-To-End Example
 
 Suppose one point has these source rows after standardization:

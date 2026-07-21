@@ -282,4 +282,5 @@ The documentation and code are now aligned on these recent behaviors:
 - Italy collaterals final `CLOSED_DEFAULT_DATE` stays empty when missing
 - Italy T20 final exporter carries `Default_Date` explicitly
 - Italy collaterals final exporter carries `Default_Date` explicitly
-- all final CSV outputs use `;`
+- `src/add_nuts_to_flood_lgd.py` can enrich an existing FLOOD_LGD file with `nuts1`, `nuts2`, and `nuts3` fields directly from `ID_ADR`
+- post-processing FLOOD_LGD helpers now auto-detect `;` or `,` input CSV files and preserve the detected separator on write
