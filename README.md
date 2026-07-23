@@ -7,6 +7,33 @@ This repository contains a full workflow for working with the Copernicus / JRC E
 - historical `old INSEE -> current INSEE` update tables
 - efficient TIFF visualization in both notebook and Streamlit dashboard form
 
+> **New to the repository?** Start with the
+> **[documentation guide and recommended reading order](docs/README.md)**.
+> It explains the project structure, separates current code from legacy and
+> exploratory folders, and provides routes for geodata processing, portfolio
+> flood checks, visualization, and deployment.
+
+## Quick Start
+
+The project targets Python 3.12. From the repository root:
+
+```bash
+python -m pip install -r requirements-pip.txt
+python -m pytest -q
+```
+
+Then inspect the command for the workflow you need:
+
+```bash
+python src/granular_tabularization.py --help
+python src/check_points_against_jrc_floods.py --help
+python src/build_flood_lgd_exports.py --help
+```
+
+Not every large source dataset or generated output is stored in Git. Read the
+[documentation guide](docs/README.md) and the selected workflow guide before a
+full run to confirm the required local inputs.
+
 ## Current Recommended Components
 
 - Europe pipeline: `src/granular_tabularization.py`
