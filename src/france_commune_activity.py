@@ -34,6 +34,7 @@ DEFAULT_OLD_INSEE_UPDATE_PATH = (
 DEFAULT_JRC_EVENTS_PATH = (
     PROJECT_ROOT / "data" / "processed" / "france_lau_insee_documentation" / "events_fr_insee_long.csv"
 )
+DEFAULT_HANZE_EVENTS_PATH = PROJECT_ROOT / "data" / "processed" / "HANZE_events_v3_transformed.csv"
 DEFAULT_GASPAR_PROCESSED_PATH = PROJECT_ROOT / "data" / "processed" / "Gaspar_2015_2024.xlsx"
 DEFAULT_GASPAR_FULL_HISTORY_DIR = PROJECT_ROOT / "data" / "processed" / "gaspar_all_dates"
 DEFAULT_GASPAR_FULL_HISTORY_PROCESSED_PATH = (
@@ -67,6 +68,7 @@ JRC_REQUIRED_COLUMNS = {
     "lau_code_local",
     "insee_com",
 }
+HANZE_REQUIRED_COLUMNS = {"ID", "Country code", "Start date", "End date", "NUTS3"}
 
 
 @dataclass(frozen=True)
@@ -623,6 +625,62 @@ def prepare_jrc_activity_rows(
     return df, diagnostics
 
 
+def prepare_hanze_activity_rows(
+    path: str | Path = DEFAULT_HANZE_EVENTS_PATH,
+    france_lookup_path: str | Path = DEFAULT_FRANCE_LOOKUP_PATH,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Expand French HANZE NUTS3 events to the current communes in each region."""
+    raw = read_table(path)
+    missing = HANZE_REQUIRED_COLUMNS - set(raw.columns)
+    if missing:
+        raise KeyError(f"HANZE input is missing required columns: {sorted(missing)}")
+
+    events = raw.loc[raw["Country code"].astype("string").str.strip().eq("FR")].copy()
+    events["hanze_event_id"] = events["ID"].astype("string").str.strip()
+    events["nuts3_code"] = events["NUTS3"].astype("string").str.strip()
+    events["activity_start_date"] = pd.to_datetime(
+        events["Start date"], errors="coerce", format="mixed", dayfirst=True
+    ).dt.normalize()
+    events["activity_end_date"] = pd.to_datetime(
+        events["End date"], errors="coerce", format="mixed", dayfirst=True
+    ).dt.normalize()
+    events = events.loc[
+        events["hanze_event_id"].notna()
+        & events["nuts3_code"].notna()
+        & events["activity_start_date"].notna()
+        & events["activity_end_date"].notna()
+    ].copy()
+    event_key = ["hanze_event_id", "nuts3_code", "activity_start_date", "activity_end_date"]
+    duplicate_rows = int(events.duplicated(subset=event_key).sum())
+    events = events.drop_duplicates(subset=event_key, keep="first")
+
+    commune_reference = build_current_commune_reference(load_france_lookup(france_lookup_path))
+    commune_reference = commune_reference[
+        ["insee_com", "commune_name_current", "lau_code", "lau_code_local", "nuts3_code", "nuts3_name", "insee_dep", "insee_reg"]
+    ].drop_duplicates(subset=["insee_com"])
+    expanded = events.merge(commune_reference, on="nuts3_code", how="inner", validate="many_to_many")
+
+    rename_map = {
+        "Type": "hanze_flood_type",
+        "Flood source": "hanze_flood_source",
+        "Cause": "hanze_cause",
+        "Fatalities": "hanze_fatalities",
+        "Persons affected": "hanze_persons_affected",
+    }
+    expanded = expanded.rename(columns={key: value for key, value in rename_map.items() if key in expanded})
+    diagnostics = {
+        "french_source_rows": int(len(raw.loc[raw["Country code"].astype("string").str.strip().eq("FR")])),
+        "canonical_event_nuts3_rows": int(len(events)),
+        "duplicate_rows_dropped": duplicate_rows,
+        "unique_events": int(events["hanze_event_id"].nunique()),
+        "expanded_commune_event_rows": int(len(expanded)),
+        "unique_communes": int(expanded["insee_com"].nunique()),
+        "unmatched_nuts3_codes": sorted(set(events["nuts3_code"]) - set(commune_reference["nuts3_code"])),
+        "spatial_resolution": "HANZE events are NUTS3-level; every current commune in an affected NUTS3 is displayed.",
+    }
+    return expanded.reset_index(drop=True), diagnostics
+
+
 def load_commune_geometries(
     adminexpress_path: str | Path = DEFAULT_ADMINEXPRESS_PATH,
     *,
@@ -756,6 +814,30 @@ def aggregate_jrc_activity(active_rows: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
     return grouped
+
+
+def aggregate_hanze_activity(active_rows: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "insee_com", "commune_name_current", "nuts3_code", "nuts3_name",
+        "hanze_row_count", "hanze_unique_event_count", "hanze_flood_types",
+        "hanze_flood_sources", "hanze_causes",
+    ]
+    if active_rows.empty:
+        return pd.DataFrame(columns=columns)
+    return (
+        active_rows.groupby("insee_com", dropna=False)
+        .agg(
+            commune_name_current=("commune_name_current", "first"),
+            nuts3_code=("nuts3_code", "first"),
+            nuts3_name=("nuts3_name", "first"),
+            hanze_row_count=("hanze_event_id", "size"),
+            hanze_unique_event_count=("hanze_event_id", "nunique"),
+            hanze_flood_types=("hanze_flood_type", join_unique_strings),
+            hanze_flood_sources=("hanze_flood_source", join_unique_strings),
+            hanze_causes=("hanze_cause", join_unique_strings),
+        )
+        .reset_index()
+    )
 
 
 def build_comparison_activity(

@@ -16,10 +16,12 @@ from france_commune_activity import (
     DEFAULT_GASPAR_RAW_CSV_PATH,
     DEFAULT_GASPAR_RAW_XLSX_PATH,
     DEFAULT_GASPAR_SHEET,
+    DEFAULT_HANZE_EVENTS_PATH,
     DEFAULT_JRC_EVENTS_PATH,
     DEFAULT_OLD_INSEE_UPDATE_PATH,
     aggregate_gaspar_activity,
     aggregate_jrc_activity,
+    aggregate_hanze_activity,
     build_comparison_activity,
     build_custom_range_period,
     build_department_boundaries,
@@ -32,6 +34,7 @@ from france_commune_activity import (
     load_france_lookup,
     load_historical_insee_updates,
     prepare_jrc_activity_rows,
+    prepare_hanze_activity_rows,
     prepare_processed_gaspar_rows,
     prepare_raw_gaspar_rows,
     resolve_gaspar_current_communes,
@@ -39,7 +42,7 @@ from france_commune_activity import (
 
 
 st.set_page_config(
-    page_title="France Gaspar vs JRC Commune Activity",
+    page_title="France Flood Source Commune Activity",
     layout="wide",
 )
 
@@ -115,6 +118,11 @@ def cached_prepare_jrc(jrc_path: str) -> tuple[pd.DataFrame, dict]:
     return prepare_jrc_activity_rows(jrc_path)
 
 
+@st.cache_data(show_spinner=False)
+def cached_prepare_hanze(hanze_path: str, lookup_path: str) -> tuple[pd.DataFrame, dict]:
+    return prepare_hanze_activity_rows(hanze_path, lookup_path)
+
+
 @st.cache_resource(show_spinner=False)
 def cached_map_layers(
     adminexpress_path: str,
@@ -154,6 +162,11 @@ def metric_options_for_mode(display_mode: str) -> dict[str, str]:
             "Max depth (cm)": "jrc_max_depth_cm",
             "Flooded area (m2)": "jrc_total_flooded_area_m2",
         }
+    if display_mode == "HANZE":
+        return {
+            "Active rows": "hanze_row_count",
+            "Unique events": "hanze_unique_event_count",
+        }
     return {"Comparison status": "comparison_class"}
 
 
@@ -186,6 +199,9 @@ def prepare_tooltip_columns(activity: pd.DataFrame, display_mode: str) -> pd.Dat
         ).round(0)
     if "jrc_max_depth_cm" in tooltip_df.columns:
         tooltip_df["jrc_max_depth_cm"] = coerce_map_value(tooltip_df["jrc_max_depth_cm"]).round(1)
+    for column in ["hanze_row_count", "hanze_unique_event_count"]:
+        if column in tooltip_df.columns:
+            tooltip_df[column] = coerce_map_value(tooltip_df[column]).astype(int)
     if display_mode == "Comparison" and "comparison_class" in tooltip_df.columns:
         tooltip_df["comparison_label"] = tooltip_df["comparison_class"].map(
             {
@@ -241,6 +257,11 @@ def build_tooltip_config(display_mode: str) -> tuple[list[str], list[str]]:
                 "Max depth (cm)",
                 "Flooded area (m2)",
             ],
+        )
+    if display_mode == "HANZE":
+        return (
+            ["commune_name_current", "insee_com", "nuts3_code", "nuts3_name", "hanze_row_count", "hanze_unique_event_count", "hanze_flood_types", "hanze_flood_sources", "hanze_causes"],
+            ["Commune", "Current INSEE", "NUTS3", "NUTS3 name", "Active HANZE rows", "Unique HANZE events", "Flood types", "Flood sources", "Causes"],
         )
     return (
         [
@@ -429,10 +450,10 @@ def build_period_selector(years: list[int]):
 
 
 def main() -> None:
-    st.title("France Gaspar vs JRC Commune Activity")
+    st.title("France Flood Source Commune Activity")
     st.caption(
         "Visualize active French communes for a month, year, exact date, or custom period, "
-        "using Gaspar, JRC, or both sources on the same France map."
+        "using Gaspar, JRC, HANZE, or the Gaspar/JRC comparison on the same France map."
     )
 
     st.sidebar.header("Sources")
@@ -443,7 +464,7 @@ def main() -> None:
     )
     display_mode = st.sidebar.selectbox(
         "Display mode",
-        options=["Gaspar", "JRC", "Comparison"],
+        options=["Gaspar", "JRC", "HANZE", "Comparison"],
         index=2,
     )
 
@@ -462,6 +483,10 @@ def main() -> None:
     jrc_path = st.sidebar.text_input(
         "JRC France commune-event path",
         value=str(DEFAULT_JRC_EVENTS_PATH),
+    )
+    hanze_path = st.sidebar.text_input(
+        "HANZE transformed events path",
+        value=str(DEFAULT_HANZE_EVENTS_PATH),
     )
     lookup_path = st.sidebar.text_input(
         "France LAU / INSEE lookup path",
@@ -500,11 +525,19 @@ def main() -> None:
         with st.spinner("Loading JRC commune-event rows..."):
             jrc_rows, jrc_diagnostics = cached_prepare_jrc(jrc_path)
 
+    hanze_rows = None
+    hanze_diagnostics = None
+    if display_mode == "HANZE":
+        with st.spinner("Loading HANZE NUTS3 events and mapping them to communes..."):
+            hanze_rows, hanze_diagnostics = cached_prepare_hanze(hanze_path, lookup_path)
+
     date_frames: list[pd.DataFrame] = []
     if gaspar_rows is not None:
         date_frames.append(gaspar_rows[["activity_start_date", "activity_end_date"]])
     if jrc_rows is not None:
         date_frames.append(jrc_rows[["activity_start_date", "activity_end_date"]])
+    if hanze_rows is not None:
+        date_frames.append(hanze_rows[["activity_start_date", "activity_end_date"]])
     if not date_frames:
         st.error("No source rows were loaded.")
         st.stop()
@@ -548,6 +581,7 @@ def main() -> None:
     gaspar_active_all = None
     gaspar_active = None
     jrc_active = None
+    hanze_active = None
     activity = None
     filtered_row_tables: dict[str, pd.DataFrame] = {}
 
@@ -574,10 +608,22 @@ def main() -> None:
         )
         filtered_row_tables["JRC rows"] = jrc_active
 
+    if hanze_rows is not None:
+        hanze_active = filter_records_active_between(
+            hanze_rows,
+            start_col="activity_start_date",
+            end_col="activity_end_date",
+            period_start=selected_period.start_date,
+            period_end=selected_period.end_date,
+        )
+        filtered_row_tables["HANZE rows"] = hanze_active
+
     if display_mode == "Gaspar":
         activity = aggregate_gaspar_activity(gaspar_active)
     elif display_mode == "JRC":
         activity = aggregate_jrc_activity(jrc_active)
+    elif display_mode == "HANZE":
+        activity = aggregate_hanze_activity(hanze_active)
     else:
         activity = build_comparison_activity(gaspar_active, jrc_active)
         activity = activity[activity["comparison_class"].isin(["both", "gaspar_only", "jrc_only"])].copy()
@@ -621,6 +667,10 @@ def main() -> None:
             "Active JRC communes with depth",
             f"{int(activity['jrc_max_depth_cm'].fillna(0).gt(0).sum()) if not activity.empty else 0:,}",
         )
+    elif hanze_active is not None:
+        metric_cols[1].metric("Filtered HANZE rows", f"{len(hanze_active):,}")
+        metric_cols[2].metric("Active HANZE events", f"{hanze_active['hanze_event_id'].nunique():,}")
+        metric_cols[3].metric("Active NUTS3 regions", f"{hanze_active['nuts3_code'].nunique():,}")
     else:
         metric_cols[1].metric("Filtered rows", "0")
         metric_cols[2].metric("Source metric", "0")
@@ -678,6 +728,9 @@ def main() -> None:
         if jrc_diagnostics is not None:
             st.markdown("**JRC diagnostics**")
             st.json(jrc_diagnostics)
+        if hanze_diagnostics is not None:
+            st.markdown("**HANZE diagnostics**")
+            st.json(hanze_diagnostics)
         st.markdown("**Map inputs**")
         st.json(
             {
