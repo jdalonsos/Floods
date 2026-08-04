@@ -557,7 +557,7 @@ def extract_exact_native_pixels(
     preview: FloodPreview,
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
-    max_cells: int = 12000,
+    max_cells: Optional[int] = 12000,
 ) -> Optional[tuple[Affine, list[tuple[int, int, float]]]]:
     row_scale = preview.src_height / preview.coarse_shape[0]
     col_scale = preview.src_width / preview.coarse_shape[1]
@@ -584,7 +584,7 @@ def extract_exact_native_pixels(
                 cell_id = (abs_row, abs_col)
                 if cell_id in seen_cells:
                     continue
-                if len(seen_cells) >= max_cells:
+                if max_cells is not None and len(seen_cells) >= max_cells:
                     return None
                 seen_cells[cell_id] = float(data[row, col])
 
@@ -603,7 +603,7 @@ def add_pixel_polygons(
     cmap_name: str = "turbo",
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
-    max_cells: int = 12000,
+    max_cells: Optional[int] = 12000,
     stroke: bool = True,
 ) -> bool:
     extracted = extract_exact_native_pixels(
@@ -648,7 +648,7 @@ def build_strict_pixel_folium_map(
     tiles: str = "CartoDB positron",
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
-    max_cells: int = 20000,
+    max_cells: Optional[int] = None,
 ) -> folium.Map:
     """Render only exact native flood pixels, without approximation fallback."""
 
@@ -670,18 +670,20 @@ def build_strict_pixel_folium_map(
         stroke=False,
     )
     if not pixels_added:
+        if max_cells is None:
+            raise ValueError("Strict view not rendered: the raster has no valid flood pixels.")
         raise ValueError(
             "Strict view not rendered: the raster has no valid flood pixels or "
-            f"more than {max_cells:,} active native pixels. Increase max_cells "
-            "only if the browser can handle the resulting vector layer."
+            f"more than {max_cells:,} active native pixels."
         )
 
     flood_map.fit_bounds(preview.bounds_latlon)
+    cell_limit_label = "no cell limit" if max_cells is None else f"{max_cells:,} cell limit"
     caption = (
         f"<div style='position: fixed; bottom: 18px; left: 18px; z-index: 9999; "
         f"background: white; padding: 10px 12px; border: 1px solid #999; font-size: 12px;'>"
         f"<b>{preview.tif_path.name}</b><br>"
-        f"Strict native-pixel rendering: {max_cells:,} cell limit<br>"
+        f"Strict native-pixel rendering: {cell_limit_label}<br>"
         f"No preview-grid or raster-overlay fallback"
         f"</div>"
     )
