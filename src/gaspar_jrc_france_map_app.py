@@ -464,7 +464,8 @@ def main() -> None:
     )
     display_mode = st.sidebar.selectbox(
         "Display mode",
-        options=["Gaspar", "JRC", "HANZE", "Comparison"],
+        #options=["Gaspar", "JRC", "HANZE", "Comparison"],
+        options=["Gaspar", "JRC", "Comparison"],
         index=2,
     )
 
@@ -484,10 +485,10 @@ def main() -> None:
         "JRC France commune-event path",
         value=str(DEFAULT_JRC_EVENTS_PATH),
     )
-    hanze_path = st.sidebar.text_input(
-        "HANZE transformed events path",
-        value=str(DEFAULT_HANZE_EVENTS_PATH),
-    )
+    #hanze_path = st.sidebar.text_input(
+    #    "HANZE transformed events path",
+    #    value=str(DEFAULT_HANZE_EVENTS_PATH),
+    #)
     lookup_path = st.sidebar.text_input(
         "France LAU / INSEE lookup path",
         value=str(DEFAULT_FRANCE_LOOKUP_PATH),
@@ -527,8 +528,8 @@ def main() -> None:
 
     hanze_rows = None
     hanze_diagnostics = None
-    if display_mode == "HANZE":
-        with st.spinner("Loading HANZE NUTS3 events and mapping them to communes..."):
+    #if display_mode == "HANZE":
+    #    with st.spinner("Loading HANZE NUTS3 events and mapping them to communes..."):
             #hanze_rows, hanze_diagnostics = cached_prepare_hanze(hanze_path, lookup_path)
 
     date_frames: list[pd.DataFrame] = []
