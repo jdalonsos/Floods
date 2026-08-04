@@ -604,6 +604,7 @@ def add_pixel_polygons(
     threshold_cm: float = 0.0,
     mask_values: tuple[float, ...] = (9999,),
     max_cells: int = 12000,
+    stroke: bool = True,
 ) -> bool:
     extracted = extract_exact_native_pixels(
         preview,
@@ -630,14 +631,62 @@ def add_pixel_polygons(
 
         folium.Polygon(
             locations=polygon,
-            color="#111111",
-            weight=1,
+            color="#111111" if stroke else None,
+            weight=1 if stroke else 0,
+            stroke=stroke,
             fill=True,
             fill_color=color,
             fill_opacity=0.9,
             tooltip=f"Depth: {value:.1f} cm",
         ).add_to(flood_map)
     return True
+
+
+def build_strict_pixel_folium_map(
+    preview: FloodPreview,
+    cmap_name: str = "turbo",
+    tiles: str = "CartoDB positron",
+    threshold_cm: float = 0.0,
+    mask_values: tuple[float, ...] = (9999,),
+    max_cells: int = 20000,
+) -> folium.Map:
+    """Render only exact native flood pixels, without approximation fallback."""
+
+    lat_center = (preview.bounds_latlon[0][0] + preview.bounds_latlon[1][0]) / 2
+    lon_center = (preview.bounds_latlon[0][1] + preview.bounds_latlon[1][1]) / 2
+    flood_map = folium.Map(
+        location=[lat_center, lon_center],
+        zoom_start=9,
+        tiles=tiles,
+        prefer_canvas=True,
+    )
+    pixels_added = add_pixel_polygons(
+        flood_map,
+        preview,
+        cmap_name=cmap_name,
+        threshold_cm=threshold_cm,
+        mask_values=mask_values,
+        max_cells=max_cells,
+        stroke=False,
+    )
+    if not pixels_added:
+        raise ValueError(
+            "Strict view not rendered: the raster has no valid flood pixels or "
+            f"more than {max_cells:,} active native pixels. Increase max_cells "
+            "only if the browser can handle the resulting vector layer."
+        )
+
+    flood_map.fit_bounds(preview.bounds_latlon)
+    caption = (
+        f"<div style='position: fixed; bottom: 18px; left: 18px; z-index: 9999; "
+        f"background: white; padding: 10px 12px; border: 1px solid #999; font-size: 12px;'>"
+        f"<b>{preview.tif_path.name}</b><br>"
+        f"Strict native-pixel rendering: {max_cells:,} cell limit<br>"
+        f"No preview-grid or raster-overlay fallback"
+        f"</div>"
+    )
+    flood_map.get_root().html.add_child(folium.Element(caption))
+    return flood_map
 
 
 def add_preview_pixel_polygons(
