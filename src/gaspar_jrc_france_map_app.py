@@ -529,7 +529,7 @@ def main() -> None:
     hanze_diagnostics = None
     if display_mode == "HANZE":
         with st.spinner("Loading HANZE NUTS3 events and mapping them to communes..."):
-            hanze_rows, hanze_diagnostics = cached_prepare_hanze(hanze_path, lookup_path)
+            #hanze_rows, hanze_diagnostics = cached_prepare_hanze(hanze_path, lookup_path)
 
     date_frames: list[pd.DataFrame] = []
     if gaspar_rows is not None:
