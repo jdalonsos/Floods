@@ -10,6 +10,7 @@ import streamlit.components.v1 as components
 
 from flood_preview import (
     build_folium_map,
+    build_strict_pixel_folium_map,
     create_static_preview_figure,
     discover_flood_raster_files,
     preview_summary,
@@ -136,13 +137,18 @@ def main() -> None:
 
     map_mode = st.sidebar.radio(
         "Map rendering",
-        options=["auto", "pixels", "raster"],
+        options=["strict_pixels", "auto", "pixels", "raster"],
         format_func=lambda value: {
+            "strict_pixels": "Strict native pixels (no artifacts)",
             "auto": "Auto",
             "pixels": "Polygon pixels",
             "raster": "Raster overlay",
         }[value],
         index=0,
+        help=(
+            "Strict native pixels reads and draws the original TIFF cells and never "
+            "falls back to a downsampled preview or image overlay."
+        ),
     )
     tiles = st.sidebar.selectbox(
         "Basemap",
@@ -224,16 +230,30 @@ def main() -> None:
             "The map uses the same efficient two-stage logic as the notebook: "
             "coarse whole-raster scan first, then a detailed local crop."
         )
-        flood_map = build_folium_map(
-            preview,
-            cmap_name="turbo",
-            tiles=tiles,
-            mode=map_mode,
-            pixel_mode_max_cells=pixel_mode_max_cells,
-            threshold_cm=threshold_cm,
-            mask_values=(9999,),
-            exact_native_pixel_limit=exact_native_pixel_limit,
-        )
+        if map_mode == "strict_pixels":
+            st.info(
+                "Rendering exact native TIFF cells. This mode uses no resampled "
+                "preview grid and no raster-overlay fallback."
+            )
+            flood_map = build_strict_pixel_folium_map(
+                preview,
+                cmap_name="turbo",
+                tiles=tiles,
+                threshold_cm=threshold_cm,
+                mask_values=(9999,),
+                max_cells=None,
+            )
+        else:
+            flood_map = build_folium_map(
+                preview,
+                cmap_name="turbo",
+                tiles=tiles,
+                mode=map_mode,
+                pixel_mode_max_cells=pixel_mode_max_cells,
+                threshold_cm=threshold_cm,
+                mask_values=(9999,),
+                exact_native_pixel_limit=exact_native_pixel_limit,
+            )
         html = flood_map.get_root().render()
         st.download_button(
             "Download current map as HTML",
