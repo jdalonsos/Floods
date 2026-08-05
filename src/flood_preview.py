@@ -814,11 +814,11 @@ def build_direct_native_pixel_folium_map(
     densest_centers = center_array[inverse_bins == densest_bin_idx]
     initial_lat = float(np.median(densest_centers[:, 0]))
     initial_lon = float(np.median(densest_centers[:, 1]))
-    flood_map.get_root().script.add_child(
-        folium.Element(
-            f"{flood_map.get_name()}.setView([{initial_lat}, {initial_lon}], 12);"
-        )
-    )
+    # Folium reads these attributes when rendering the map constructor. Avoid a
+    # raw ``setView`` script here: root-level scripts can execute before Leaflet
+    # defines the map variable, which leaves the exported HTML completely blank.
+    flood_map.location = [initial_lat, initial_lon]
+    flood_map.options["zoom"] = 12
     folium.LayerControl(collapsed=False).add_to(flood_map)
     caption = (
         f"<div style='position: fixed; bottom: 18px; left: 18px; z-index: 9999; "

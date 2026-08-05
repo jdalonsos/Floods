@@ -78,8 +78,8 @@ class FloodPreviewModeTests(unittest.TestCase):
 
         self.assertEqual(html.count("L.polygon("), 2)
         self.assertIn("Flooded native pixels", html)
-        self.assertIn(".setView([", html)
-        self.assertIn("], 12);", html)
+        self.assertNotIn(".setView([", html)
+        self.assertIn('"zoom": 12', html)
         self.assertIn("Direct native-pixel rendering: 2 source cells", html)
         self.assertIn("Flood depth: 10.0 cm", html)
         self.assertIn("Native pixel: row 0, column 1", html)
