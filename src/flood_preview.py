@@ -833,6 +833,88 @@ def build_direct_native_pixel_folium_map(
     return flood_map
 
 
+def build_tiled_folium_map(
+    tile_url: str,
+    bounds_latlon: list[list[float]],
+    tiles: str = "CartoDB positron",
+    opacity: float = 0.9,
+) -> folium.Map:
+    """Build a lightweight Leaflet map backed by an on-demand raster tile URL."""
+
+    lat_center = (bounds_latlon[0][0] + bounds_latlon[1][0]) / 2
+    lon_center = (bounds_latlon[0][1] + bounds_latlon[1][1]) / 2
+    flood_map = folium.Map(
+        location=[lat_center, lon_center],
+        zoom_start=8,
+        tiles=tiles,
+        prefer_canvas=True,
+    )
+    folium.TileLayer(
+        tiles=tile_url,
+        attr="Original JRC GeoTIFF via localtileserver/rio-tiler",
+        name="Flood depth — nearest-neighbour tiles",
+        overlay=True,
+        control=True,
+        show=True,
+        opacity=opacity,
+        max_zoom=22,
+        max_native_zoom=22,
+        no_wrap=True,
+    ).add_to(flood_map)
+    folium.LayerControl(collapsed=False).add_to(flood_map)
+    flood_map.fit_bounds(bounds_latlon)
+    return flood_map
+
+
+def query_native_raster_pixel(
+    tif_path: str | Path,
+    latitude: float,
+    longitude: float,
+    threshold_cm: float = 0.0,
+    mask_values: tuple[float, ...] = (9999,),
+) -> dict[str, Any]:
+    """Return the exact source cell and value at a WGS84 click location."""
+
+    tif_path = Path(tif_path)
+    with rasterio.open(tif_path) as src:
+        if src.crs is None:
+            raise ValueError(f"Raster has no CRS: {tif_path}")
+
+        transformer = Transformer.from_crs(
+            "EPSG:4326",
+            src.crs.to_string(),
+            always_xy=True,
+        )
+        source_x, source_y = transformer.transform(longitude, latitude)
+        row, col = src.index(source_x, source_y)
+        inside = 0 <= row < src.height and 0 <= col < src.width
+        result: dict[str, Any] = {
+            "latitude": float(latitude),
+            "longitude": float(longitude),
+            "source_x": float(source_x),
+            "source_y": float(source_y),
+            "row": int(row),
+            "column": int(col),
+            "inside_raster": bool(inside),
+            "depth_cm": None,
+            "is_flooded": False,
+        }
+        if not inside:
+            return result
+
+        cell = src.read(1, window=Window(col, row, 1, 1), masked=True)
+        if np.ma.getmaskarray(cell)[0, 0]:
+            return result
+
+        value = float(cell.data[0, 0])
+        if not np.isfinite(value) or value in mask_values or value <= threshold_cm:
+            return result
+
+        result["depth_cm"] = value
+        result["is_flooded"] = True
+        return result
+
+
 def add_preview_pixel_polygons(
     flood_map: folium.Map,
     preview: FloodPreview,

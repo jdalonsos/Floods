@@ -74,12 +74,14 @@ The current dashboard logic now:
 
 1. finds the flood area with a coarse raster scan
 2. reads only a detailed crop of the source TIFF
-3. uses three rendering strategies depending on the event size and the selected mode
-4. keeps polygon-based rendering available for alignment-sensitive inspection
-5. uses raster overlay only as a fast approximate view
+3. serves large rasters as on-demand web-map tiles with nearest-neighbour sampling
+4. queries the original TIFF cell when the user clicks the map
+5. keeps polygon-based rendering available for small, alignment-sensitive inspections
+6. uses raster overlay only as a fast approximate view
 
 Those rendering strategies are:
 
+- scalable nearest-neighbour tiles for large events
 - exact native source pixels for sparse events
 - preview-grid polygon pixels for medium-size events
 - raster overlay for broad qualitative previews
@@ -129,13 +131,18 @@ The dashboard lets you:
 - browse official TIFF rasters by year
 - filter filenames
 - inspect one raster quickly without loading the whole file at full resolution
-- switch between `auto`, `Polygon pixels`, and `Raster overlay` rendering modes
+- switch between `Scalable tiled raster`, `Auto`, `Polygon pixels`, and `Raster overlay` modes
+- click a tiled raster and read the exact flood depth, source row, and source column
 
 Recommended interpretation of those modes:
 
-- `Polygon pixels` is the most spatially faithful mode
+- `Scalable tiled raster` is the default for large rasters. It loads only the tiles visible in the browser, uses nearest-neighbour sampling to avoid interpolated flood values, and resolves clicks against the original native TIFF cell
+- `Polygon pixels` is exact but should only be used for small events because one browser polygon is created per flood cell
 - `Raster overlay` is the fastest mode, but also the most approximate
-- `Auto` is the best default for routine browsing
+- `Auto` chooses between the legacy preview strategies
+
+The tile colors are a visualization. The value shown after a click is read directly
+from the original raster, so it remains the authoritative native-pixel depth.
 
 ## How to Run the France Commune Activity App
 

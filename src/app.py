@@ -7,13 +7,17 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+from localtileserver import TileClient
+from streamlit_folium import st_folium
 
 from flood_preview import (
     build_folium_map,
     build_strict_pixel_folium_map,
+    build_tiled_folium_map,
     create_static_preview_figure,
     discover_flood_raster_files,
     preview_summary,
+    query_native_raster_pixel,
     read_flood_preview,
 )
 
@@ -29,8 +33,8 @@ PREVIEW_CACHE_VERSION = "preview-polygon-fallback-v3"
 st.set_page_config(page_title="Flood TIFF Explorer", layout="wide")
 st.title("Flood TIFF Explorer")
 st.caption(
-    "Browse official flood rasters by year, then render an efficient preview "
-    "without reading the full TIFF at native resolution."
+    "Browse official flood rasters with scalable nearest-neighbour tiles, exact "
+    "native-cell depth queries, or small-raster polygon views."
 )
 
 
@@ -60,6 +64,11 @@ def load_preview(
         source_padding_pixels=source_padding_pixels,
         upper_quantile=upper_quantile,
     )
+
+
+@st.cache_resource(show_spinner=False, max_entries=4)
+def load_tile_client(tif_path: str) -> TileClient:
+    return TileClient(tif_path)
 
 
 def choose_root() -> Path:
@@ -137,8 +146,9 @@ def main() -> None:
 
     map_mode = st.sidebar.radio(
         "Map rendering",
-        options=["strict_pixels", "auto", "pixels", "raster"],
+        options=["tiled", "strict_pixels", "auto", "pixels", "raster"],
         format_func=lambda value: {
+            "tiled": "Scalable tiled raster + exact click depth",
             "strict_pixels": "Strict native pixels (no artifacts)",
             "auto": "Auto",
             "pixels": "Polygon pixels",
@@ -146,8 +156,9 @@ def main() -> None:
         }[value],
         index=0,
         help=(
-            "Strict native pixels reads and draws the original TIFF cells and never "
-            "falls back to a downsampled preview or image overlay."
+            "Tiled mode loads only visible nearest-neighbour tiles and queries the "
+            "original TIFF cell when you click. Strict pixels draws every active "
+            "cell as a polygon and is only practical for small rasters."
         ),
     )
     tiles = st.sidebar.selectbox(
@@ -180,6 +191,7 @@ def main() -> None:
             12000,
             1000,
         )
+        tile_opacity = st.slider("Tiled flood opacity", 0.25, 1.0, 0.90, 0.05)
 
     selected_row = year_df.loc[year_df["path"] == selected_path].iloc[0].to_dict()
 
@@ -226,24 +238,94 @@ def main() -> None:
     tabs = st.tabs(["Interactive map", "Static preview", "Metadata", "Year inventory"])
 
     with tabs[0]:
-        st.write(
-            "The map uses the same efficient two-stage logic as the notebook: "
-            "coarse whole-raster scan first, then a detailed local crop."
-        )
-        if map_mode == "strict_pixels":
+        if map_mode == "tiled":
+            st.write(
+                "The map requests only visible tiles. Both source reads and web-map "
+                "reprojection use nearest-neighbour resampling. Click anywhere to "
+                "query the exact original TIFF row, column, and flood depth."
+            )
+            with st.spinner("Starting local raster tile service..."):
+                tile_client = load_tile_client(selected_path)
+                tile_url = tile_client.get_tile_url(
+                    indexes=1,
+                    colormap="turbo",
+                    vmin=preview.vmin,
+                    vmax=preview.vmax,
+                    client=False,
+                )
+            flood_map = build_tiled_folium_map(
+                tile_url=tile_url,
+                bounds_latlon=preview.full_bounds_latlon,
+                tiles=tiles,
+                opacity=tile_opacity,
+            )
+            map_state = st_folium(
+                flood_map,
+                key=f"tiled-raster-{selected_row['event_id']}",
+                height=780,
+                use_container_width=True,
+                returned_objects=["last_clicked", "zoom", "bounds"],
+                pixelated=True,
+            )
+            last_clicked = map_state.get("last_clicked") if map_state else None
+            if last_clicked:
+                pixel = query_native_raster_pixel(
+                    selected_path,
+                    latitude=float(last_clicked["lat"]),
+                    longitude=float(last_clicked["lng"]),
+                    threshold_cm=threshold_cm,
+                    mask_values=(9999,),
+                )
+                if pixel["is_flooded"]:
+                    st.success(
+                        f"Exact native depth: {pixel['depth_cm']:.1f} cm — "
+                        f"source row {pixel['row']:,}, column {pixel['column']:,}"
+                    )
+                elif pixel["inside_raster"]:
+                    st.info(
+                        "The clicked native TIFF cell is nodata or does not exceed "
+                        f"the {threshold_cm:g} cm flood threshold."
+                    )
+                else:
+                    st.info("The clicked location is outside the source raster.")
+                with st.expander("Exact clicked-cell details"):
+                    st.json(pixel)
+            st.caption(
+                "Tiled maps remain lightweight because pixel data is requested on "
+                "demand. A standalone HTML download would not contain the tile "
+                "service or exact server-side click query."
+            )
+        elif map_mode == "strict_pixels":
+            st.write(
+                "Strict mode reads and draws every active native TIFF cell. Use it "
+                "only for small rasters."
+            )
             st.info(
                 "Rendering exact native TIFF cells. This mode uses no resampled "
                 "preview grid and no raster-overlay fallback."
             )
-            flood_map = build_strict_pixel_folium_map(
-                preview,
-                cmap_name="turbo",
-                tiles=tiles,
-                threshold_cm=threshold_cm,
-                mask_values=(9999,),
-                max_cells=None,
-            )
+            try:
+                flood_map = build_strict_pixel_folium_map(
+                    preview,
+                    cmap_name="turbo",
+                    tiles=tiles,
+                    threshold_cm=threshold_cm,
+                    mask_values=(9999,),
+                    max_cells=exact_native_pixel_limit,
+                )
+            except ValueError as exc:
+                st.error(str(exc))
+                st.info(
+                    "Switch to 'Scalable tiled raster + exact click depth' for "
+                    "large rasters. The tile view does not create browser geometry "
+                    "for every source cell."
+                )
+                st.stop()
         else:
+            st.write(
+                "The map uses the efficient two-stage preview logic: coarse scan, "
+                "then a detailed local crop."
+            )
             flood_map = build_folium_map(
                 preview,
                 cmap_name="turbo",
@@ -254,14 +336,15 @@ def main() -> None:
                 mask_values=(9999,),
                 exact_native_pixel_limit=exact_native_pixel_limit,
             )
-        html = flood_map.get_root().render()
-        st.download_button(
-            "Download current map as HTML",
-            data=html.encode("utf-8"),
-            file_name=f"{Path(selected_path).stem}_preview.html",
-            mime="text/html",
-        )
-        components.html(html, height=780, scrolling=False)
+        if map_mode != "tiled":
+            html = flood_map.get_root().render()
+            st.download_button(
+                "Download current map as HTML",
+                data=html.encode("utf-8"),
+                file_name=f"{Path(selected_path).stem}_preview.html",
+                mime="text/html",
+            )
+            components.html(html, height=780, scrolling=False)
 
     with tabs[1]:
         fig = create_static_preview_figure(preview, cmap_name="turbo")

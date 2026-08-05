@@ -24,7 +24,9 @@ from flood_preview import (
     FloodPreview,
     build_direct_native_pixel_folium_map,
     build_folium_map,
+    build_tiled_folium_map,
     estimate_preview_polygon_count,
+    query_native_raster_pixel,
 )
 
 
@@ -75,6 +77,11 @@ class FloodPreviewModeTests(unittest.TestCase):
                 )
                 flood_map = build_direct_native_pixel_folium_map(tif_path)
                 html = flood_map.get_root().render()
+                clicked = query_native_raster_pixel(
+                    tif_path,
+                    latitude=5_999_990,
+                    longitude=200_030,
+                )
 
         self.assertEqual(html.count("L.polygon("), 2)
         self.assertIn("Flooded native pixels", html)
@@ -83,6 +90,21 @@ class FloodPreviewModeTests(unittest.TestCase):
         self.assertIn("Direct native-pixel rendering: 2 source cells", html)
         self.assertIn("Flood depth: 10.0 cm", html)
         self.assertIn("Native pixel: row 0, column 1", html)
+        self.assertTrue(clicked["is_flooded"])
+        self.assertEqual(clicked["depth_cm"], 10.0)
+        self.assertEqual((clicked["row"], clicked["column"]), (0, 1))
+
+    def test_tiled_map_uses_lightweight_tile_layer(self) -> None:
+        flood_map = build_tiled_folium_map(
+            tile_url="http://127.0.0.1:9999/api/tiles/{z}/{x}/{y}.png",
+            bounds_latlon=[[48.0, 4.0], [49.0, 5.0]],
+            opacity=0.85,
+        )
+        html = flood_map.get_root().render()
+
+        self.assertIn("api/tiles/{z}/{x}/{y}.png", html)
+        self.assertIn("nearest-neighbour tiles", html)
+        self.assertIn('"opacity": 0.85', html)
 
     def test_estimate_preview_polygon_count_uses_color_runs(self) -> None:
         values = np.ma.masked_array(
