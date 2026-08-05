@@ -765,6 +765,7 @@ def build_direct_native_pixel_folium_map(
     max_lat = float("-inf")
     min_lon = float("inf")
     max_lon = float("-inf")
+    native_centers: list[tuple[float, float]] = []
     for row, col, value in native_pixels:
         corners = (
             source_transform * (col, row),
@@ -781,6 +782,9 @@ def build_direct_native_pixel_folium_map(
         max_lat = max(max_lat, *lats)
         min_lon = min(min_lon, *lons)
         max_lon = max(max_lon, *lons)
+        native_centers.append(
+            (float(sum(lats) / len(lats)), float(sum(lons) / len(lons)))
+        )
         folium.Polygon(
             locations=list(zip(lats, lons)),
             stroke=False,
@@ -788,18 +792,40 @@ def build_direct_native_pixel_folium_map(
             fill_color=mpl.colors.to_hex(cmap(norm(value))),
             fill_opacity=0.9,
             tooltip=f"Depth: {value:.1f} cm",
+            popup=folium.Popup(
+                f"Flood depth: {value:.1f} cm<br>Native pixel: row {row}, column {col}",
+                max_width=280,
+            ),
         ).add_to(flood_layer)
 
     if not np.isfinite([min_lat, max_lat, min_lon, max_lon]).all():
         raise ValueError("No native pixels could be transformed to EPSG:4326.")
 
-    flood_map.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
+    center_array = np.asarray(native_centers, dtype=np.float64)
+    cluster_resolution_deg = 0.05
+    cluster_bins = np.floor(center_array / cluster_resolution_deg).astype(np.int64)
+    unique_bins, inverse_bins, bin_counts = np.unique(
+        cluster_bins,
+        axis=0,
+        return_inverse=True,
+        return_counts=True,
+    )
+    densest_bin_idx = int(np.argmax(bin_counts))
+    densest_centers = center_array[inverse_bins == densest_bin_idx]
+    initial_lat = float(np.median(densest_centers[:, 0]))
+    initial_lon = float(np.median(densest_centers[:, 1]))
+    flood_map.get_root().script.add_child(
+        folium.Element(
+            f"{flood_map.get_name()}.setView([{initial_lat}, {initial_lon}], 12);"
+        )
+    )
     folium.LayerControl(collapsed=False).add_to(flood_map)
     caption = (
         f"<div style='position: fixed; bottom: 18px; left: 18px; z-index: 9999; "
         f"background: white; padding: 10px 12px; border: 1px solid #999; font-size: 12px;'>"
         f"<b>{tif_path.name}</b><br>"
         f"Direct native-pixel rendering: {len(native_pixels):,} source cells<br>"
+        f"Initial view: densest native-pixel cluster at zoom 12<br>"
         f"No preview, downsampling, image overlay, or fallback"
         f"</div>"
     )

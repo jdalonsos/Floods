@@ -51,7 +51,7 @@ def make_preview(values: np.ma.MaskedArray) -> FloodPreview:
 
 
 class FloodPreviewModeTests(unittest.TestCase):
-    def test_direct_native_map_exports_visible_pixels_and_fitted_bounds(self) -> None:
+    def test_direct_native_map_exports_visible_pixels_and_cluster_view(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             tif_path = Path(temp_dir) / "projected_flood.tif"
             values = np.array([[0, 10], [20, 9999]], dtype=np.uint16)
@@ -78,8 +78,11 @@ class FloodPreviewModeTests(unittest.TestCase):
 
         self.assertEqual(html.count("L.polygon("), 2)
         self.assertIn("Flooded native pixels", html)
-        self.assertIn("fitBounds(", html)
+        self.assertIn(".setView([", html)
+        self.assertIn("], 12);", html)
         self.assertIn("Direct native-pixel rendering: 2 source cells", html)
+        self.assertIn("Flood depth: 10.0 cm", html)
+        self.assertIn("Native pixel: row 0, column 1", html)
 
     def test_estimate_preview_polygon_count_uses_color_runs(self) -> None:
         values = np.ma.masked_array(
