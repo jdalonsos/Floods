@@ -691,6 +691,122 @@ def build_strict_pixel_folium_map(
     return flood_map
 
 
+def build_direct_native_pixel_folium_map(
+    tif_path: str | Path,
+    cmap_name: str = "turbo",
+    tiles: str = "CartoDB positron",
+    threshold_cm: float = 0.0,
+    mask_values: tuple[float, ...] = (9999,),
+) -> folium.Map:
+    """Read one TIFF directly and render every valid native cell as a polygon.
+
+    Unlike the efficient preview workflow, this function performs no coarse scan,
+    crop, downsampling, or fallback. Raster blocks are read at source resolution.
+    Map bounds are calculated from the transformed polygon vertices themselves,
+    which avoids incorrect framing for nonlinear projected raster extents.
+    """
+
+    tif_path = Path(tif_path)
+    native_pixels: list[tuple[int, int, float]] = []
+
+    with rasterio.open(tif_path) as src:
+        if src.crs is None:
+            raise ValueError(f"Raster has no CRS: {tif_path}")
+
+        source_transform = src.transform
+        source_crs = src.crs
+        for _, window in src.block_windows(1):
+            block = src.read(1, window=window, masked=True)
+            values = np.asarray(block.data)
+            invalid = np.ma.getmaskarray(block).copy()
+            invalid |= ~np.isfinite(values)
+            invalid |= values <= threshold_cm
+            for mask_value in mask_values:
+                invalid |= values == mask_value
+
+            rows, cols = np.where(~invalid)
+            native_pixels.extend(
+                (
+                    int(window.row_off + row),
+                    int(window.col_off + col),
+                    float(values[row, col]),
+                )
+                for row, col in zip(rows, cols)
+            )
+
+    if not native_pixels:
+        raise ValueError("No valid flooded native pixels were found.")
+
+    depths = np.fromiter((pixel[2] for pixel in native_pixels), dtype=np.float64)
+    vmin = float(depths.min())
+    vmax = float(np.quantile(depths, 0.995))
+    if vmax <= vmin:
+        vmax = float(depths.max())
+    if vmax <= vmin:
+        vmax = vmin + 1.0
+
+    transformer = Transformer.from_crs(source_crs.to_string(), "EPSG:4326", always_xy=True)
+    cmap = _get_colormap(cmap_name)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax, clip=True)
+    flood_map = folium.Map(
+        location=[0.0, 0.0],
+        zoom_start=2,
+        tiles=tiles,
+        prefer_canvas=True,
+    )
+    flood_layer = folium.FeatureGroup(
+        name="Flooded native pixels",
+        overlay=True,
+        control=True,
+        show=True,
+    ).add_to(flood_map)
+
+    min_lat = float("inf")
+    max_lat = float("-inf")
+    min_lon = float("inf")
+    max_lon = float("-inf")
+    for row, col, value in native_pixels:
+        corners = (
+            source_transform * (col, row),
+            source_transform * (col + 1, row),
+            source_transform * (col + 1, row + 1),
+            source_transform * (col, row + 1),
+        )
+        xs, ys = zip(*corners)
+        lons, lats = transformer.transform(xs, ys)
+        if not all(np.isfinite(lons)) or not all(np.isfinite(lats)):
+            continue
+
+        min_lat = min(min_lat, *lats)
+        max_lat = max(max_lat, *lats)
+        min_lon = min(min_lon, *lons)
+        max_lon = max(max_lon, *lons)
+        folium.Polygon(
+            locations=list(zip(lats, lons)),
+            stroke=False,
+            fill=True,
+            fill_color=mpl.colors.to_hex(cmap(norm(value))),
+            fill_opacity=0.9,
+            tooltip=f"Depth: {value:.1f} cm",
+        ).add_to(flood_layer)
+
+    if not np.isfinite([min_lat, max_lat, min_lon, max_lon]).all():
+        raise ValueError("No native pixels could be transformed to EPSG:4326.")
+
+    flood_map.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
+    folium.LayerControl(collapsed=False).add_to(flood_map)
+    caption = (
+        f"<div style='position: fixed; bottom: 18px; left: 18px; z-index: 9999; "
+        f"background: white; padding: 10px 12px; border: 1px solid #999; font-size: 12px;'>"
+        f"<b>{tif_path.name}</b><br>"
+        f"Direct native-pixel rendering: {len(native_pixels):,} source cells<br>"
+        f"No preview, downsampling, image overlay, or fallback"
+        f"</div>"
+    )
+    flood_map.get_root().html.add_child(folium.Element(caption))
+    return flood_map
+
+
 def add_preview_pixel_polygons(
     flood_map: folium.Map,
     preview: FloodPreview,

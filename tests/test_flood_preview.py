@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -15,8 +16,16 @@ if str(SRC_ROOT) not in sys.path:
 
 from affine import Affine
 import numpy as np
+from pyproj import CRS as PyprojCRS
+import rasterio
+from rasterio.transform import from_origin
 
-from flood_preview import FloodPreview, build_folium_map, estimate_preview_polygon_count
+from flood_preview import (
+    FloodPreview,
+    build_direct_native_pixel_folium_map,
+    build_folium_map,
+    estimate_preview_polygon_count,
+)
 
 
 def make_preview(values: np.ma.MaskedArray) -> FloodPreview:
@@ -42,6 +51,36 @@ def make_preview(values: np.ma.MaskedArray) -> FloodPreview:
 
 
 class FloodPreviewModeTests(unittest.TestCase):
+    def test_direct_native_map_exports_visible_pixels_and_fitted_bounds(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tif_path = Path(temp_dir) / "projected_flood.tif"
+            values = np.array([[0, 10], [20, 9999]], dtype=np.uint16)
+            with rasterio.open(
+                    tif_path,
+                    "w",
+                    driver="GTiff",
+                    width=2,
+                    height=2,
+                    count=1,
+                    dtype=values.dtype,
+                    crs=PyprojCRS.from_epsg(3857).to_wkt(),
+                    transform=from_origin(200000, 6000000, 20, 20),
+                    nodata=0,
+            ) as dst:
+                dst.write(values, 1)
+
+            with patch("flood_preview.Transformer.from_crs") as transformer_factory:
+                transformer_factory.return_value.transform.side_effect = (
+                    lambda xs, ys: (xs, ys)
+                )
+                flood_map = build_direct_native_pixel_folium_map(tif_path)
+                html = flood_map.get_root().render()
+
+        self.assertEqual(html.count("L.polygon("), 2)
+        self.assertIn("Flooded native pixels", html)
+        self.assertIn("fitBounds(", html)
+        self.assertIn("Direct native-pixel rendering: 2 source cells", html)
+
     def test_estimate_preview_polygon_count_uses_color_runs(self) -> None:
         values = np.ma.masked_array(
             np.array(
