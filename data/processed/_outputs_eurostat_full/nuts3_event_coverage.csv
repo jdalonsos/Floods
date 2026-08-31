@@ -1,0 +1,1255 @@
+﻿country_code,country_name,nuts1_code,nuts1_name,nuts2_code,nuts2_name,nuts3_code,nuts3_name,lookup_lau_count,lookup_population_2024,n_event_ids_hit,event_lau_rows,event_unique_lau_hit,total_flooded_pixels,total_flooded_area_m2,first_event_start_date,last_event_end_date,has_flood_events
+AL,Shqipëria,AL0,Shqipëria,AL01,Veri,AL011,Dibër,4,0.0,9.0,11.0,3.0,3809.0,1523600.0,2016-11-07,2024-12-30,True
+AL,Shqipëria,AL0,Shqipëria,AL01,Veri,AL012,Durrës,3,0.0,25.0,40.0,3.0,143721.0,57488400.0,2015-03-09,2024-12-30,True
+AL,Shqipëria,AL0,Shqipëria,AL01,Veri,AL013,Kukës,3,0.0,16.0,37.0,3.0,19135.0,7654000.0,2014-12-29,2024-03-25,True
+AL,Shqipëria,AL0,Shqipëria,AL01,Veri,AL014,Lezhë,3,0.0,25.0,46.0,3.0,138307.0,55322800.0,2015-03-09,2024-12-30,True
+AL,Shqipëria,AL0,Shqipëria,AL01,Veri,AL015,Shkodër,5,0.0,19.0,40.0,3.0,270713.0,108285200.0,2015-03-09,2024-12-30,True
+AL,Shqipëria,AL0,Shqipëria,AL02,Qender,AL021,Elbasan,7,0.0,8.0,9.0,4.0,6646.0,2658400.0,2016-11-07,2024-11-18,True
+AL,Shqipëria,AL0,Shqipëria,AL02,Qender,AL022,Tiranë,5,0.0,21.0,29.0,4.0,17510.0,7004000.0,2015-03-09,2024-12-30,True
+AL,Shqipëria,AL0,Shqipëria,AL03,Jug,AL031,Berat,5,0.0,9.0,12.0,4.0,2960.0,1184000.0,2015-10-12,2024-11-18,True
+AL,Shqipëria,AL0,Shqipëria,AL03,Jug,AL032,Fier,6,0.0,23.0,60.0,6.0,326806.0,130722400.0,2015-03-09,2024-12-16,True
+AL,Shqipëria,AL0,Shqipëria,AL03,Jug,AL033,Gjirokastër,7,0.0,9.0,20.0,4.0,8610.0,3444000.0,2015-03-09,2021-02-15,True
+AL,Shqipëria,AL0,Shqipëria,AL03,Jug,AL034,Korcë,6,0.0,6.0,8.0,3.0,20228.0,8091200.0,2015-03-09,2024-11-18,True
+AL,Shqipëria,AL0,Shqipëria,AL03,Jug,AL035,Vlorë,7,0.0,17.0,29.0,6.0,41203.0,16481200.0,2015-03-09,2024-12-16,True
+AT,Österreich,AT1,Ostösterreich,AT11,Burgenland,AT111,Mittelburgenland,28,37807.0,4.0,20.0,13.0,4885.0,1954000.0,2017-01-16,2024-07-01,True
+AT,Österreich,AT1,Ostösterreich,AT11,Burgenland,AT112,Nordburgenland,71,165658.0,34.0,227.0,53.0,542113.0,216845200.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT11,Burgenland,AT113,Südburgenland,72,98486.0,5.0,21.0,14.0,7196.0,2878400.0,2018-12-31,2024-07-01,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT121,Mostviertel-Eisenwurzen,93,250778.0,3.0,26.0,20.0,12215.0,4886000.0,2024-03-25,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT122,Niederösterreich-Süd,102,267289.0,6.0,15.0,12.0,6059.0,2423600.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT123,Sankt Pölten,40,161898.0,3.0,36.0,24.0,14306.0,5722400.0,2024-03-25,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT124,Waldviertel,111,215838.0,4.0,35.0,27.0,18659.0,7463600.0,2023-06-26,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT125,Weinviertel,61,127496.0,14.0,110.0,57.0,252199.0,100879600.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT126,Wiener Umland/Nordteil,91,344897.0,27.0,169.0,67.0,193604.0,77441600.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT12,Niederösterreich,AT127,Wiener Umland/Südteil,75,355527.0,14.0,85.0,43.0,54327.0,21730800.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT1,Ostösterreich,AT13,Wien,AT130,Wien,1,2005760.0,7.0,7.0,1.0,3401.0,1360400.0,2014-12-29,2024-11-18,True
+AT,Österreich,AT2,Südösterreich,AT21,Kärnten,AT211,Klagenfurt-Villach,40,297728.0,8.0,18.0,14.0,4398.0,1759200.0,2016-02-22,2024-03-18,True
+AT,Österreich,AT2,Südösterreich,AT21,Kärnten,AT212,Oberkärnten,50,123773.0,11.0,28.0,14.0,68098.0,27239200.0,2016-02-22,2024-03-25,True
+AT,Österreich,AT2,Südösterreich,AT21,Kärnten,AT213,Unterkärnten,42,148243.0,8.0,17.0,12.0,6232.0,2492800.0,2016-02-22,2023-06-05,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT221,Graz,37,466471.0,3.0,3.0,3.0,395.0,158000.0,2015-02-02,2021-05-31,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT222,Liezen,29,79678.0,8.0,19.0,11.0,8259.0,3303600.0,2016-01-25,2024-11-18,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT223,Östliche Obersteiermark,35,157257.0,1.0,3.0,3.0,197.0,78800.0,2020-11-30,2020-12-21,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT224,Oststeiermark,92,267565.0,6.0,10.0,6.0,1414.0,565600.0,2015-02-02,2024-05-27,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT225,West- und Südsteiermark,59,200188.0,2.0,7.0,7.0,846.0,338400.0,2015-02-02,2017-05-22,True
+AT,Österreich,AT2,Südösterreich,AT22,Steiermark,AT226,Westliche Obersteiermark,34,98642.0,5.0,27.0,17.0,16205.0,6482000.0,2019-11-04,2024-02-05,True
+AT,Österreich,AT3,Westösterreich,AT31,Oberösterreich,AT311,Innviertel,145,298577.0,1.0,3.0,3.0,264.0,105600.0,2024-09-09,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT31,Oberösterreich,AT312,Linz-Wels,78,613698.0,4.0,53.0,26.0,17812.0,7124800.0,2023-11-27,2024-07-01,True
+AT,Österreich,AT3,Westösterreich,AT31,Oberösterreich,AT313,Mühlviertel,99,214741.0,3.0,17.0,11.0,6783.0,2713200.0,2024-03-25,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT31,Oberösterreich,AT314,Steyr-Kirchdorf,44,158566.0,4.0,10.0,6.0,1512.0,604800.0,2023-01-30,2024-07-01,True
+AT,Österreich,AT3,Westösterreich,AT31,Oberösterreich,AT315,Traunviertel,72,244767.0,4.0,5.0,3.0,601.0,240400.0,2021-02-15,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT32,Salzburg,AT321,Lungau,15,20483.0,3.0,15.0,9.0,10682.0,4272800.0,2021-02-15,2024-03-18,True
+AT,Österreich,AT3,Westösterreich,AT32,Salzburg,AT322,Pinzgau-Pongau,53,173325.0,8.0,53.0,31.0,47784.0,19113600.0,2016-01-25,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT32,Salzburg,AT323,Salzburg und Umgebung,51,377671.0,2.0,2.0,1.0,306.0,122400.0,2021-02-15,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT33,Tirol,AT331,Außerfern,37,33859.0,3.0,17.0,17.0,1839.0,735600.0,2021-02-15,2024-02-05,True
+AT,Österreich,AT3,Westösterreich,AT33,Tirol,AT332,Innsbruck,64,318309.0,1.0,2.0,2.0,367.0,146800.0,2021-02-15,2021-03-15,True
+AT,Österreich,AT3,Westösterreich,AT33,Tirol,AT333,Osttirol,33,48841.0,4.0,10.0,7.0,4501.0,1800400.0,2020-02-10,2024-03-18,True
+AT,Österreich,AT3,Westösterreich,AT33,Tirol,AT334,Tiroler Oberland,54,107727.0,7.0,16.0,11.0,7526.0,3010400.0,2018-02-26,2024-07-01,True
+AT,Österreich,AT3,Westösterreich,AT33,Tirol,AT335,Tiroler Unterland,89,267234.0,7.0,29.0,19.0,19251.0,7700400.0,2016-01-25,2024-11-18,True
+AT,Österreich,AT3,Westösterreich,AT34,Vorarlberg,AT341,Bludenz-Bregenzer Wald,48,95016.0,2.0,2.0,2.0,1301.0,520400.0,2015-01-05,2024-05-27,True
+AT,Österreich,AT3,Westösterreich,AT34,Vorarlberg,AT342,Rheintal-Bodenseegebiet,48,314957.0,2.0,4.0,4.0,255.0,102000.0,2018-10-15,2024-07-01,True
+BE,Belgique/België,BE1,Région de Bruxelles-Capitale/Brussels Hoofdstedelijk Gewest,BE10,Région de Bruxelles-Capitale/ Brussels Hoofdstedelijk Gewest,BE100,Arr. de Bruxelles-Capitale/Arr. Brussel-Hoofdstad,19,1249597.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE2,Vlaams Gewest,BE21,Prov. Antwerpen,BE211,Arr. Antwerpen,30,1087249.0,66.0,127.0,12.0,66638.0,26655200.0,2014-12-29,2024-12-02,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE21,Prov. Antwerpen,BE212,Arr. Mechelen,12,359299.0,23.0,62.0,8.0,24934.0,9973600.0,2015-01-12,2024-02-26,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE21,Prov. Antwerpen,BE213,Arr. Turnhout,27,479974.0,45.0,127.0,24.0,78512.0,31404800.0,2015-10-26,2024-12-02,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE22,Prov. Limburg (BE),BE223,Arr. Tongeren,13,210301.0,12.0,26.0,7.0,7038.0,2815200.0,2015-12-28,2024-05-27,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE22,Prov. Limburg (BE),BE224,Arr. Hasselt,17,431328.0,14.0,48.0,10.0,64647.0,25858800.0,2015-01-12,2024-12-02,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE22,Prov. Limburg (BE),BE225,Arr. Maaseik,12,258469.0,17.0,75.0,11.0,39693.0,15877200.0,2015-01-12,2024-12-02,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE231,Arr. Aalst,10,304838.0,10.0,15.0,3.0,4009.0,1603600.0,2015-12-28,2024-02-26,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE232,Arr. Dendermonde,10,207562.0,19.0,48.0,8.0,11506.0,4602400.0,2015-10-26,2024-04-01,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE233,Arr. Eeklo,6,89175.0,26.0,38.0,5.0,10975.0,4390000.0,2016-11-14,2024-09-23,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE234,Arr. Gent,17,578015.0,21.0,70.0,14.0,25658.0,10263200.0,2015-10-26,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE235,Arr. Oudenaarde,10,128081.0,11.0,23.0,5.0,4218.0,1687200.0,2015-12-28,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE23,Prov. Oost-Vlaanderen,BE236,Arr. Sint-Niklaas,7,264331.0,52.0,82.0,7.0,82660.0,33064000.0,2014-12-29,2024-11-11,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE24,Prov. Vlaams-Brabant,BE241,Arr. Halle-Vilvoorde,35,669330.0,6.0,15.0,8.0,1502.0,600800.0,2020-02-10,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE24,Prov. Vlaams-Brabant,BE242,Arr. Leuven,30,527443.0,22.0,60.0,11.0,24434.0,9773600.0,2015-12-28,2024-12-02,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE251,Arr. Brugge,10,286616.0,57.0,135.0,10.0,90045.0,36018000.0,2015-03-09,2024-11-11,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE252,Arr. Diksmuide,5,52550.0,30.0,111.0,5.0,755218.0,302087200.0,2015-01-12,2024-04-01,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE253,Arr. Ieper,8,108129.0,30.0,80.0,5.0,126651.0,50660400.0,2015-01-12,2024-04-01,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE254,Arr. Kortrijk,12,302332.0,8.0,8.0,1.0,4470.0,1788000.0,2018-01-01,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE255,Arr. Oostende,7,160032.0,13.0,26.0,7.0,8336.0,3334400.0,2016-02-08,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE256,Arr. Roeselare,8,159509.0,11.0,22.0,7.0,7122.0,2848800.0,2016-12-26,2024-02-05,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE257,Arr. Tielt,9,95620.0,22.0,64.0,9.0,22729.0,9091600.0,2016-11-14,2024-09-23,True
+BE,Belgique/België,BE2,Vlaams Gewest,BE25,Prov. West-Vlaanderen,BE258,Arr. Veurne,5,61587.0,32.0,59.0,5.0,133885.0,53554000.0,2015-01-12,2024-04-01,True
+BE,Belgique/België,BE3,Région wallonne,BE31,Prov. Brabant wallon,BE310,Arr. Nivelles,27,414130.0,4.0,4.0,3.0,662.0,264800.0,2018-01-01,2024-05-27,True
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE323,Arr. Mons,13,260855.0,3.0,4.0,3.0,358.0,143200.0,2018-01-01,2021-02-15,True
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE328,Arr. Tournai-Mouscron,12,225839.0,6.0,7.0,2.0,1421.0,568400.0,2020-02-10,2024-02-05,True
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE329,Arr. La Louvière,4,142019.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32A,Arr. Ath,11,130448.0,7.0,7.0,4.0,929.0,371600.0,2020-12-28,2024-11-11,True
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32B,Arr. Charleroi,12,399742.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32C,Arr. Soignies,6,108487.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE32,Prov. Hainaut,BE32D,Arr. Thuin,11,92684.0,3.0,3.0,2.0,414.0,165600.0,2019-12-30,2021-02-15,True
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE331,Arr. Huy,17,115830.0,5.0,8.0,7.0,694.0,277600.0,2016-06-06,2024-05-27,True
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE332,Arr. Liège,24,628381.0,3.0,7.0,6.0,550.0,220000.0,2021-07-12,2024-05-27,True
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE334,Arr. Waremme,14,84071.0,8.0,19.0,8.0,3783.0,1513200.0,2016-06-06,2024-05-27,True
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE335,Arr. Verviers — communes francophones,20,211277.0,1.0,2.0,2.0,215.0,86000.0,2021-07-12,2021-08-02,True
+BE,Belgique/België,BE3,Région wallonne,BE33,Prov. Liège,BE336,Bezirk Verviers — Deutschsprachige Gemeinschaft,9,79479.0,0.0,0.0,0.0,0.0,0.0,,,False
+BE,Belgique/België,BE3,Région wallonne,BE34,Prov. Luxembourg (BE),BE341,Arr. Arlon,5,65565.0,2.0,3.0,2.0,118.0,47200.0,2019-12-30,2021-08-02,True
+BE,Belgique/België,BE3,Région wallonne,BE34,Prov. Luxembourg (BE),BE342,Arr. Bastogne,8,50851.0,1.0,1.0,1.0,10.0,4000.0,2021-01-11,2021-02-15,True
+BE,Belgique/België,BE3,Région wallonne,BE34,Prov. Luxembourg (BE),BE343,Arr. Marche-en-Famenne,9,57667.0,5.0,10.0,3.0,11389.0,4555600.0,2020-02-24,2024-02-26,True
+BE,Belgique/België,BE3,Région wallonne,BE34,Prov. Luxembourg (BE),BE344,Arr. Neufchâteau,12,65901.0,5.0,9.0,5.0,1347.0,538800.0,2017-01-23,2024-02-05,True
+BE,Belgique/België,BE3,Région wallonne,BE34,Prov. Luxembourg (BE),BE345,Arr. Virton,10,55162.0,16.0,51.0,7.0,33807.0,13522800.0,2017-12-04,2024-12-02,True
+BE,Belgique/België,BE3,Région wallonne,BE35,Prov. Namur,BE351,Arr. Dinant,15,113173.0,11.0,22.0,7.0,12339.0,4935600.0,2017-01-23,2024-05-27,True
+BE,Belgique/België,BE3,Région wallonne,BE35,Prov. Namur,BE352,Arr. Namur,16,323859.0,2.0,3.0,3.0,637.0,254800.0,2024-03-25,2024-11-11,True
+BE,Belgique/België,BE3,Région wallonne,BE35,Prov. Namur,BE353,Arr. Philippeville,7,66863.0,13.0,18.0,3.0,8935.0,3574000.0,2017-12-04,2024-11-11,True
+BG,България ,BG3,Северна и Югоизточна България,BG31,Северозападен,BG311,Видин,11,71773.0,13.0,21.0,4.0,6738.0,2695200.0,2014-12-29,2024-11-25,True
+BG,България ,BG3,Северна и Югоизточна България,BG31,Северозападен,BG312,Монтана,11,114526.0,29.0,104.0,8.0,140000.0,56000000.0,2014-12-29,2024-11-25,True
+BG,България ,BG3,Северна и Югоизточна България,BG31,Северозападен,BG313,Враца,10,147619.0,21.0,49.0,8.0,19598.0,7839200.0,2014-12-29,2024-11-25,True
+BG,България ,BG3,Северна и Югоизточна България,BG31,Северозападен,BG314,Плевен,11,217881.0,44.0,102.0,10.0,125000.0,50000000.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG31,Северозападен,BG315,Ловеч,8,112225.0,11.0,12.0,3.0,1558.0,623200.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG32,Северен централен,BG321,Велико Търново,10,202232.0,36.0,77.0,5.0,58598.0,23439200.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG32,Северен централен,BG322,Габрово,4,94862.0,4.0,5.0,2.0,2782.0,1112800.0,2014-12-29,2016-04-11,True
+BG,България ,BG3,Северна и Югоизточна България,BG32,Северен централен,BG323,Русе,8,187830.0,15.0,37.0,8.0,25142.0,10056800.0,2014-12-29,2024-04-29,True
+BG,България ,BG3,Северна и Югоизточна България,BG32,Северен централен,BG324,Разград,7,100696.0,12.0,26.0,6.0,12172.0,4868800.0,2014-12-29,2024-06-24,True
+BG,България ,BG3,Северна и Югоизточна България,BG32,Северен централен,BG325,Силистра,7,94739.0,17.0,29.0,6.0,14574.0,5829600.0,2014-12-29,2024-06-24,True
+BG,България ,BG3,Северна и Югоизточна България,BG33,Североизточен,BG331,Варна,12,434191.0,13.0,50.0,10.0,82736.0,33094400.0,2014-12-29,2024-06-24,True
+BG,България ,BG3,Северна и Югоизточна България,BG33,Североизточен,BG332,Добрич,8,146635.0,14.0,39.0,8.0,56149.0,22459600.0,2014-12-29,2024-06-24,True
+BG,България ,BG3,Северна и Югоизточна България,BG33,Североизточен,BG333,Шумен,10,149699.0,13.0,56.0,10.0,22161.0,8864400.0,2014-12-29,2024-06-24,True
+BG,България ,BG3,Северна и Югоизточна България,BG33,Североизточен,BG334,Търговище,5,95609.0,7.0,15.0,5.0,27708.0,11083200.0,2014-12-29,2024-04-29,True
+BG,България ,BG3,Северна и Югоизточна България,BG34,Югоизточен,BG341,Бургас,13,384446.0,13.0,78.0,13.0,168202.0,67280800.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG34,Югоизточен,BG342,Сливен,4,170051.0,15.0,28.0,4.0,27726.0,11090400.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG34,Югоизточен,BG343,Ямбол,5,106320.0,12.0,39.0,5.0,196519.0,78607600.0,2014-12-29,2024-11-18,True
+BG,България ,BG3,Северна и Югоизточна България,BG34,Югоизточен,BG344,Стара Загора,11,290350.0,22.0,88.0,10.0,119765.0,47906000.0,2014-12-29,2024-11-18,True
+BG,България ,BG4,Югозападна и Южна централна България,BG41,Югозападен,BG411,София (столица),1,1286965.0,13.0,13.0,1.0,8714.0,3485600.0,2014-12-29,2024-08-12,True
+BG,България ,BG4,Югозападна и Южна централна България,BG41,Югозападен,BG412,София,22,226420.0,12.0,25.0,12.0,11741.0,4696400.0,2014-12-29,2024-08-12,True
+BG,България ,BG4,Югозападна и Южна централна България,BG41,Югозападен,BG413,Благоевград,14,287077.0,12.0,31.0,10.0,77300.0,30920000.0,2015-01-12,2024-11-18,True
+BG,България ,BG4,Югозападна и Южна централна България,BG41,Югозападен,BG414,Перник,6,111032.0,10.0,12.0,5.0,5309.0,2123600.0,2018-04-30,2024-08-12,True
+BG,България ,BG4,Югозападна и Южна централна България,BG41,Югозападен,BG415,Кюстендил,9,107673.0,1.0,1.0,1.0,732.0,292800.0,2019-01-21,2019-01-28,True
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG421,Пловдив,18,633586.0,20.0,106.0,13.0,772909.0,309163600.0,2014-12-29,2024-11-18,True
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG422,Хасково,11,207114.0,21.0,85.0,11.0,219297.0,87718800.0,2014-12-29,2024-11-18,True
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG423,Пазарджик,12,225261.0,18.0,35.0,9.0,199582.0,79832800.0,2014-12-29,2024-11-18,True
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG424,Смолян,10,92107.0,0.0,0.0,0.0,0.0,0.0,,,False
+BG,България ,BG4,Югозападна и Южна централна България,BG42,Южен централен,BG425,Кърджали,7,146562.0,6.0,7.0,3.0,1190.0,476000.0,2015-03-09,2024-11-18,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH01,Région lémanique,CH011,Vaud,304,830431.0,20.0,129.0,46.0,68515.0,27406000.0,2015-03-16,2025-01-06,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH01,Région lémanique,CH012,Valais / Wallis,123,357282.0,11.0,38.0,23.0,37449.0,14979600.0,2016-04-18,2024-12-02,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH01,Région lémanique,CH013,Genève,46,514114.0,1.0,1.0,1.0,83.0,33200.0,2018-01-15,2018-02-05,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH02,Espace Mittelland,CH021,Bern / Berne,341,1051437.0,12.0,54.0,35.0,17124.0,6849600.0,2015-04-27,2024-12-02,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH02,Espace Mittelland,CH022,Fribourg / Freiburg,130,334465.0,9.0,18.0,10.0,4969.0,1987600.0,2015-04-27,2024-05-27,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH02,Espace Mittelland,CH023,Solothurn,107,282408.0,2.0,2.0,1.0,224.0,89600.0,2018-01-01,2021-02-15,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH02,Espace Mittelland,CH024,Neuchâtel,29,176571.0,8.0,27.0,13.0,21206.0,8482400.0,2018-01-01,2025-01-06,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH02,Espace Mittelland,CH025,Jura,51,73865.0,4.0,11.0,8.0,3107.0,1242800.0,2018-01-01,2024-05-27,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH031,Basel-Stadt,3,196786.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH032,Basel-Landschaft,86,294417.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH03,Nordwestschweiz,CH033,Aargau,199,711232.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH04,Zürich,CH040,Zürich,162,1579967.0,2.0,3.0,3.0,172.0,68800.0,2018-01-01,2024-07-01,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH051,Glarus,4,41471.0,2.0,2.0,1.0,844.0,337600.0,2024-03-25,2024-07-01,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH052,Schaffhausen,27,85214.0,2.0,2.0,2.0,6.0,2400.0,2017-06-12,2018-10-22,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH053,Appenzell Ausserrhoden,20,55759.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH054,Appenzell Innerrhoden,5,16416.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH055,St. Gallen,78,525967.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH056,Graubünden / Grigioni / Grischun,101,202538.0,6.0,57.0,32.0,43541.0,17416400.0,2017-01-23,2024-07-01,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH05,Ostschweiz,CH057,Thurgau,81,289650.0,1.0,1.0,1.0,9.0,3600.0,2018-10-15,2018-10-22,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH061,Luzern,85,424851.0,1.0,1.0,1.0,259.0,103600.0,2024-11-18,2024-12-02,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH062,Uri,20,37317.0,2.0,4.0,3.0,932.0,372800.0,2024-02-05,2024-05-27,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH063,Schwyz,34,164920.0,3.0,4.0,3.0,6543.0,2617200.0,2024-02-05,2024-12-02,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH064,Obwalden,9,38700.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH065,Nidwalden,12,44420.0,1.0,1.0,1.0,154.0,61600.0,2023-02-20,2023-02-27,True
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH06,Zentralschweiz,CH066,Zug,13,131164.0,0.0,0.0,0.0,0.0,0.0,,,False
+CH,Schweiz/Suisse/Svizzera,CH0,Schweiz/Suisse/Svizzera,CH07,Ticino,CH070,Ticino,110,354023.0,4.0,9.0,7.0,1085.0,434000.0,2017-01-23,2024-05-27,True
+CY,Κύπρος ,CY0,Κύπρος,CY00,Κύπρος,CY000,Κύπρος,615,923272.0,10.0,194.0,89.0,104233.0,41693200.0,2016-10-03,2024-09-30,True
+CZ,Česko,CZ0,Česko,CZ01,Praha,CZ010,Hlavní město Praha,1,1384732.0,2.0,2.0,1.0,16983.0,6793200.0,2024-03-25,2024-07-01,True
+CZ,Česko,CZ0,Česko,CZ02,Střední Čechy,CZ020,Středočeský kraj,1144,1455940.0,19.0,996.0,454.0,1441222.0,576488800.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ03,Jihozápad,CZ031,Jihočeský kraj,624,654505.0,14.0,111.0,84.0,42491.0,16996400.0,2018-03-12,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ03,Jihozápad,CZ032,Plzeňský kraj,501,613374.0,8.0,24.0,17.0,3641.0,1456400.0,2017-04-24,2024-07-01,True
+CZ,Česko,CZ0,Česko,CZ04,Severozápad,CZ041,Karlovarský kraj,134,295077.0,5.0,15.0,8.0,2422.0,968800.0,2018-01-01,2024-02-26,True
+CZ,Česko,CZ0,Česko,CZ04,Severozápad,CZ042,Ústecký kraj,354,811169.0,14.0,273.0,127.0,327644.0,131057600.0,2014-12-29,2024-07-01,True
+CZ,Česko,CZ0,Česko,CZ05,Severovýchod,CZ051,Liberecký kraj,215,450728.0,9.0,64.0,32.0,34482.0,13792800.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ05,Severovýchod,CZ052,Královéhradecký kraj,448,556949.0,18.0,591.0,245.0,633589.0,253435600.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ05,Severovýchod,CZ053,Pardubický kraj,451,530560.0,18.0,497.0,198.0,486996.0,194798400.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ06,Jihovýchod,CZ063,Kraj Vysočina,704,517960.0,15.0,196.0,110.0,39573.0,15829200.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ06,Jihovýchod,CZ064,Jihomoravský kraj,673,1226749.0,21.0,656.0,325.0,662091.0,264836400.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ07,Střední Morava,CZ071,Olomoucký kraj,402,632864.0,12.0,525.0,216.0,956577.0,382630800.0,2014-12-29,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ07,Střední Morava,CZ072,Zlínský kraj,307,580744.0,8.0,234.0,109.0,207417.0,82966800.0,2018-03-12,2024-11-18,True
+CZ,Česko,CZ0,Česko,CZ08,Moravskoslezsko,CZ080,Moravskoslezský kraj,300,1189204.0,26.0,164.0,64.0,161079.0,64431600.0,2016-02-22,2024-11-18,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE111,"Stuttgart, Stadtkreis",1,633484.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE112,Böblingen,26,401318.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE113,Esslingen,44,542582.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE114,Göppingen,38,263706.0,1.0,3.0,3.0,620.0,248000.0,2018-01-15,2018-02-05,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE115,Ludwigsburg,39,553689.0,2.0,3.0,3.0,138.0,55200.0,2018-10-15,2024-05-27,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE116,Rems-Murr-Kreis,31,434369.0,1.0,5.0,5.0,848.0,339200.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE117,"Heilbronn, Stadtkreis",1,130093.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE118,"Heilbronn, Landkreis",46,355359.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE119,Hohenlohekreis,16,115796.0,1.0,2.0,2.0,1797.0,718800.0,2018-01-01,2018-01-29,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE11A,Schwäbisch Hall,30,204721.0,7.0,20.0,9.0,6775.0,2710000.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE11B,Main-Tauber-Kreis,18,135371.0,2.0,3.0,2.0,966.0,386400.0,2018-01-01,2019-04-08,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE11C,Heidenheim,11,135470.0,6.0,9.0,7.0,3039.0,1215600.0,2018-01-01,2021-03-15,True
+DE,Deutschland,DE1,Baden-Württemberg,DE11,Stuttgart,DE11D,Ostalbkreis,42,320436.0,3.0,6.0,5.0,1907.0,762800.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE121,"Baden-Baden, Stadtkreis",1,57420.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE122,"Karlsruhe, Stadtkreis",1,309964.0,5.0,5.0,1.0,693.0,277200.0,2018-01-01,2021-08-02,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE123,"Karlsruhe, Landkreis",32,456392.0,9.0,17.0,7.0,4440.0,1776000.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE124,Rastatt,23,235542.0,14.0,38.0,12.0,5690.0,2276000.0,2018-01-01,2025-01-06,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE125,"Heidelberg, Stadtkreis",1,162960.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE126,"Mannheim, Stadtkreis",1,316877.0,4.0,4.0,1.0,6445.0,2578000.0,2018-01-01,2021-08-02,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE127,Neckar-Odenwald-Kreis,27,146070.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE128,Rhein-Neckar-Kreis,54,556645.0,5.0,15.0,7.0,17272.0,6908800.0,2018-01-01,2021-08-02,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE129,"Pforzheim, Stadtkreis",1,128992.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE12A,Calw,25,163838.0,2.0,4.0,2.0,34.0,13600.0,2017-06-12,2018-10-22,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE12B,Enzkreis,28,203409.0,2.0,5.0,5.0,21.0,8400.0,2017-06-12,2018-10-22,True
+DE,Deutschland,DE1,Baden-Württemberg,DE12,Karlsruhe,DE12C,Freudenstadt,16,121584.0,2.0,2.0,1.0,18.0,7200.0,2017-06-12,2018-10-22,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE131,"Freiburg im Breisgau, Stadtkreis",1,237244.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE132,Breisgau-Hochschwarzwald,50,272194.0,4.0,6.0,5.0,1007.0,402800.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE133,Emmendingen,24,172392.0,4.0,4.0,2.0,1037.0,414800.0,2018-01-01,2021-02-15,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE134,Ortenaukreis,52,444390.0,13.0,28.0,14.0,10412.0,4164800.0,2017-06-12,2025-01-06,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE135,Rottweil,21,142963.0,4.0,6.0,3.0,874.0,349600.0,2018-10-15,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE136,Schwarzwald-Baar-Kreis,20,218780.0,7.0,17.0,6.0,5593.0,2237200.0,2017-06-12,2024-02-05,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE137,Tuttlingen,35,146124.0,3.0,10.0,5.0,10228.0,4091200.0,2018-01-01,2023-11-27,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE138,Konstanz,25,294176.0,2.0,2.0,2.0,229.0,91600.0,2018-10-15,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE139,Lörrach,35,234909.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE13,Freiburg,DE13A,Waldshut,32,174391.0,4.0,11.0,5.0,6038.0,2415200.0,2018-01-01,2020-04-06,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE141,Reutlingen,27,293624.0,1.0,2.0,2.0,249.0,99600.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE142,"Tübingen, Landkreis",15,234649.0,2.0,3.0,2.0,195.0,78000.0,2018-10-15,2019-04-08,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE143,Zollernalbkreis,25,193712.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE144,"Ulm, Stadtkreis",1,129942.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE145,Alb-Donau-Kreis,55,203873.0,11.0,38.0,17.0,19129.0,7651600.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE146,Biberach,45,208203.0,7.0,28.0,14.0,37574.0,15029600.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE147,Bodenseekreis,23,224200.0,4.0,4.0,3.0,309.0,123600.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE148,Ravensburg,39,293148.0,4.0,20.0,12.0,7862.0,3144800.0,2015-01-05,2024-07-01,True
+DE,Deutschland,DE1,Baden-Württemberg,DE14,Tübingen,DE149,Sigmaringen,25,134259.0,5.0,15.0,7.0,3230.0,1292000.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE211,"Ingolstadt, Kreisfreie Stadt",1,142308.0,4.0,4.0,1.0,611.0,244400.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE212,"München, Kreisfreie Stadt",1,1510378.0,1.0,1.0,1.0,11.0,4400.0,2022-02-28,2022-03-14,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE213,"Rosenheim, Kreisfreie Stadt",1,65192.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE214,Altötting,24,114459.0,1.0,5.0,5.0,584.0,233600.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE215,Berchtesgadener Land,17,108315.0,2.0,3.0,3.0,323.0,129200.0,2021-07-19,2024-03-25,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE216,Bad Tölz-Wolfratshausen,23,130182.0,2.0,3.0,3.0,388.0,155200.0,2024-01-01,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE217,Dachau,17,157813.0,1.0,10.0,10.0,14885.0,5954000.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE218,Ebersberg,24,147559.0,5.0,11.0,8.0,2038.0,815200.0,2018-09-24,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE219,Eichstätt,31,136565.0,8.0,19.0,12.0,4985.0,1994000.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21A,Erding,26,142540.0,8.0,21.0,9.0,2253.0,901200.0,2018-09-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21B,Freising,24,186276.0,10.0,29.0,13.0,9901.0,3960400.0,2018-09-24,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21C,Fürstenfeldbruck,23,222932.0,4.0,11.0,11.0,843.0,337200.0,2019-03-04,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21D,Garmisch-Partenkirchen,23,88748.0,3.0,11.0,9.0,5564.0,2225600.0,2023-10-09,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21E,Landsberg am Lech,32,124311.0,3.0,7.0,7.0,2026.0,810400.0,2022-02-28,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21F,Miesbach,17,101451.0,1.0,4.0,4.0,1467.0,586800.0,2024-01-01,2024-02-05,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21G,Mühldorf a. Inn,32,120732.0,2.0,9.0,7.0,1557.0,622800.0,2021-08-30,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21H,"München, Landkreis",32,358480.0,3.0,7.0,6.0,1073.0,429200.0,2018-02-05,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21I,Neuburg-Schrobenhausen,18,101109.0,17.0,78.0,16.0,32692.0,13076800.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21J,Pfaffenhofen a. d. Ilm,19,132966.0,3.0,11.0,10.0,4243.0,1697200.0,2018-02-05,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21K,"Rosenheim, Landkreis",48,268391.0,4.0,12.0,10.0,2074.0,829600.0,2023-11-27,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21L,Starnberg,15,139067.0,3.0,4.0,4.0,252.0,100800.0,2022-02-28,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21M,Traunstein,37,181763.0,3.0,12.0,11.0,4466.0,1786400.0,2016-01-25,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE21,Oberbayern,DE21N,Weilheim-Schongau,34,139401.0,1.0,3.0,3.0,1815.0,726000.0,2024-01-01,2024-02-05,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE221,"Landshut, Kreisfreie Stadt",1,75272.0,2.0,2.0,1.0,1191.0,476400.0,2024-05-13,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE222,"Passau, Kreisfreie Stadt",1,54401.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE223,"Straubing, Kreisfreie Stadt",1,49775.0,8.0,8.0,1.0,8452.0,3380800.0,2018-01-15,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE224,Deggendorf,26,123129.0,9.0,23.0,9.0,10079.0,4031600.0,2018-01-15,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE225,Freyung-Grafenau,36,79603.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE226,Kelheim,27,126539.0,8.0,24.0,10.0,22304.0,8921600.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE227,"Landshut, Landkreis",35,165608.0,8.0,20.0,13.0,4573.0,1829200.0,2018-01-15,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE228,"Passau, Landkreis",38,197863.0,3.0,3.0,2.0,215.0,86000.0,2024-01-01,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE229,Regen,24,77940.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE22A,Rottal-Inn,31,124911.0,2.0,2.0,1.0,117.0,46800.0,2018-01-15,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE22B,Straubing-Bogen,37,104167.0,9.0,38.0,10.0,8016.0,3206400.0,2018-01-15,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE22,Niederbayern,DE22C,Dingolfing-Landau,15,101477.0,8.0,11.0,6.0,2204.0,881600.0,2018-01-15,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE231,"Amberg, Kreisfreie Stadt",1,42676.0,2.0,2.0,1.0,189.0,75600.0,2017-04-24,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE232,"Regensburg, Kreisfreie Stadt",1,159465.0,1.0,1.0,1.0,64.0,25600.0,2023-11-27,2024-01-01,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE233,"Weiden i. d. Opf, Kreisfreie Stadt",1,43188.0,6.0,6.0,1.0,976.0,390400.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE234,Amberg-Sulzbach,28,104914.0,9.0,17.0,7.0,3231.0,1292400.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE235,Cham,39,130946.0,3.0,12.0,6.0,21804.0,8721600.0,2018-12-03,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE236,Neumarkt i. d. OPf.,19,139277.0,12.0,18.0,6.0,7923.0,3169200.0,2017-04-24,2024-02-05,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE237,Neustadt a. d. Waldnaab,40,96400.0,8.0,54.0,13.0,25812.0,10324800.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE238,"Regensburg, Landkreis",43,200264.0,9.0,36.0,15.0,19881.0,7952400.0,2018-01-15,2024-11-18,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE239,Schwandorf,34,152284.0,6.0,31.0,13.0,35262.0,14104800.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE23,Oberpfalz,DE23A,Tirschenreuth,26,72147.0,6.0,7.0,2.0,714.0,285600.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE241,"Bamberg, Kreisfreie Stadt",1,80580.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE242,"Bayreuth, Kreisfreie Stadt",1,74907.0,1.0,1.0,1.0,61.0,24400.0,2019-03-04,2019-04-08,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE243,"Coburg, Kreisfreie Stadt",1,42139.0,3.0,3.0,1.0,657.0,262800.0,2019-09-16,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE244,"Hof, Kreisfreie Stadt",1,46963.0,1.0,1.0,1.0,68.0,27200.0,2024-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE245,"Bamberg, Landkreis",46,149823.0,10.0,69.0,15.0,67748.0,27099200.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE246,"Bayreuth, Landkreis",43,104843.0,4.0,4.0,1.0,1840.0,736000.0,2017-11-13,2024-01-01,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE247,"Coburg, Landkreis",20,87259.0,10.0,43.0,10.0,38599.0,15439600.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE248,Forchheim,29,118725.0,3.0,4.0,3.0,1815.0,726000.0,2018-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE249,"Hof, Landkreis",31,94333.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE24A,Kronach,20,66294.0,5.0,11.0,3.0,3328.0,1331200.0,2018-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE24B,Kulmbach,22,71956.0,6.0,17.0,5.0,10529.0,4211600.0,2017-11-13,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE24C,Lichtenfels,13,67555.0,7.0,32.0,9.0,14774.0,5909600.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE24,Oberfranken,DE24D,Wunsiedel i. Fichtelgebirge,26,71972.0,3.0,3.0,1.0,304.0,121600.0,2024-01-01,2024-02-26,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE251,"Ansbach, Kreisfreie Stadt",1,42311.0,3.0,3.0,1.0,1267.0,506800.0,2017-04-24,2020-03-30,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE252,"Erlangen, Kreisfreie Stadt",1,117806.0,3.0,3.0,1.0,1959.0,783600.0,2018-01-01,2024-01-01,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE253,"Fürth, Kreisfreie Stadt",1,132032.0,3.0,3.0,1.0,2961.0,1184400.0,2018-01-01,2024-01-01,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE254,"Nürnberg, Kreisfreie Stadt",1,526091.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE255,"Schwabach, Kreisfreie Stadt",1,41380.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE256,"Ansbach, Landkreis",59,189517.0,26.0,197.0,34.0,206012.0,82404800.0,2015-02-02,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE257,Erlangen-Höchstadt,35,141517.0,7.0,30.0,8.0,34533.0,13813200.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE258,"Fürth, Landkreis",14,119826.0,2.0,8.0,5.0,4743.0,1897200.0,2018-01-01,2021-07-19,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE259,Nürnberger Land,41,172941.0,4.0,17.0,5.0,9782.0,3912800.0,2018-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE25A,Neustadt a. d. Aisch-Bad Windsheim,39,103654.0,7.0,34.0,20.0,39833.0,15933200.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE25B,Roth,21,129595.0,12.0,30.0,8.0,6316.0,2526400.0,2017-04-24,2024-02-05,True
+DE,Deutschland,DE2,Bayern,DE25,Mittelfranken,DE25C,Weißenburg-Gunzenhausen,27,97276.0,19.0,115.0,12.0,139774.0,55909600.0,2015-02-02,2024-03-18,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE261,"Aschaffenburg, Kreisfreie Stadt",1,72918.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE262,"Schweinfurt, Kreisfreie Stadt",1,55067.0,3.0,3.0,1.0,382.0,152800.0,2018-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE263,"Würzburg, Kreisfreie Stadt",1,128246.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE264,"Aschaffenburg, Landkreis",40,177056.0,1.0,1.0,1.0,90.0,36000.0,2021-01-11,2021-02-15,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE265,Bad Kissingen,39,104898.0,7.0,23.0,8.0,28186.0,11274400.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE266,Rhön-Grabfeld,45,80544.0,6.0,30.0,12.0,17823.0,7129200.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE267,Haßberge,26,85371.0,9.0,37.0,10.0,22908.0,9163200.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE268,Kitzingen,31,93818.0,1.0,1.0,1.0,92.0,36800.0,2023-03-13,2023-05-01,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE269,Miltenberg,34,130363.0,1.0,1.0,1.0,1.0,400.0,2015-01-12,2015-02-23,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE26A,Main-Spessart,50,127642.0,4.0,7.0,3.0,1211.0,484400.0,2018-01-01,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE26B,"Schweinfurt, Landkreis",36,116653.0,3.0,7.0,4.0,4267.0,1706800.0,2019-03-04,2024-01-29,True
+DE,Deutschland,DE2,Bayern,DE26,Unterfranken,DE26C,"Würzburg, Landkreis",55,165921.0,2.0,2.0,2.0,489.0,195600.0,2019-03-04,2024-02-19,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE271,"Augsburg, Kreisfreie Stadt",1,303150.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE272,"Kaufbeuren, Kreisfreie Stadt",1,46386.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE273,"Kempten (Allgäu), Kreisfreie Stadt",1,70713.0,1.0,1.0,1.0,247.0,98800.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE274,"Memmingen, Kreisfreie Stadt",1,46178.0,1.0,1.0,1.0,119.0,47600.0,2024-05-13,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE275,Aichach-Friedberg,24,138607.0,5.0,13.0,12.0,5838.0,2335200.0,2018-02-05,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE276,"Augsburg, Landkreis",47,263578.0,6.0,30.0,21.0,31613.0,12645200.0,2018-01-01,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE277,Dillingen a.d. Donau,27,100141.0,19.0,105.0,19.0,41654.0,16661600.0,2016-01-25,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE278,Günzburg,36,131375.0,6.0,36.0,25.0,27441.0,10976400.0,2018-09-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE279,Neu-Ulm,21,182600.0,6.0,15.0,8.0,4422.0,1768800.0,2018-01-15,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE27A,Lindau (Bodensee),19,83671.0,1.0,8.0,8.0,1336.0,534400.0,2015-01-05,2015-01-12,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE27B,Ostallgäu,45,146302.0,4.0,8.0,8.0,966.0,386400.0,2019-09-16,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE27C,Unterallgäu,53,151838.0,5.0,12.0,9.0,2450.0,980000.0,2018-09-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE27D,Donau-Ries,46,137971.0,17.0,128.0,22.0,106800.0,42720000.0,2017-04-24,2024-07-01,True
+DE,Deutschland,DE2,Bayern,DE27,Schwaben,DE27E,Oberallgäu,29,159576.0,4.0,12.0,10.0,2957.0,1182800.0,2021-02-15,2024-07-01,True
+DE,Deutschland,DE3,Berlin,DE30,Berlin,DE300,Berlin,1,3782202.0,5.0,5.0,1.0,1006.0,402400.0,2016-11-07,2024-01-29,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE401,"Brandenburg an der Havel, Kreisfreie Stadt",1,73921.0,43.0,43.0,1.0,95627.0,38250800.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE402,"Cottbus, Kreisfreie Stadt",1,100010.0,39.0,39.0,1.0,270144.0,108057600.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE403,"Frankfurt (Oder), Kreisfreie Stadt",1,58818.0,11.0,11.0,1.0,26050.0,10420000.0,2017-02-13,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE404,"Potsdam, Kreisfreie Stadt",1,187119.0,23.0,23.0,1.0,15961.0,6384400.0,2016-02-08,2024-05-27,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE405,Barnim,25,193050.0,28.0,48.0,11.0,42921.0,17168400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE406,Dahme-Spreewald,37,180242.0,45.0,255.0,32.0,394828.0,157931200.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE407,Elbe-Elster,33,99931.0,40.0,184.0,27.0,455877.0,182350800.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE408,Havelland,26,170556.0,53.0,599.0,26.0,1546331.0,618532400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE409,Märkisch-Oderland,45,201111.0,34.0,185.0,26.0,305442.0,122176800.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40A,Oberhavel,19,218855.0,57.0,115.0,10.0,149013.0,59605200.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40B,Oberspreewald-Lausitz,25,107547.0,37.0,130.0,22.0,45674.0,18269600.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40C,Oder-Spree,37,182960.0,42.0,159.0,28.0,93316.0,37326400.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40D,Ostprignitz-Ruppin,23,99929.0,56.0,323.0,22.0,442414.0,176965600.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40E,Potsdam-Mittelmark,38,223531.0,57.0,412.0,32.0,673386.0,269354400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40F,Prignitz,26,75836.0,54.0,373.0,25.0,828414.0,331365600.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40G,Spree-Neiße,29,111966.0,47.0,233.0,24.0,329720.0,131888000.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40H,Teltow-Fläming,16,178482.0,44.0,152.0,16.0,404022.0,161608800.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DE4,Brandenburg,DE40,Brandenburg,DE40I,Uckermark,30,117803.0,35.0,139.0,24.0,1183646.0,473458400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE5,Bremen,DE50,Bremen,DE501,"Bremen, Kreisfreie Stadt",1,577026.0,57.0,57.0,1.0,573136.0,229254400.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE5,Bremen,DE50,Bremen,DE502,"Bremerhaven, Kreisfreie Stadt",1,114677.0,41.0,41.0,1.0,57517.0,23006800.0,2015-01-12,2024-02-26,True
+DE,Deutschland,DE6,Hamburg,DE60,Hamburg,DE600,Hamburg,1,1910160.0,43.0,43.0,1.0,14951.0,5980400.0,2015-02-16,2024-05-27,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE711,"Darmstadt, Kreisfreie Stadt",1,164792.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE712,"Frankfurt am Main, Kreisfreie Stadt",1,775790.0,2.0,2.0,1.0,237.0,94800.0,2016-12-26,2024-02-05,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE713,"Offenbach am Main, Kreisfreie Stadt",1,135490.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE714,"Wiesbaden, Kreisfreie Stadt",1,285522.0,2.0,2.0,1.0,332.0,132800.0,2018-01-01,2021-02-15,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE715,Bergstraße,23,276295.0,12.0,25.0,7.0,14472.0,5788800.0,2016-12-26,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE716,Darmstadt-Dieburg,23,301827.0,12.0,13.0,2.0,3431.0,1372400.0,2016-12-26,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE717,Groß-Gerau,14,281712.0,14.0,43.0,12.0,47733.0,19093200.0,2015-01-12,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE718,Hochtaunuskreis,13,241449.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE719,Main-Kinzig-Kreis,30,434002.0,17.0,81.0,18.0,119913.0,47965200.0,2015-01-12,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71A,Main-Taunus-Kreis,12,243307.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71B,Odenwaldkreis,12,97182.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71C,"Offenbach, Landkreis",13,364457.0,3.0,4.0,3.0,1141.0,456400.0,2016-12-26,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71D,Rheingau-Taunus-Kreis,17,189918.0,6.0,7.0,3.0,779.0,311600.0,2015-01-12,2024-01-01,True
+DE,Deutschland,DE7,Hessen,DE71,Darmstadt,DE71E,Wetteraukreis,25,318559.0,14.0,128.0,19.0,130734.0,52293600.0,2015-01-12,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE72,Gießen,DE721,"Gießen, Landkreis",18,280268.0,14.0,39.0,8.0,33015.0,13206000.0,2015-01-12,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE72,Gießen,DE722,Lahn-Dill-Kreis,23,258488.0,4.0,23.0,7.0,44228.0,17691200.0,2018-01-01,2024-02-05,True
+DE,Deutschland,DE7,Hessen,DE72,Gießen,DE723,Limburg-Weilburg,19,175690.0,3.0,4.0,2.0,5324.0,2129600.0,2018-01-01,2021-02-15,True
+DE,Deutschland,DE7,Hessen,DE72,Gießen,DE724,Marburg-Biedenkopf,22,250441.0,9.0,35.0,13.0,38555.0,15422000.0,2016-12-26,2024-02-19,True
+DE,Deutschland,DE7,Hessen,DE72,Gießen,DE725,Vogelsbergkreis,19,106792.0,14.0,26.0,8.0,27607.0,11042800.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE731,"Kassel, Kreisfreie Stadt",1,204687.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE732,Fulda,23,228713.0,7.0,14.0,6.0,3172.0,1268800.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE733,Hersfeld-Rotenburg,20,121348.0,9.0,37.0,10.0,49355.0,19742000.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE734,"Kassel, Landkreis",29,241095.0,4.0,9.0,6.0,4677.0,1870800.0,2022-06-27,2024-01-29,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE735,Schwalm-Eder-Kreis,27,183501.0,10.0,31.0,13.0,38365.0,15346000.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE736,Waldeck-Frankenberg,21,159189.0,2.0,4.0,4.0,802.0,320800.0,2018-01-01,2019-09-23,True
+DE,Deutschland,DE7,Hessen,DE73,Kassel,DE737,Werra-Meißner-Kreis,17,100215.0,4.0,9.0,5.0,3097.0,1238800.0,2019-09-16,2024-01-29,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE803,"Rostock, Kreisfreie Stadt",1,210795.0,22.0,22.0,1.0,10157.0,4062800.0,2016-11-07,2024-11-18,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE804,"Schwerin, Kreisfreie Stadt",1,98733.0,1.0,1.0,1.0,66.0,26400.0,2024-01-01,2024-01-29,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80J,Mecklenburgische Seenplatte,148,259312.0,53.0,412.0,83.0,491576.0,196630400.0,2015-01-12,2024-12-23,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80K,Landkreis Rostock,112,221431.0,43.0,403.0,60.0,261739.0,104695600.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80L,Vorpommern-Rügen,101,227746.0,55.0,588.0,82.0,653360.0,261344000.0,2015-01-12,2024-12-23,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80M,Nordwestmecklenburg,83,160206.0,37.0,157.0,32.0,45817.0,18326800.0,2017-06-12,2024-03-11,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80N,Vorpommern-Greifswald,138,237184.0,33.0,466.0,102.0,363468.0,145387200.0,2015-01-12,2024-12-23,True
+DE,Deutschland,DE8,Mecklenburg-Vorpommern,DE80,Mecklenburg-Vorpommern,DE80O,Ludwigslust-Parchim,142,214057.0,54.0,1015.0,128.0,1094721.0,437888400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE911,"Braunschweig, Kreisfreie Stadt",1,252066.0,11.0,11.0,1.0,22469.0,8987600.0,2017-02-20,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE912,"Salzgitter, Kreisfreie Stadt",1,105039.0,7.0,7.0,1.0,79912.0,31964800.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE913,"Wolfsburg, Kreisfreie Stadt",1,127256.0,15.0,15.0,1.0,35614.0,14245600.0,2015-12-28,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE914,Gifhorn,42,180679.0,32.0,232.0,40.0,359229.0,143691600.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE916,Goslar,8,134485.0,6.0,19.0,6.0,48646.0,19458400.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE917,Helmstedt,28,92123.0,13.0,79.0,22.0,136454.0,54581600.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE918,Northeim,12,132939.0,9.0,23.0,8.0,101223.0,40489200.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE91A,Peine,7,139170.0,13.0,46.0,7.0,188636.0,75454400.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE91B,Wolfenbüttel,35,120755.0,9.0,112.0,30.0,261572.0,104628800.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE91,Braunschweig,DE91C,Göttingen,40,328952.0,8.0,47.0,19.0,13390.0,5356000.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE922,Diepholz,45,223832.0,66.0,539.0,42.0,468513.0,187405200.0,2014-12-29,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE923,Hameln-Pyrmont,8,150377.0,20.0,41.0,8.0,47199.0,18879600.0,2017-11-13,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE925,Hildesheim,20,278571.0,18.0,83.0,18.0,208588.0,83435200.0,2017-06-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE926,Holzminden,39,70706.0,9.0,37.0,13.0,28141.0,11256400.0,2015-12-28,2024-04-08,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE927,Nienburg (Weser),36,123888.0,52.0,460.0,36.0,418950.0,167580000.0,2015-01-12,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE928,Schaumburg,38,160236.0,31.0,91.0,19.0,73832.0,29532800.0,2015-11-09,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE92,Hannover,DE929,Region Hannover,21,1177676.0,41.0,227.0,21.0,577785.0,231114000.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE931,Celle,21,182352.0,30.0,190.0,20.0,365222.0,146088800.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE932,Cuxhaven,29,201838.0,50.0,310.0,27.0,480625.0,192250000.0,2015-01-12,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE933,Harburg,42,263616.0,29.0,135.0,31.0,71969.0,28787600.0,2015-12-28,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE934,Lüchow-Dannenberg,29,49209.0,38.0,303.0,27.0,558566.0,223426400.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE935,"Lüneburg, Landkreis",43,188859.0,47.0,199.0,34.0,737812.0,295124800.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE936,Osterholz,11,116487.0,52.0,189.0,9.0,837780.0,335112000.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE937,Rotenburg (Wümme),57,168454.0,57.0,525.0,47.0,568585.0,227434000.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE938,Heidekreis,23,143220.0,35.0,312.0,23.0,839449.0,335779600.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE939,Stade,40,211467.0,43.0,238.0,31.0,172696.0,69078400.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE93A,Uelzen,27,95088.0,19.0,108.0,27.0,158117.0,63246800.0,2017-11-13,2024-05-27,True
+DE,Deutschland,DE9,Niedersachsen,DE93,Lüneburg,DE93B,Verden,11,141349.0,55.0,234.0,11.0,1214988.0,485995200.0,2015-01-12,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE941,"Delmenhorst, Kreisfreie Stadt",1,78979.0,7.0,7.0,1.0,8375.0,3350000.0,2015-11-09,2024-02-26,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE942,"Emden, Kreisfreie Stadt",1,50659.0,22.0,22.0,1.0,5622.0,2248800.0,2015-03-09,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE943,"Oldenburg (Oldenburg), Kreisfreie Stadt",1,174629.0,26.0,26.0,1.0,64950.0,25980000.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE944,"Osnabrück, Kreisfreie Stadt",1,166960.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE945,"Wilhelmshaven, Kreisfreie Stadt",1,76247.0,8.0,8.0,1.0,771.0,308400.0,2015-11-09,2020-02-10,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE946,Ammerland,6,129108.0,34.0,85.0,6.0,55518.0,22207200.0,2015-12-28,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE947,Aurich,25,192608.0,38.0,151.0,16.0,89122.0,35648800.0,2015-03-09,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE948,Cloppenburg,13,178564.0,46.0,165.0,11.0,354596.0,141838400.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE949,Emsland,60,340280.0,49.0,564.0,51.0,1265316.0,506126400.0,2014-12-29,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94A,Friesland (DE),8,100630.0,33.0,72.0,7.0,25839.0,10335600.0,2015-11-09,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94B,Grafschaft Bentheim,25,141946.0,46.0,317.0,24.0,337081.0,134832400.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94C,Leer,20,173924.0,49.0,220.0,15.0,192483.0,76993200.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94D,"Oldenburg, Landkreis",15,134621.0,35.0,102.0,13.0,64736.0,25894400.0,2015-11-09,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94E,"Osnabrück, Landkreis",34,366229.0,42.0,162.0,23.0,125178.0,50071200.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94F,Vechta,10,147751.0,44.0,162.0,10.0,191684.0,76673600.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94G,Wesermarsch,9,89761.0,68.0,248.0,9.0,210210.0,84084000.0,2015-01-12,2024-05-06,True
+DE,Deutschland,DE9,Niedersachsen,DE94,Weser-Ems,DE94H,Wittmund,19,58396.0,28.0,60.0,9.0,23229.0,9291600.0,2016-01-11,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA11,"Düsseldorf, Kreisfreie Stadt",1,631217.0,10.0,10.0,1.0,63290.0,25316000.0,2015-12-28,2024-05-27,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA12,"Duisburg, Kreisfreie Stadt",1,503707.0,36.0,36.0,1.0,167139.0,66855600.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA13,"Essen, Kreisfreie Stadt",1,586608.0,4.0,4.0,1.0,5252.0,2100800.0,2019-03-04,2024-02-05,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA14,"Krefeld, Kreisfreie Stadt",1,228550.0,7.0,7.0,1.0,3919.0,1567600.0,2015-12-28,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA15,"Mönchengladbach, Kreisfreie Stadt",1,268943.0,3.0,3.0,1.0,489.0,195600.0,2021-07-12,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA16,"Mülheim an der Ruhr, Kreisfreie Stadt",1,173255.0,7.0,7.0,1.0,4145.0,1658000.0,2018-01-01,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA17,"Oberhausen, Kreisfreie Stadt",1,211099.0,5.0,5.0,1.0,1181.0,472400.0,2019-03-04,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA18,"Remscheid, Kreisfreie Stadt",1,112970.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA19,"Solingen, Kreisfreie Stadt",1,161545.0,1.0,1.0,1.0,5.0,2000.0,2021-07-12,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1A,"Wuppertal, Kreisfreie Stadt",1,358938.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1B,Kleve,16,321491.0,47.0,221.0,15.0,900363.0,360145200.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1C,Mettmann,10,490251.0,9.0,9.0,1.0,23423.0,9369200.0,2015-01-12,2024-02-05,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1D,Rhein-Kreis Neuss,8,458722.0,18.0,48.0,6.0,42690.0,17076000.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1E,Viersen,9,302885.0,11.0,24.0,7.0,4196.0,1678400.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA1,Düsseldorf,DEA1F,Wesel,13,467511.0,42.0,238.0,11.0,1164368.0,465747200.0,2014-12-29,2024-04-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA22,"Bonn, Kreisfreie Stadt",1,335789.0,4.0,4.0,1.0,1775.0,710000.0,2018-01-01,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA23,"Köln, Kreisfreie Stadt",1,1087353.0,11.0,11.0,1.0,20503.0,8201200.0,2015-01-12,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA24,"Leverkusen, Kreisfreie Stadt",1,166414.0,10.0,10.0,1.0,6831.0,2732400.0,2015-12-28,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA26,Düren,15,272666.0,8.0,27.0,11.0,6074.0,2429600.0,2019-06-24,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA27,Rhein-Erft-Kreis,10,480989.0,10.0,24.0,8.0,8565.0,3426000.0,2019-06-24,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA28,Euskirchen,11,199828.0,3.0,7.0,3.0,7165.0,2866000.0,2019-06-24,2024-05-27,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA29,Heinsberg,10,262656.0,17.0,34.0,8.0,18275.0,7310000.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA2A,Oberbergischer Kreis,13,275735.0,1.0,1.0,1.0,16.0,6400.0,2015-01-12,2015-02-23,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA2B,Rheinisch-Bergischer Kreis,8,286778.0,1.0,1.0,1.0,442.0,176800.0,2021-07-12,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA2C,Rhein-Sieg-Kreis,19,610537.0,8.0,18.0,9.0,11558.0,4623200.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA2,Köln,DEA2D,Städteregion Aachen,10,564444.0,1.0,1.0,1.0,99.0,39600.0,2021-07-12,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA31,"Bottrop, Kreisfreie Stadt",1,118705.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA32,"Gelsenkirchen, Kreisfreie Stadt",1,265885.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA33,"Münster, Kreisfreie Stadt",1,322904.0,7.0,7.0,1.0,6772.0,2708800.0,2016-06-06,2024-01-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA34,Borken,17,381627.0,30.0,67.0,14.0,34265.0,13706000.0,2016-06-06,2024-04-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA35,Coesfeld,11,226160.0,17.0,39.0,10.0,8014.0,3205600.0,2016-01-11,2024-03-11,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA36,Recklinghausen,10,620646.0,22.0,47.0,6.0,30477.0,12190800.0,2015-03-09,2024-04-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA37,Steinfurt,24,459195.0,34.0,154.0,20.0,210972.0,84388800.0,2015-03-09,2024-04-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA3,Münster,DEA38,Warendorf,13,283295.0,16.0,44.0,12.0,27180.0,10872000.0,2016-02-22,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA41,"Bielefeld, Kreisfreie Stadt",1,338410.0,1.0,1.0,1.0,177.0,70800.0,2018-10-08,2018-10-15,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA42,Gütersloh,13,372938.0,23.0,46.0,10.0,22276.0,8910400.0,2015-12-28,2024-04-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA43,Herford,9,253136.0,14.0,16.0,5.0,7708.0,3083200.0,2017-11-13,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA44,Höxter,10,141883.0,6.0,13.0,5.0,17954.0,7181600.0,2022-06-27,2024-02-26,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA45,Lippe,16,349781.0,6.0,15.0,7.0,18973.0,7589200.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA46,Minden-Lübbecke,11,316196.0,36.0,76.0,10.0,130896.0,52358400.0,2015-01-12,2024-04-08,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA4,Detmold,DEA47,Paderborn,10,315400.0,9.0,19.0,6.0,28841.0,11536400.0,2018-10-08,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA51,"Bochum, Kreisfreie Stadt",1,366385.0,4.0,4.0,1.0,5714.0,2285600.0,2019-03-04,2024-02-05,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA52,"Dortmund, Kreisfreie Stadt",1,595471.0,3.0,3.0,1.0,171.0,68400.0,2015-01-12,2024-01-01,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA53,"Hagen, Kreisfreie Stadt",1,190490.0,3.0,3.0,1.0,1215.0,486000.0,2021-07-12,2024-02-05,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA54,"Hamm, Kreisfreie Stadt",1,180761.0,4.0,4.0,1.0,8930.0,3572000.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA55,"Herne, Kreisfreie Stadt",1,157896.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA56,Ennepe-Ruhr-Kreis,9,324946.0,5.0,13.0,3.0,15030.0,6012000.0,2019-03-04,2024-02-05,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA57,Hochsauerlandkreis,12,261774.0,1.0,1.0,1.0,3.0,1200.0,2018-11-26,2018-12-03,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA58,Märkischer Kreis,15,408579.0,1.0,1.0,1.0,2.0,800.0,2021-07-12,2021-08-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA59,Olpe,7,134332.0,1.0,1.0,1.0,169.0,67600.0,2023-01-30,2023-04-17,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA5A,Siegen-Wittgenstein,11,276625.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA5B,Soest,14,306674.0,10.0,23.0,7.0,49805.0,19922000.0,2018-01-01,2024-12-02,True
+DE,Deutschland,DEA,Nordrhein-Westfalen,DEA5,Arnsberg,DEA5C,Unna,10,399447.0,8.0,22.0,8.0,29398.0,11759200.0,2015-12-28,2024-02-26,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB11,"Koblenz, Kreisfreie Stadt",1,115298.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB12,Ahrweiler,74,128741.0,4.0,7.0,4.0,3460.0,1384000.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB13,Altenkirchen (Westerwald),118,131907.0,1.0,2.0,2.0,210.0,84000.0,2023-01-30,2023-04-17,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB14,Bad Kreuznach,118,161852.0,2.0,6.0,5.0,1071.0,428400.0,2019-12-30,2021-02-15,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB15,Birkenfeld,96,81918.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB17,Mayen-Koblenz,87,219001.0,7.0,8.0,3.0,1326.0,530400.0,2015-01-12,2024-01-01,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB18,Neuwied,62,188139.0,1.0,2.0,2.0,373.0,149200.0,2018-01-01,2018-01-29,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB1A,Rhein-Lahn-Kreis,137,124796.0,5.0,7.0,2.0,593.0,237200.0,2018-01-01,2024-01-01,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB1B,Westerwaldkreis,192,206709.0,1.0,2.0,2.0,466.0,186400.0,2023-01-30,2023-04-17,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB1C,Cochem-Zell,89,62669.0,1.0,1.0,1.0,148.0,59200.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB1,Koblenz,DEB1D,Rhein-Hunsrück-Kreis,137,106227.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB21,"Trier, Kreisfreie Stadt",1,112737.0,5.0,5.0,1.0,1645.0,658000.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB22,Bernkastel-Wittlich,107,115083.0,3.0,6.0,4.0,631.0,252400.0,2019-12-30,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB23,Eifelkreis Bitburg-Prüm,234,104435.0,2.0,4.0,3.0,327.0,130800.0,2021-07-12,2024-02-05,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB24,Vulkaneifel,109,61912.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB2,Trier,DEB25,Trier-Saarburg,104,153814.0,7.0,13.0,5.0,1830.0,732000.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB31,"Frankenthal (Pfalz), Kreisfreie Stadt",1,49122.0,1.0,1.0,1.0,453.0,181200.0,2018-03-19,2018-04-30,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB32,"Kaiserslautern, Kreisfreie Stadt",1,101486.0,1.0,1.0,1.0,64.0,25600.0,2015-01-12,2015-02-23,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB33,"Landau in der Pfalz, Kreisfreie Stadt",1,48341.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB34,"Ludwigshafen am Rhein, Kreisfreie Stadt",1,176110.0,1.0,1.0,1.0,36.0,14400.0,2018-01-01,2018-01-29,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB35,"Mainz, Kreisfreie Stadt",1,222889.0,1.0,1.0,1.0,48.0,19200.0,2015-01-12,2015-02-23,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB36,"Neustadt an der Weinstraße, Kreisfreie Stadt",1,53920.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB37,"Pirmasens, Kreisfreie Stadt",1,40941.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB38,"Speyer, Kreisfreie Stadt",1,51203.0,1.0,1.0,1.0,70.0,28000.0,2021-01-11,2021-02-15,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB39,"Worms, Kreisfreie Stadt",1,85609.0,10.0,10.0,1.0,7924.0,3169600.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3A,"Zweibrücken, Kreisfreie Stadt",1,34613.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3B,Alzey-Worms,69,133430.0,10.0,24.0,7.0,2421.0,968400.0,2015-01-12,2024-02-19,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3C,Bad Dürkheim,48,134711.0,1.0,1.0,1.0,74.0,29600.0,2023-03-13,2023-05-01,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3D,Donnersbergkreis,81,76088.0,1.0,7.0,7.0,222.0,88800.0,2021-01-11,2021-02-15,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3E,Germersheim,31,131492.0,11.0,35.0,10.0,32704.0,13081600.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3F,"Kaiserslautern, Landkreis",50,108540.0,8.0,14.0,3.0,8958.0,3583200.0,2017-12-04,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3G,Kusel,98,71140.0,11.0,28.0,7.0,2885.0,1154000.0,2015-12-28,2024-05-27,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3H,Südliche Weinstraße,75,112894.0,1.0,1.0,1.0,76.0,30400.0,2018-03-19,2018-04-30,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3I,Rhein-Pfalz-Kreis,25,156346.0,6.0,10.0,3.0,9753.0,3901200.0,2018-01-01,2024-02-19,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3J,Mainz-Bingen,64,215286.0,10.0,17.0,4.0,7737.0,3094800.0,2015-01-12,2023-05-01,True
+DE,Deutschland,DEB,Rheinland-Pfalz,DEB3,Rheinhessen-Pfalz,DEB3K,Südwestpfalz,84,94912.0,8.0,15.0,3.0,2491.0,996400.0,2017-12-04,2024-05-27,True
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC01,Regionalverband Saarbrücken,10,332427.0,3.0,3.0,1.0,687.0,274800.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC02,Merzig-Wadern,7,104327.0,5.0,5.0,2.0,4601.0,1840400.0,2017-12-04,2024-05-27,True
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC03,Neunkirchen,7,132393.0,5.0,5.0,1.0,587.0,234800.0,2015-12-28,2024-02-05,True
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC04,Saarlouis,13,195945.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC05,Saarpfalz-Kreis,7,142344.0,16.0,52.0,4.0,101049.0,40419600.0,2015-12-28,2025-01-06,True
+DE,Deutschland,DEC,Saarland,DEC0,Saarland,DEC06,St. Wendel,8,86988.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DED,Sachsen,DED2,Dresden,DED21,"Dresden, Kreisfreie Stadt",1,566222.0,2.0,2.0,1.0,3982.0,1592800.0,2023-11-27,2024-01-29,True
+DE,Deutschland,DED,Sachsen,DED2,Dresden,DED2C,Bautzen,57,296506.0,32.0,64.0,14.0,37578.0,15031200.0,2016-01-11,2024-11-18,True
+DE,Deutschland,DED,Sachsen,DED2,Dresden,DED2D,Görlitz,53,248479.0,45.0,182.0,20.0,116797.0,46718800.0,2015-02-09,2024-11-18,True
+DE,Deutschland,DED,Sachsen,DED2,Dresden,DED2E,Meißen,28,241160.0,22.0,87.0,24.0,180252.0,72100800.0,2017-02-20,2024-11-18,True
+DE,Deutschland,DED,Sachsen,DED2,Dresden,DED2F,Sächsische Schweiz-Osterzgebirge,36,246011.0,14.0,26.0,10.0,7856.0,3142400.0,2018-01-22,2024-07-01,True
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED41,"Chemnitz, Kreisfreie Stadt",1,250681.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED42,Erzgebirgskreis,59,326896.0,1.0,2.0,2.0,362.0,144800.0,2021-11-22,2022-01-03,True
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED43,Mittelsachsen,52,300308.0,3.0,47.0,25.0,35988.0,14395200.0,2021-03-01,2024-05-27,True
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED44,Vogtlandkreis,37,221953.0,0.0,0.0,0.0,0.0,0.0,,,False
+DE,Deutschland,DED,Sachsen,DED4,Chemnitz,DED45,Zwickau,33,310111.0,2.0,24.0,14.0,7261.0,2904400.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DED,Sachsen,DED5,Leipzig,DED51,"Leipzig, Kreisfreie Stadt",1,619879.0,12.0,12.0,1.0,71332.0,28532800.0,2020-02-10,2024-05-27,True
+DE,Deutschland,DED,Sachsen,DED5,Leipzig,DED52,Leipzig,30,261573.0,15.0,109.0,30.0,548365.0,219346000.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DED,Sachsen,DED5,Leipzig,DED53,Nordsachsen,30,199688.0,18.0,180.0,30.0,1239031.0,495612400.0,2017-02-20,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE01,"Dessau-Roßlau, Kreisfreie Stadt",1,79686.0,9.0,9.0,1.0,114681.0,45872400.0,2017-02-20,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE02,"Halle (Saale), Kreisfreie Stadt",1,242172.0,8.0,8.0,1.0,15076.0,6030400.0,2017-02-20,2024-05-27,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE03,"Magdeburg, Kreisfreie Stadt",1,240114.0,14.0,14.0,1.0,92474.0,36989600.0,2017-02-20,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE04,Altmarkkreis Salzwedel,13,81851.0,33.0,132.0,13.0,414647.0,165858800.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE05,Anhalt-Bitterfeld,10,156642.0,17.0,75.0,10.0,819521.0,327808400.0,2017-02-20,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE06,Jerichower Land,8,89914.0,49.0,183.0,8.0,808437.0,323374800.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE07,Börde,34,170984.0,51.0,286.0,33.0,1032193.0,412877200.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE08,Burgenlandkreis,33,177174.0,16.0,107.0,28.0,248775.0,99510000.0,2018-03-19,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE09,Harz,20,208804.0,18.0,85.0,19.0,675953.0,270381200.0,2015-12-28,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE0A,Mansfeld-Südharz,22,131071.0,10.0,61.0,15.0,218303.0,87321200.0,2022-06-27,2024-05-27,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE0B,Saalekreis,20,184255.0,17.0,83.0,19.0,429817.0,171926800.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE0C,Salzlandkreis,21,184943.0,20.0,159.0,21.0,962573.0,385029200.0,2015-12-28,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE0D,Stendal,25,109592.0,55.0,502.0,25.0,1953180.0,781272000.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DEE,Sachsen-Anhalt,DEE0,Sachsen-Anhalt,DEE0E,Wittenberg,9,123246.0,16.0,89.0,9.0,1343272.0,537308800.0,2015-12-28,2024-11-18,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF01,"Flensburg, Kreisfreie Stadt",1,92667.0,2.0,2.0,1.0,198.0,79200.0,2020-07-13,2020-10-05,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF02,"Kiel, Kreisfreie Stadt",1,248873.0,23.0,23.0,1.0,13182.0,5272800.0,2015-01-12,2024-02-26,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF03,"Lübeck, Kreisfreie Stadt",1,219044.0,13.0,13.0,1.0,3692.0,1476800.0,2018-10-29,2024-04-08,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF04,"Neumünster, Kreisfreie Stadt",1,80185.0,1.0,1.0,1.0,139.0,55600.0,2022-01-31,2022-03-07,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF05,Dithmarschen,116,135653.0,43.0,406.0,75.0,184376.0,73750400.0,2015-01-12,2024-04-08,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF06,Herzogtum Lauenburg,133,204836.0,38.0,174.0,40.0,59782.0,23912800.0,2015-01-12,2024-11-18,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF07,Nordfriesland,133,170007.0,65.0,940.0,100.0,754453.0,301781200.0,2015-01-12,2024-12-02,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF08,Ostholstein,36,204275.0,41.0,162.0,27.0,55767.0,22306800.0,2015-10-26,2024-03-11,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF09,Pinneberg,49,324018.0,38.0,202.0,32.0,98960.0,39584000.0,2015-02-16,2024-05-27,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0A,Plön,85,131370.0,33.0,156.0,36.0,34324.0,13729600.0,2015-01-12,2024-04-08,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0B,Rendsburg-Eckernförde,165,279864.0,33.0,256.0,92.0,86508.0,34603200.0,2015-11-09,2024-04-08,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0C,Schleswig-Flensburg,123,206385.0,46.0,397.0,77.0,156556.0,62622400.0,2015-01-12,2024-03-11,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0D,Segeberg,96,287175.0,31.0,317.0,52.0,131278.0,52511200.0,2015-02-16,2024-02-26,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0E,Steinburg,111,133072.0,38.0,390.0,49.0,174032.0,69612800.0,2015-02-16,2024-04-08,True
+DE,Deutschland,DEF,Schleswig-Holstein,DEF0,Schleswig-Holstein,DEF0F,Stormarn,55,248267.0,23.0,88.0,21.0,22255.0,8902000.0,2015-11-09,2024-03-11,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG01,"Erfurt, Kreisfreie Stadt",1,215675.0,9.0,9.0,1.0,41849.0,16739600.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG02,"Gera, Kreisfreie Stadt",1,94847.0,2.0,2.0,1.0,3837.0,1534800.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG03,"Jena, Kreisfreie Stadt",1,110791.0,1.0,1.0,1.0,74.0,29600.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG05,"Weimar, Kreisfreie Stadt",1,65611.0,2.0,2.0,1.0,386.0,154400.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG06,Eichsfeld,68,103441.0,5.0,31.0,16.0,22344.0,8937600.0,2019-09-16,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG07,Nordhausen,15,82179.0,10.0,43.0,13.0,118019.0,47207600.0,2019-09-16,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG09,Unstrut-Hainich-Kreis,27,98233.0,9.0,53.0,21.0,126389.0,50555600.0,2018-01-01,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0A,Kyffhäuserkreis,28,73216.0,20.0,109.0,23.0,356306.0,142522400.0,2015-01-12,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0C,Gotha,30,134472.0,5.0,54.0,23.0,150374.0,60149600.0,2018-03-19,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0D,Sömmerda,37,69418.0,13.0,142.0,36.0,364378.0,145751200.0,2018-03-19,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0E,Hildburghausen,32,61329.0,9.0,27.0,10.0,7272.0,2908800.0,2017-11-13,2024-02-19,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0G,Weimarer Land,38,82892.0,5.0,38.0,20.0,43291.0,17316400.0,2017-02-20,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0J,Saale-Holzland-Kreis,91,83643.0,2.0,30.0,17.0,14005.0,5602000.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0K,Saale-Orla-Kreis,59,78619.0,1.0,1.0,1.0,162.0,64800.0,2024-01-01,2024-01-29,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0L,Greiz,43,95563.0,2.0,9.0,6.0,2808.0,1123200.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0M,Altenburger Land,30,88692.0,7.0,42.0,20.0,36941.0,14776400.0,2022-06-27,2024-11-18,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0Q,Schmalkalden-Meiningen,39,123274.0,13.0,34.0,12.0,19371.0,7748400.0,2015-12-28,2024-02-26,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0R,Wartburgkreis,32,159201.0,16.0,84.0,18.0,159219.0,63687600.0,2015-12-28,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0S,"Suhl, Kreisfreie Stadt",1,36986.0,1.0,1.0,1.0,91.0,36400.0,2018-01-01,2018-01-29,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0T,Ilm-Kreis,16,106775.0,4.0,18.0,9.0,28848.0,11539200.0,2018-03-19,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0U,Saalfeld-Rudolstadt,26,101044.0,2.0,6.0,3.0,2397.0,958800.0,2024-03-25,2024-05-27,True
+DE,Deutschland,DEG,Thüringen,DEG0,Thüringen,DEG0V,Sonneberg,8,56434.0,2.0,2.0,2.0,410.0,164000.0,2022-01-31,2024-01-01,True
+DK,Danmark,DK0,Danmark,DK01,Hovedstaden,DK011,Byen København,4,822733.0,36.0,57.0,3.0,154612.0,61844800.0,2016-11-07,2024-12-16,True
+DK,Danmark,DK0,Danmark,DK01,Hovedstaden,DK012,Københavns omegn,13,572774.0,8.0,10.0,3.0,5048.0,2019200.0,2016-11-07,2024-06-24,True
+DK,Danmark,DK0,Danmark,DK01,Hovedstaden,DK013,Nordsjælland,11,476137.0,34.0,79.0,8.0,37936.0,15174400.0,2016-11-07,2024-06-24,True
+DK,Danmark,DK0,Danmark,DK01,Hovedstaden,DK014,Bornholm,2,39423.0,1.0,1.0,1.0,1286.0,514400.0,2019-04-15,2019-05-27,True
+DK,Danmark,DK0,Danmark,DK02,Sjælland,DK021,Østsjælland,5,259862.0,30.0,80.0,5.0,56503.0,22601200.0,2016-11-07,2024-06-24,True
+DK,Danmark,DK0,Danmark,DK02,Sjælland,DK022,Vest- og Sydsjælland,12,593091.0,70.0,342.0,12.0,728040.0,291216000.0,2015-01-12,2024-12-16,True
+DK,Danmark,DK0,Danmark,DK03,Syddanmark,DK031,Fyn,10,505817.0,47.0,206.0,10.0,168420.0,67368000.0,2015-01-12,2024-12-02,True
+DK,Danmark,DK0,Danmark,DK03,Syddanmark,DK032,Sydjylland,12,732589.0,54.0,356.0,12.0,2202639.0,881055600.0,2015-01-12,2024-12-02,True
+DK,Danmark,DK0,Danmark,DK04,Midtjylland,DK041,Vestjylland,8,429734.0,55.0,273.0,8.0,1120901.0,448360400.0,2015-01-12,2024-12-02,True
+DK,Danmark,DK0,Danmark,DK04,Midtjylland,DK042,Østjylland,11,935954.0,45.0,209.0,11.0,390333.0,156133200.0,2015-11-09,2024-12-02,True
+DK,Danmark,DK0,Danmark,DK05,Nordjylland,DK050,Nordjylland,11,593135.0,61.0,420.0,11.0,2245648.0,898259200.0,2015-01-12,2024-12-02,True
+EE,Eesti,EE0,Eesti,EE00,Eesti,EE001,Põhja-Eesti,16,646315.0,54.0,278.0,14.0,235379.0,94151600.0,2015-02-09,2025-01-06,True
+EE,Eesti,EE0,Eesti,EE00,Eesti,EE004,Lääne-Eesti,14,148955.0,88.0,643.0,14.0,5091837.0,2036734800.0,2014-12-29,2025-01-06,True
+EE,Eesti,EE0,Eesti,EE00,Eesti,EE008,Lõuna-Eesti,26,323265.0,68.0,442.0,26.0,1185158.0,474063200.0,2014-12-29,2025-01-06,True
+EE,Eesti,EE0,Eesti,EE00,Eesti,EE009,Kesk-Eesti,15,123866.0,54.0,216.0,14.0,230318.0,92127200.0,2014-12-29,2025-01-06,True
+EE,Eesti,EE0,Eesti,EE00,Eesti,EE00A,Kirde-Eesti,8,132286.0,33.0,77.0,7.0,356505.0,142602000.0,2015-12-14,2025-01-06,True
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL301,Βόρειος Τομέας Αθηνών,20,601163.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL302,Δυτικός Τομέας Αθηνών,8,478883.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL303,Κεντρικός Τομέας Αθηνών,10,1002212.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL304,Νότιος Τομέας Αθηνών,10,529455.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL305,Ανατολική Αττική,47,518755.0,1.0,1.0,1.0,295.0,118000.0,2020-01-13,2020-01-27,True
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL306,Δυτική Αττική,13,165540.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL3,Αττική ,EL30,Aττική,EL307,"Πειραιάς, Νήσοι",44,518056.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL41,Βόρειο Αιγαίο,EL411,"Λέσβος, Λήμνος",106,100423.0,3.0,7.0,3.0,2253.0,901200.0,2015-12-28,2021-04-19,True
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL41,Βόρειο Αιγαίο,EL412,"Ικαρία, Σάμος",48,42828.0,1.0,10.0,10.0,1046.0,418400.0,2017-04-10,2017-07-10,True
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL41,Βόρειο Αιγαίο,EL413,Χίος,60,51692.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL42,Νότιο Αιγαίο,EL421,"Κάλυμνος, Κάρπαθος – Ηρωική Νήσος Κάσος, Κως, Ρόδος",74,206831.0,1.0,1.0,1.0,198.0,79200.0,2019-01-07,2019-03-04,True
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL42,Νότιο Αιγαίο,EL422,"Άνδρος, Θήρα, Κέα - Κύθνος, Μήλος, Μύκονος, Νάξος, Πάρος, Σύρος, Τήνος",120,120989.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL431,Ηράκλειο,194,305017.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL432,Λασίθι,88,77819.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL433,Ρέθυμνο,133,84866.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL4,"Νησιά Αιγαίου, Κρήτη",EL43,Κρήτη,EL434,Χανιά,163,156706.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL51,"Aνατολική Μακεδονία, Θράκη",EL511,Έβρος,88,133802.0,35.0,644.0,62.0,2894766.0,1157906400.0,2014-12-29,2024-06-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL51,"Aνατολική Μακεδονία, Θράκη",EL512,Ξάνθη,37,108195.0,12.0,66.0,14.0,37899.0,15159600.0,2015-01-12,2024-12-02,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL51,"Aνατολική Μακεδονία, Θράκη",EL513,Ροδόπη,90,104262.0,13.0,92.0,24.0,138580.0,55432000.0,2015-01-12,2024-12-02,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL51,"Aνατολική Μακεδονία, Θράκη",EL514,Δράμα,71,86643.0,15.0,71.0,24.0,97414.0,38965600.0,2015-03-09,2024-12-02,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL51,"Aνατολική Μακεδονία, Θράκη",EL515,"Θάσος, Καβάλα",79,129299.0,10.0,64.0,21.0,153961.0,61584400.0,2015-01-12,2024-12-02,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL521,Ημαθία,68,131001.0,22.0,132.0,22.0,326493.0,130597200.0,2015-01-12,2024-06-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL522,Θεσσαλονίκη,127,1092919.0,27.0,384.0,53.0,2043694.0,817477600.0,2014-12-29,2024-06-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL523,Κιλκίς,84,70477.0,22.0,109.0,25.0,106682.0,42672800.0,2014-12-29,2024-11-18,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL524,Πέλλα,90,126740.0,17.0,34.0,9.0,23326.0,9330400.0,2014-12-29,2024-06-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL525,Πιερία,55,119384.0,28.0,65.0,11.0,252986.0,101194400.0,2014-12-29,2024-06-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL526,Σέρρες,148,151317.0,20.0,263.0,71.0,700068.0,280027200.0,2014-12-29,2024-11-18,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL52,Κεντρική Μακεδονία,EL527,Χαλκιδική,74,102085.0,8.0,18.0,8.0,5675.0,2270000.0,2014-12-29,2021-10-18,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL53,Δυτική Μακεδονία,EL531,"Γρεβενά, Κοζάνη",230,163786.0,7.0,43.0,24.0,12764.0,5105600.0,2015-03-09,2024-11-18,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL53,Δυτική Μακεδονία,EL532,Καστοριά,69,45929.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL53,Δυτική Μακεδονία,EL533,Φλώρινα,89,44880.0,9.0,31.0,11.0,13321.0,5328400.0,2015-03-09,2024-11-18,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL54,Ήπειρος,EL541,"Άρτα, Πρέβεζα",154,118280.0,11.0,123.0,50.0,86427.0,34570800.0,2015-02-02,2023-04-24,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL54,Ήπειρος,EL542,Θεσπρωτία,105,40804.0,5.0,42.0,21.0,39764.0,15905600.0,2015-03-09,2021-02-22,True
+EL,Ελλάδα ,EL5,Βόρεια Ελλάδα,EL54,Ήπειρος,EL543,Ιωάννινα,322,160773.0,8.0,58.0,24.0,17262.0,6904800.0,2015-03-09,2021-02-22,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL61,Θεσσαλία,EL611,"Καρδίτσα, Τρίκαλα",294,228386.0,9.0,213.0,91.0,1304109.0,521643600.0,2015-02-02,2024-04-15,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL61,Θεσσαλία,EL612,Λάρισα,164,268963.0,21.0,324.0,86.0,1250952.0,500380800.0,2015-12-07,2024-09-09,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL61,Θεσσαλία,EL613,"Μαγνησία, Σποράδες",81,190906.0,17.0,47.0,15.0,446757.0,178702800.0,2016-12-12,2024-09-09,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL62,Ιόνια Νησιά,EL621,Ζάκυνθος,47,41180.0,2.0,2.0,1.0,1097.0,438800.0,2019-12-09,2021-11-29,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL62,Ιόνια Νησιά,EL622,Κέρκυρα,107,101600.0,2.0,2.0,2.0,118.0,47200.0,2016-02-15,2021-02-15,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL62,Ιόνια Νησιά,EL623,"Ιθάκη, Κεφαλληνία",79,38926.0,1.0,3.0,3.0,60.0,24000.0,2020-05-11,2020-05-18,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL62,Ιόνια Νησιά,EL624,Λευκάδα,45,22826.0,2.0,3.0,3.0,905.0,362000.0,2019-12-09,2021-10-25,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL63,Δυτική Ελλάδα,EL631,Αιτωλοακαρνανία,240,192345.0,12.0,118.0,41.0,151418.0,60567200.0,2015-02-02,2023-04-24,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL63,Δυτική Ελλάδα,EL632,Αχαΐα,245,305979.0,11.0,37.0,8.0,53026.0,21210400.0,2015-02-02,2023-04-24,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL63,Δυτική Ελλάδα,EL633,Ηλεία,220,149896.0,8.0,45.0,17.0,33057.0,13222800.0,2015-02-02,2021-12-27,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL641,Βοιωτία,76,106056.0,8.0,50.0,25.0,53382.0,21352800.0,2018-03-05,2024-11-18,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL642,Εύβοια,165,210778.0,3.0,5.0,3.0,11880.0,4752000.0,2020-01-13,2020-03-23,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL643,Ευρυτανία,83,17428.0,0.0,0.0,0.0,0.0,0.0,,,False
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL644,Φθιώτιδα,187,137793.0,10.0,55.0,36.0,57963.0,23185200.0,2015-02-02,2024-11-18,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL64,Στερεά Ελλάδα,EL645,Φωκίδα,91,36199.0,7.0,18.0,12.0,15888.0,6355200.0,2015-02-02,2024-11-18,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL65,Πελοπόννησος,EL651,"Αργολίδα, Αρκαδία",327,170808.0,6.0,53.0,26.0,57341.0,22936400.0,2019-01-07,2023-04-24,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL65,Πελοπόννησος,EL652,Κορινθία,123,138310.0,6.0,29.0,10.0,26777.0,10710800.0,2019-01-07,2024-11-18,True
+EL,Ελλάδα ,EL6,Κεντρική Ελλάδα,EL65,Πελοπόννησος,EL653,"Λακωνία, Μεσσηνία",448,230417.0,1.0,7.0,7.0,1773.0,709200.0,2019-01-07,2019-03-04,True
+ES,España,ES1,Noroeste,ES11,Galicia,ES111,A Coruña,93,0.0,6.0,28.0,14.0,13698.0,5479200.0,2016-02-08,2021-12-13,True
+ES,España,ES1,Noroeste,ES11,Galicia,ES112,Lugo,67,0.0,5.0,27.0,10.0,27185.0,10874000.0,2016-02-08,2021-12-13,True
+ES,España,ES1,Noroeste,ES11,Galicia,ES113,Ourense,92,0.0,17.0,77.0,26.0,156525.0,62610000.0,2016-01-25,2024-07-22,True
+ES,España,ES1,Noroeste,ES11,Galicia,ES114,Pontevedra,61,0.0,5.0,30.0,19.0,9398.0,3759200.0,2017-03-13,2021-03-22,True
+ES,España,ES1,Noroeste,ES12,Principado de Asturias,ES120,Asturias,78,0.0,4.0,11.0,8.0,2681.0,1072400.0,2019-03-18,2025-01-06,True
+ES,España,ES1,Noroeste,ES13,Cantabria,ES130,Cantabria,102,0.0,22.0,140.0,25.0,39171.0,15668400.0,2015-02-09,2025-01-06,True
+ES,España,ES2,Noreste,ES21,País Vasco,ES211,Araba/Álava,51,0.0,7.0,60.0,29.0,112166.0,44866400.0,2015-02-09,2024-07-22,True
+ES,España,ES2,Noreste,ES21,País Vasco,ES212,Gipuzkoa,88,0.0,7.0,8.0,2.0,2522.0,1008800.0,2016-01-25,2022-01-03,True
+ES,España,ES2,Noreste,ES21,País Vasco,ES213,Bizkaia,113,0.0,14.0,43.0,6.0,32511.0,13004400.0,2017-06-26,2024-07-22,True
+ES,España,ES2,Noreste,ES22,Comunidad Foral de Navarra,ES220,Navarra,272,0.0,25.0,240.0,70.0,391132.0,156452800.0,2015-02-09,2025-01-06,True
+ES,España,ES2,Noreste,ES23,La Rioja,ES230,La Rioja,174,0.0,20.0,111.0,68.0,131753.0,52701200.0,2015-02-09,2025-01-06,True
+ES,España,ES2,Noreste,ES24,Aragón,ES241,Huesca,202,0.0,35.0,178.0,67.0,77907.0,31162800.0,2015-02-09,2025-01-06,True
+ES,España,ES2,Noreste,ES24,Aragón,ES242,Teruel,236,0.0,30.0,132.0,55.0,87666.0,35066400.0,2015-02-09,2024-11-18,True
+ES,España,ES2,Noreste,ES24,Aragón,ES243,Zaragoza,293,0.0,44.0,460.0,115.0,818128.0,327251200.0,2015-02-09,2025-01-06,True
+ES,España,ES3,Comunidad de Madrid,ES30,Comunidad de Madrid,ES300,Madrid,179,0.0,19.0,102.0,48.0,36961.0,14784400.0,2014-12-29,2024-10-07,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES411,Ávila,248,0.0,24.0,259.0,88.0,83927.0,33570800.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES412,Burgos,371,0.0,36.0,314.0,146.0,436971.0,174788400.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES413,León,211,0.0,17.0,121.0,70.0,79535.0,31814000.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES414,Palencia,191,0.0,14.0,113.0,74.0,49835.0,19934000.0,2015-08-17,2024-07-22,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES415,Salamanca,362,0.0,36.0,419.0,152.0,181744.0,72697600.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES416,Segovia,209,0.0,21.0,202.0,66.0,44920.0,17968000.0,2015-08-17,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES417,Soria,183,0.0,36.0,424.0,127.0,1037281.0,414912400.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES418,Valladolid,225,0.0,27.0,446.0,144.0,252275.0,100910000.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES41,Castilla y León,ES419,Zamora,248,0.0,31.0,432.0,124.0,392309.0,156923600.0,2015-02-09,2025-01-06,True
+ES,España,ES4,Centro (ES),ES42,Castilla-La Mancha,ES421,Albacete,87,0.0,58.0,266.0,46.0,425295.0,170118000.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES42,Castilla-La Mancha,ES422,Ciudad Real,102,0.0,48.0,506.0,63.0,1021197.0,408478800.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES42,Castilla-La Mancha,ES423,Cuenca,238,0.0,46.0,454.0,112.0,609223.0,243689200.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES42,Castilla-La Mancha,ES424,Guadalajara,288,0.0,25.0,105.0,61.0,27196.0,10878400.0,2014-12-29,2024-10-07,True
+ES,España,ES4,Centro (ES),ES42,Castilla-La Mancha,ES425,Toledo,204,0.0,43.0,477.0,115.0,364044.0,145617600.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES43,Extremadura,ES431,Badajoz,165,0.0,38.0,457.0,70.0,1120555.0,448222000.0,2014-12-29,2025-01-06,True
+ES,España,ES4,Centro (ES),ES43,Extremadura,ES432,Cáceres,223,0.0,46.0,340.0,69.0,431895.0,172758000.0,2015-01-12,2025-01-06,True
+ES,España,ES5,Este,ES51,Cataluña,ES511,Barcelona,311,0.0,4.0,7.0,6.0,1206.0,482400.0,2020-01-27,2024-06-24,True
+ES,España,ES5,Este,ES51,Cataluña,ES512,Girona,221,0.0,5.0,145.0,60.0,103497.0,41398800.0,2020-01-27,2024-05-27,True
+ES,España,ES5,Este,ES51,Cataluña,ES513,Lleida,231,0.0,14.0,150.0,75.0,54687.0,21874800.0,2016-01-18,2024-07-22,True
+ES,España,ES5,Este,ES51,Cataluña,ES514,Tarragona,184,0.0,50.0,281.0,16.0,4304563.0,1721825200.0,2015-02-09,2025-01-06,True
+ES,España,ES5,Este,ES52,Comunitat Valenciana ,ES521,Alicante/Alacant,141,0.0,12.0,29.0,10.0,20080.0,8032000.0,2016-02-15,2025-01-06,True
+ES,España,ES5,Este,ES52,Comunitat Valenciana ,ES522,Castellón/Castelló,135,0.0,50.0,160.0,22.0,85707.0,34282800.0,2015-02-09,2025-01-06,True
+ES,España,ES5,Este,ES52,Comunitat Valenciana ,ES523,Valencia/València,266,0.0,61.0,761.0,52.0,5705759.0,2282303600.0,2015-02-09,2025-01-06,True
+ES,España,ES5,Este,ES53,Illes Balears,ES531,Eivissa y Formentera,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES5,Este,ES53,Illes Balears,ES532,Mallorca,53,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES5,Este,ES53,Illes Balears,ES533,Menorca,8,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES6,Sur,ES61,Andalucía,ES611,Almería,103,0.0,4.0,5.0,4.0,1161.0,464400.0,2016-10-31,2024-09-02,True
+ES,España,ES6,Sur,ES61,Andalucía,ES612,Cádiz,45,0.0,42.0,410.0,32.0,1045073.0,418029200.0,2015-01-05,2025-01-06,True
+ES,España,ES6,Sur,ES61,Andalucía,ES613,Córdoba,77,0.0,12.0,64.0,31.0,32538.0,13015200.0,2017-01-02,2025-01-06,True
+ES,España,ES6,Sur,ES61,Andalucía,ES614,Granada,174,0.0,10.0,45.0,28.0,10465.0,4186000.0,2016-10-31,2024-10-07,True
+ES,España,ES6,Sur,ES61,Andalucía,ES615,Huelva,80,0.0,62.0,299.0,33.0,1603688.0,641475200.0,2015-01-05,2025-01-06,True
+ES,España,ES6,Sur,ES61,Andalucía,ES616,Jaén,97,0.0,25.0,48.0,22.0,38287.0,15314800.0,2014-12-29,2024-10-07,True
+ES,España,ES6,Sur,ES61,Andalucía,ES617,Málaga,103,0.0,22.0,62.0,16.0,57850.0,23140000.0,2017-01-02,2025-01-06,True
+ES,España,ES6,Sur,ES61,Andalucía,ES618,Sevilla,106,0.0,51.0,395.0,44.0,6137900.0,2455160000.0,2015-01-05,2025-01-06,True
+ES,España,ES6,Sur,ES62,Región de Murcia,ES620,Murcia,45,0.0,15.0,62.0,18.0,53605.0,21442000.0,2016-10-31,2025-01-06,True
+ES,España,ES6,Sur,ES63,Ciudad de Ceuta,ES630,Ceuta,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES6,Sur,ES64,Ciudad de Melilla,ES640,Melilla,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES703,El Hierro,3,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES704,Fuerteventura,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES705,Gran Canaria,21,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES706,La Gomera,6,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES707,La Palma,14,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES708,Lanzarote,7,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+ES,España,ES7,Canarias,ES70,Canarias,ES709,Tenerife,31,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FI,Suomi/Finland,FI1,Manner-Suomi,FI19,Länsi-Suomi,FI196,Satakunta,16,211740.0,52.0,420.0,16.0,6992517.0,2797006800.0,2014-12-29,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI19,Länsi-Suomi,FI198,Keski-Suomi,22,273271.0,51.0,485.0,22.0,2840232.0,1136092800.0,2015-12-14,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI19,Länsi-Suomi,FI199,Etelä-Pohjanmaa,18,190539.0,61.0,614.0,18.0,7608843.0,3043537200.0,2015-03-02,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI19,Länsi-Suomi,FI19A,Pohjanmaa,14,177602.0,65.0,403.0,13.0,2004201.0,801680400.0,2014-12-29,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI19,Länsi-Suomi,FI19B,Pirkanmaa,23,539309.0,51.0,283.0,23.0,4176532.0,1670612800.0,2015-12-14,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1B,Helsinki-Uusimaa,FI1B1,Helsinki-Uusimaa,26,1759537.0,52.0,567.0,25.0,3451864.0,1380745600.0,2015-02-09,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1C,Etelä-Suomi,FI1C1,Varsinais-Suomi,27,490786.0,72.0,440.0,27.0,2794175.0,1117670000.0,2014-12-29,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1C,Etelä-Suomi,FI1C2,Kanta-Häme,11,169547.0,51.0,189.0,11.0,2117349.0,846939600.0,2015-02-09,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1C,Etelä-Suomi,FI1C5,Etelä-Karjala,9,125162.0,38.0,130.0,9.0,827067.0,330826800.0,2015-02-02,2024-05-27,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1C,Etelä-Suomi,FI1C6,Päijät-Häme,10,204479.0,43.0,135.0,10.0,1640504.0,656201600.0,2015-02-09,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1C,Etelä-Suomi,FI1C7,Kymenlaakso,6,158658.0,53.0,203.0,6.0,5620498.0,2248199200.0,2015-02-02,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1D5,Keski-Pohjanmaa,8,67736.0,56.0,291.0,8.0,6314761.0,2525904400.0,2015-12-14,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1D7,Lappi,21,176150.0,118.0,945.0,21.0,141074666.0,56429866400.0,2015-03-30,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1D8,Kainuu,8,70164.0,71.0,296.0,8.0,5132113.0,2052845200.0,2015-03-30,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1D9,Pohjois-Pohjanmaa,30,418205.0,98.0,1207.0,30.0,49806567.0,19922626800.0,2015-03-30,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1DA,Etelä-Savo,12,129914.0,37.0,203.0,12.0,1109314.0,443725600.0,2015-12-14,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1DB,Pohjois-Savo,19,248190.0,60.0,431.0,19.0,5791830.0,2316732000.0,2015-02-09,2025-01-06,True
+FI,Suomi/Finland,FI1,Manner-Suomi,FI1D,Pohjois- ja Itä-Suomi,FI1DC,Pohjois-Karjala,13,162321.0,55.0,362.0,13.0,10112433.0,4044973200.0,2015-02-09,2025-01-06,True
+FI,Suomi/Finland,FI2,Åland,FI20,Åland,FI200,Åland,16,30541.0,22.0,88.0,16.0,7502.0,3000800.0,2016-05-30,2024-06-17,True
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR101,Paris,1,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR102,Seine-et-Marne ,507,0.0,27.0,627.0,185.0,243287.0,97314800.0,2015-10-26,2025-01-06,True
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR103,Yvelines ,259,0.0,7.0,51.0,38.0,34650.0,13860000.0,2018-01-15,2024-11-11,True
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR104,Essonne,194,0.0,6.0,14.0,11.0,2222.0,888800.0,2018-01-01,2024-11-11,True
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR105,Hauts-de-Seine ,36,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR106,Seine-Saint-Denis ,40,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR107,Val-de-Marne,47,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FR1,Ile-de-France,FR10,Ile-de-France,FR108,Val-d’Oise,184,0.0,7.0,27.0,15.0,11443.0,4577200.0,2018-01-15,2021-03-08,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB01,Cher,287,0.0,30.0,443.0,117.0,196091.0,78436400.0,2015-01-19,2024-07-01,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB02,Eure-et-Loir,365,0.0,22.0,255.0,175.0,244631.0,97852400.0,2017-01-23,2024-11-11,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB03,Indre,241,0.0,19.0,282.0,115.0,97207.0,38882800.0,2015-01-19,2024-05-27,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB04,Indre-et-Loire,272,0.0,29.0,519.0,122.0,303361.0,121344400.0,2015-01-19,2024-06-03,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB05,Loir-et-Cher,267,0.0,30.0,434.0,162.0,290242.0,116096800.0,2015-01-19,2024-12-16,True
+FR,France,FRB,Centre — Val de Loire,FRB0,Centre — Val de Loire,FRB06,Loiret,325,0.0,23.0,260.0,129.0,251845.0,100738000.0,2015-04-27,2024-06-03,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC1,Bourgogne,FRC11,Côte-d’Or,698,0.0,40.0,1473.0,247.0,2092129.0,836851600.0,2015-01-19,2025-01-06,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC1,Bourgogne,FRC12,Nièvre,309,0.0,28.0,777.0,115.0,738775.0,295510000.0,2015-12-28,2024-11-11,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC1,Bourgogne,FRC13,Saône-et-Loire,564,0.0,43.0,2669.0,260.0,4630857.0,1852342800.0,2015-03-30,2025-01-06,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC1,Bourgogne,FRC14,Yonne,423,0.0,28.0,592.0,178.0,380696.0,152278400.0,2015-10-26,2024-07-01,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC2,Franche-Comté,FRC21,Doubs,571,0.0,39.0,760.0,165.0,434196.0,173678400.0,2015-01-19,2025-01-06,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC2,Franche-Comté,FRC22,Jura,494,0.0,40.0,884.0,160.0,731031.0,292412400.0,2015-01-19,2025-01-06,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC2,Franche-Comté,FRC23,Haute-Saône,539,0.0,36.0,2298.0,256.0,2605134.0,1042053600.0,2015-01-19,2025-01-06,True
+FR,France,FRC,Bourgogne-Franche-Comté,FRC2,Franche-Comté,FRC24,Territoire de Belfort,101,0.0,15.0,145.0,21.0,36523.0,14609200.0,2015-12-28,2024-02-05,True
+FR,France,FRD,Normandie,FRD1,Basse-Normandie ,FRD11,Calvados ,528,0.0,56.0,1207.0,141.0,1883994.0,753597600.0,2015-02-16,2024-12-16,True
+FR,France,FRD,Normandie,FRD1,Basse-Normandie ,FRD12,Manche ,445,0.0,55.0,3495.0,181.0,7419122.0,2967648800.0,2015-02-16,2024-12-16,True
+FR,France,FRD,Normandie,FRD1,Basse-Normandie ,FRD13,Orne,385,0.0,34.0,834.0,110.0,487539.0,195015600.0,2015-12-28,2024-12-16,True
+FR,France,FRD,Normandie,FRD2,Haute-Normandie ,FRD21,Eure,585,0.0,30.0,289.0,133.0,166660.0,66664000.0,2015-01-12,2024-12-16,True
+FR,France,FRD,Normandie,FRD2,Haute-Normandie ,FRD22,Seine-Maritime,708,0.0,28.0,261.0,88.0,180720.0,72288000.0,2015-01-12,2024-12-16,True
+FR,France,FRE,Hauts-de-France,FRE1,Nord-Pas de Calais,FRE11,Nord,648,0.0,43.0,652.0,125.0,258226.0,103290400.0,2015-02-16,2024-11-11,True
+FR,France,FRE,Hauts-de-France,FRE1,Nord-Pas de Calais,FRE12,Pas-de-Calais,890,0.0,34.0,371.0,93.0,256981.0,102792400.0,2015-01-12,2024-04-01,True
+FR,France,FRE,Hauts-de-France,FRE2,Picardie,FRE21,Aisne,798,0.0,36.0,2044.0,212.0,1955892.0,782356800.0,2015-01-12,2025-01-06,True
+FR,France,FRE,Hauts-de-France,FRE2,Picardie,FRE22,Oise,679,0.0,31.0,418.0,55.0,402281.0,160912400.0,2015-01-12,2025-01-06,True
+FR,France,FRE,Hauts-de-France,FRE2,Picardie,FRE23,Somme,772,0.0,12.0,79.0,55.0,14312.0,5724800.0,2015-01-12,2022-01-03,True
+FR,France,FRF,Grand Est,FRF1,Alsace,FRF11,Bas-Rhin,514,0.0,26.0,518.0,102.0,884485.0,353794000.0,2015-12-28,2025-01-06,True
+FR,France,FRF,Grand Est,FRF1,Alsace,FRF12,Haut-Rhin,366,0.0,19.0,130.0,34.0,216312.0,86524800.0,2015-12-28,2025-01-06,True
+FR,France,FRF,Grand Est,FRF2,Champagne-Ardenne,FRF21,Ardennes,449,0.0,39.0,2798.0,180.0,4608358.0,1843343200.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF2,Champagne-Ardenne,FRF22,Aube,431,0.0,42.0,1703.0,254.0,1589435.0,635774000.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF2,Champagne-Ardenne,FRF23,Marne,611,0.0,38.0,2549.0,285.0,3311734.0,1324693600.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF2,Champagne-Ardenne,FRF24,Haute-Marne,426,0.0,39.0,1159.0,149.0,767994.0,307197600.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF3,Lorraine,FRF31,Meurthe-et-Moselle ,591,0.0,34.0,1380.0,218.0,857583.0,343033200.0,2015-12-28,2025-01-06,True
+FR,France,FRF,Grand Est,FRF3,Lorraine,FRF32,Meuse ,499,0.0,50.0,3617.0,270.0,5487374.0,2194949600.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF3,Lorraine,FRF33,Moselle,725,0.0,33.0,2406.0,261.0,1611168.0,644467200.0,2015-01-12,2025-01-06,True
+FR,France,FRF,Grand Est,FRF3,Lorraine,FRF34,Vosges,507,0.0,31.0,826.0,127.0,451188.0,180475200.0,2015-01-19,2025-01-06,True
+FR,France,FRG,Pays de la Loire,FRG0,Pays de la Loire,FRG01,Loire-Atlantique,207,0.0,92.0,2656.0,154.0,7560558.0,3024223200.0,2015-02-16,2025-01-06,True
+FR,France,FRG,Pays de la Loire,FRG0,Pays de la Loire,FRG02,Maine-et-Loire,177,0.0,63.0,1247.0,103.0,2906307.0,1162522800.0,2015-01-19,2024-12-16,True
+FR,France,FRG,Pays de la Loire,FRG0,Pays de la Loire,FRG03,Mayenne,240,0.0,36.0,309.0,85.0,56282.0,22512800.0,2015-12-28,2024-12-16,True
+FR,France,FRG,Pays de la Loire,FRG0,Pays de la Loire,FRG04,Sarthe,354,0.0,38.0,716.0,137.0,493610.0,197444000.0,2015-12-28,2024-12-16,True
+FR,France,FRG,Pays de la Loire,FRG0,Pays de la Loire,FRG05,Vendée,255,0.0,71.0,1410.0,144.0,2676235.0,1070494000.0,2015-01-19,2024-10-21,True
+FR,France,FRH,Bretagne,FRH0,Bretagne,FRH01,Côtes-d’Armor,348,0.0,94.0,899.0,100.0,151229.0,60491600.0,2015-04-27,2025-01-06,True
+FR,France,FRH,Bretagne,FRH0,Bretagne,FRH02,Finistère,277,0.0,95.0,833.0,126.0,61527.0,24610800.0,2015-04-27,2024-11-11,True
+FR,France,FRH,Bretagne,FRH0,Bretagne,FRH03,Ille-et-Vilaine,333,0.0,52.0,1001.0,171.0,980604.0,392241600.0,2015-02-16,2024-12-16,True
+FR,France,FRH,Bretagne,FRH0,Bretagne,FRH04,Morbihan,249,0.0,82.0,1933.0,137.0,642286.0,256914400.0,2015-02-16,2024-10-21,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI1,Aquitaine,FRI11,Dordogne,503,0.0,22.0,399.0,103.0,211880.0,84752000.0,2016-02-08,2024-05-27,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI1,Aquitaine,FRI12,Gironde,535,0.0,58.0,1419.0,185.0,1055723.0,422289200.0,2015-01-19,2024-09-23,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI1,Aquitaine,FRI13,Landes,327,0.0,43.0,1524.0,191.0,2143221.0,857288400.0,2015-02-02,2025-01-06,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI1,Aquitaine,FRI14,Lot-et-Garonne,319,0.0,16.0,217.0,97.0,44468.0,17787200.0,2015-02-09,2024-05-27,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI1,Aquitaine,FRI15,Pyrénées-Atlantiques,546,0.0,30.0,249.0,71.0,235164.0,94065600.0,2015-02-02,2025-01-06,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI2,Limousin,FRI21,Corrèze,279,0.0,4.0,14.0,5.0,16561.0,6624400.0,2016-02-08,2023-12-25,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI2,Limousin,FRI22,Creuse,256,0.0,5.0,11.0,7.0,1092.0,436800.0,2015-01-19,2024-05-27,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI2,Limousin,FRI23,Haute-Vienne,195,0.0,1.0,1.0,1.0,71.0,28400.0,2021-01-11,2021-02-15,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI3,Poitou-Charentes,FRI31,Charente,363,0.0,36.0,1204.0,143.0,877367.0,350946800.0,2015-10-12,2024-06-03,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI3,Poitou-Charentes,FRI32,Charente-Maritime,463,0.0,46.0,3286.0,287.0,4082552.0,1633020800.0,2015-01-19,2024-06-03,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI3,Poitou-Charentes,FRI33,Deux-Sèvres,256,0.0,38.0,719.0,116.0,287772.0,115108800.0,2015-01-19,2024-06-03,True
+FR,France,FRI,Nouvelle-Aquitaine,FRI3,Poitou-Charentes,FRI34,Vienne,266,0.0,24.0,176.0,74.0,31968.0,12787200.0,2016-02-08,2024-06-03,True
+FR,France,FRJ,Occitanie,FRJ1,Languedoc-Roussillon,FRJ11,Aude,433,0.0,8.0,165.0,119.0,242793.0,97117200.0,2017-07-10,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ1,Languedoc-Roussillon,FRJ12,Gard,351,0.0,56.0,480.0,73.0,705802.0,282320800.0,2015-05-18,2024-08-12,True
+FR,France,FRJ,Occitanie,FRJ1,Languedoc-Roussillon,FRJ13,Hérault,342,0.0,33.0,152.0,49.0,135313.0,54125200.0,2016-04-11,2024-07-01,True
+FR,France,FRJ,Occitanie,FRJ1,Languedoc-Roussillon,FRJ14,Lozère,152,0.0,3.0,10.0,10.0,6394.0,2557600.0,2018-01-01,2024-03-18,True
+FR,France,FRJ,Occitanie,FRJ1,Languedoc-Roussillon,FRJ15,Pyrénées-Orientales,226,0.0,6.0,17.0,11.0,6887.0,2754800.0,2018-10-15,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ21,Ariège,326,0.0,5.0,72.0,65.0,34299.0,13719600.0,2019-04-29,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ22,Aveyron,285,0.0,4.0,25.0,20.0,6770.0,2708000.0,2018-01-01,2021-03-22,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ23,Haute-Garonne,586,0.0,10.0,316.0,275.0,183815.0,73526000.0,2019-11-18,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ24,Gers,461,0.0,14.0,601.0,238.0,189644.0,75857600.0,2015-02-09,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ25,Lot,313,0.0,3.0,49.0,45.0,16796.0,6718400.0,2021-01-11,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ26,Hautes-Pyrénées ,469,0.0,4.0,55.0,47.0,12603.0,5041200.0,2015-02-09,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ27,Tarn,314,0.0,1.0,115.0,115.0,68595.0,27438000.0,2024-03-25,2024-05-27,True
+FR,France,FRJ,Occitanie,FRJ2,Midi-Pyrénées,FRJ28,Tarn-et-Garonne,195,0.0,12.0,171.0,102.0,51300.0,20520000.0,2019-11-18,2024-05-27,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK1,Auvergne,FRK11,Allier,317,0.0,27.0,233.0,95.0,99717.0,39886800.0,2015-04-27,2024-11-11,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK1,Auvergne,FRK12,Cantal,246,0.0,4.0,24.0,20.0,10320.0,4128000.0,2018-01-01,2021-03-22,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK1,Auvergne,FRK13,Haute-Loire,257,0.0,5.0,24.0,16.0,4601.0,1840400.0,2019-01-28,2024-05-27,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK1,Auvergne,FRK14,Puy-de-Dôme,464,0.0,10.0,50.0,34.0,14746.0,5898400.0,2016-10-03,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK21,Ain,392,0.0,50.0,1277.0,165.0,1712916.0,685166400.0,2015-03-16,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK22,Ardèche,335,0.0,8.0,19.0,13.0,5772.0,2308800.0,2016-11-21,2024-05-27,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK23,Drôme,363,0.0,34.0,133.0,48.0,40733.0,16293200.0,2016-04-11,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK24,Isère,512,0.0,17.0,83.0,58.0,29653.0,11861200.0,2017-10-16,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK25,Loire,323,0.0,12.0,23.0,19.0,2291.0,916400.0,2015-03-30,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK26,Rhône,267,0.0,31.0,107.0,16.0,88740.0,35496000.0,2015-04-27,2025-01-06,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK27,Savoie,273,0.0,7.0,46.0,33.0,83161.0,33264400.0,2016-04-18,2024-05-27,True
+FR,France,FRK,Auvergne-Rhône-Alpes,FRK2,Rhône-Alpes,FRK28,Haute-Savoie,279,0.0,9.0,19.0,13.0,19701.0,7880400.0,2015-12-28,2022-01-03,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL01,Alpes-de-Haute-Provence,198,0.0,12.0,46.0,28.0,9308.0,3723200.0,2016-11-21,2024-05-27,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL02,Hautes-Alpes ,162,0.0,9.0,38.0,16.0,20656.0,8262400.0,2016-04-18,2025-01-06,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL03,Alpes-Maritimes,163,0.0,6.0,14.0,8.0,10141.0,4056400.0,2017-01-16,2024-03-18,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL04,Bouches-du-Rhône,119,0.0,56.0,331.0,43.0,2175911.0,870364400.0,2015-05-18,2024-08-12,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL05,Var,153,0.0,9.0,27.0,22.0,6833.0,2733200.0,2016-11-21,2023-05-01,True
+FR,France,FRL,Provence-Alpes-Côte d’Azur,FRL0,Provence-Alpes-Côte d’Azur,FRL06,Vaucluse,151,0.0,52.0,229.0,44.0,61091.0,24436400.0,2016-04-11,2024-08-12,True
+FR,France,FRM,Corse,FRM0,Corse,FRM01,Corse-du-Sud,124,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRM,Corse,FRM0,Corse,FRM02,Haute-Corse,236,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY1,Guadeloupe,FRY10,Guadeloupe,33,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY2,Martinique ,FRY20,Martinique ,34,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY3,Guyane,FRY30,Guyane,22,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY4,La Réunion ,FRY40,La Réunion,24,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+FR,France,FRY,RUP FR — Régions Ultrapériphériques Françaises,FRY5,Mayotte,FRY50,Mayotte ,17,0.0,0.0,0.0,0.0,0.0,0.0,,,False
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR021,Bjelovarsko-bilogorska županija,23,101879.0,56.0,194.0,17.0,176993.0,70797200.0,2014-12-29,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR022,Virovitičko-podravska županija,16,70368.0,44.0,163.0,16.0,205028.0,82011200.0,2014-12-29,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR023,Požeško-slavonska županija,10,64084.0,29.0,55.0,9.0,40173.0,16069200.0,2014-12-29,2024-07-01,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR024,Brodsko-posavska županija,28,130267.0,55.0,363.0,25.0,729776.0,291910400.0,2014-12-29,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR025,Osječko-baranjska županija,42,258026.0,61.0,339.0,40.0,1472833.0,589133200.0,2014-12-29,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR026,Vukovarsko-srijemska županija,31,143113.0,34.0,117.0,26.0,109620.0,43848000.0,2014-12-29,2024-11-18,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR027,Karlovačka županija,22,112195.0,28.0,131.0,16.0,579706.0,231882400.0,2014-12-29,2024-12-16,True
+HR,Hrvatska,HR0,Hrvatska,HR02,Panonska Hrvatska,HR028,Sisačko-moslavačka županija,19,139603.0,54.0,482.0,17.0,6835812.0,2734324800.0,2014-12-29,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR031,Primorsko-goranska županija,36,265419.0,10.0,28.0,10.0,26161.0,10464400.0,2015-02-02,2024-03-25,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR032,Ličko-senjska županija,12,42748.0,18.0,49.0,9.0,261843.0,104737200.0,2015-02-02,2024-12-16,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR033,Zadarska županija,34,159766.0,9.0,43.0,20.0,28951.0,11580400.0,2016-01-25,2020-11-30,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR034,Šibensko-kninska županija,20,96381.0,5.0,25.0,10.0,22541.0,9016400.0,2016-01-25,2021-03-15,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR035,Splitsko-dalmatinska županija,55,423407.0,10.0,40.0,15.0,61499.0,24599600.0,2014-12-29,2023-12-04,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR036,Istarska županija,41,195237.0,17.0,38.0,11.0,7377.0,2950800.0,2016-01-25,2024-11-25,True
+HR,Hrvatska,HR0,Hrvatska,HR03,Jadranska Hrvatska,HR037,Dubrovačko-neretvanska županija,22,115564.0,6.0,18.0,8.0,19714.0,7885600.0,2014-12-29,2023-02-20,True
+HR,Hrvatska,HR0,Hrvatska,HR05,Grad Zagreb,HR050,Grad Zagreb,1,767131.0,7.0,7.0,1.0,18253.0,7301200.0,2016-11-07,2024-12-16,True
+HR,Hrvatska,HR0,Hrvatska,HR06,Sjeverna Hrvatska,HR061,Međimurska županija,25,105250.0,3.0,11.0,11.0,19327.0,7730800.0,2015-02-02,2024-07-01,True
+HR,Hrvatska,HR0,Hrvatska,HR06,Sjeverna Hrvatska,HR062,Varaždinska županija,28,159487.0,6.0,11.0,8.0,6019.0,2407600.0,2015-02-02,2022-03-07,True
+HR,Hrvatska,HR0,Hrvatska,HR06,Sjeverna Hrvatska,HR063,Koprivničko-križevačka županija,25,101221.0,18.0,33.0,15.0,8686.0,3474400.0,2015-02-02,2024-12-30,True
+HR,Hrvatska,HR0,Hrvatska,HR06,Sjeverna Hrvatska,HR064,Krapinsko-zagorska županija,32,120702.0,12.0,34.0,7.0,10953.0,4381200.0,2015-10-19,2024-01-01,True
+HR,Hrvatska,HR0,Hrvatska,HR06,Sjeverna Hrvatska,HR065,Zagrebačka županija,34,299985.0,50.0,270.0,22.0,522328.0,208931200.0,2014-12-29,2024-12-30,True
+HU,Magyarország,HU1,Közép-Magyarország,HU11,Budapest,HU110,Budapest,1,1686222.0,2.0,2.0,1.0,155.0,62000.0,2014-12-29,2015-04-06,True
+HU,Magyarország,HU1,Közép-Magyarország,HU12,Pest,HU120,Pest,187,1333257.0,65.0,1049.0,105.0,2191202.0,876480800.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU2,Dunántúl,HU21,Közép-Dunántúl,HU211,Fejér,108,419490.0,53.0,486.0,86.0,894898.0,357959200.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU2,Dunántúl,HU21,Közép-Dunántúl,HU212,Komárom-Esztergom,76,301834.0,35.0,140.0,38.0,156667.0,62666800.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU2,Dunántúl,HU21,Közép-Dunántúl,HU213,Veszprém,217,335979.0,38.0,281.0,85.0,182603.0,73041200.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU2,Dunántúl,HU22,Nyugat-Dunántúl,HU221,Győr-Moson-Sopron,183,473246.0,40.0,705.0,174.0,1031687.0,412674800.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU2,Dunántúl,HU22,Nyugat-Dunántúl,HU222,Vas,216,248199.0,32.0,376.0,142.0,389678.0,155871200.0,2014-12-29,2024-08-05,True
+HU,Magyarország,HU2,Dunántúl,HU22,Nyugat-Dunántúl,HU223,Zala,258,260124.0,16.0,209.0,95.0,108640.0,43456000.0,2015-02-02,2024-12-30,True
+HU,Magyarország,HU2,Dunántúl,HU23,Dél-Dunántúl,HU231,Baranya,301,353331.0,36.0,334.0,171.0,283026.0,113210400.0,2014-12-29,2024-12-30,True
+HU,Magyarország,HU2,Dunántúl,HU23,Dél-Dunántúl,HU232,Somogy,246,292691.0,33.0,215.0,85.0,152261.0,60904400.0,2014-12-29,2024-12-30,True
+HU,Magyarország,HU2,Dunántúl,HU23,Dél-Dunántúl,HU233,Tolna,109,206398.0,41.0,320.0,93.0,1584371.0,633748400.0,2014-12-29,2024-12-30,True
+HU,Magyarország,HU3,Alföld és Észak,HU31,Észak-Magyarország,HU311,Borsod-Abaúj-Zemplén,358,617800.0,61.0,1872.0,183.0,3483303.0,1393321200.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU31,Észak-Magyarország,HU312,Heves,121,285058.0,55.0,618.0,63.0,1056104.0,422441600.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU31,Észak-Magyarország,HU313,Nógrád,131,180469.0,32.0,269.0,37.0,602444.0,240977600.0,2014-12-29,2024-05-27,True
+HU,Magyarország,HU3,Alföld és Észak,HU32,Észak-Alföld,HU321,Hajdú-Bihar,82,520550.0,68.0,1198.0,77.0,8484238.0,3393695200.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU32,Észak-Alföld,HU322,Jász-Nagykun-Szolnok,78,353511.0,69.0,1466.0,77.0,5299125.0,2119650000.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU32,Észak-Alföld,HU323,Szabolcs-Szatmár-Bereg,229,524513.0,67.0,1125.0,172.0,1009311.0,403724400.0,2015-02-02,2024-11-25,True
+HU,Magyarország,HU3,Alföld és Észak,HU33,Dél-Alföld,HU331,Bács-Kiskun,119,491632.0,54.0,1932.0,119.0,8457264.0,3382905600.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU33,Dél-Alföld,HU332,Békés,75,310912.0,40.0,589.0,73.0,1889506.0,755802400.0,2014-12-29,2024-11-18,True
+HU,Magyarország,HU3,Alföld és Észak,HU33,Dél-Alföld,HU333,Csongrád-Csanád,60,389411.0,44.0,866.0,58.0,2286725.0,914690000.0,2014-12-29,2024-11-18,True
+IE,Éire/Ireland,IE0,Ireland,IE04,Northern and Western,IE041,Border,19,419473.0,70.0,474.0,19.0,734877.0,293950800.0,2015-03-30,2024-12-16,True
+IE,Éire/Ireland,IE0,Ireland,IE04,Northern and Western,IE042,West,19,485966.0,69.0,714.0,19.0,6950997.0,2780398800.0,2015-02-23,2024-12-16,True
+IE,Éire/Ireland,IE0,Ireland,IE05,Southern,IE051,Mid-West ,19,505369.0,53.0,629.0,19.0,2244446.0,897778400.0,2015-02-23,2024-12-16,True
+IE,Éire/Ireland,IE0,Ireland,IE05,Southern,IE052,South-East ,19,457410.0,46.0,425.0,19.0,636150.0,254460000.0,2015-05-04,2024-12-16,True
+IE,Éire/Ireland,IE0,Ireland,IE05,Southern,IE053,South-West ,21,740614.0,50.0,316.0,19.0,385702.0,154280800.0,2015-05-04,2024-12-16,True
+IE,Éire/Ireland,IE0,Ireland,IE06,Eastern and Midland,IE061,Dublin,31,1458154.0,67.0,182.0,9.0,24637.0,9854800.0,2015-08-31,2024-11-11,True
+IE,Éire/Ireland,IE0,Ireland,IE06,Eastern and Midland,IE062,Mid-East,25,764154.0,93.0,461.0,21.0,364401.0,145760400.0,2015-05-04,2024-11-11,True
+IE,Éire/Ireland,IE0,Ireland,IE06,Eastern and Midland,IE063,Midland,13,317999.0,53.0,466.0,13.0,3078986.0,1231594400.0,2015-02-23,2024-12-16,True
+IS,Ísland,IS0,Ísland,IS00,Ísland,IS001,Höfuðborgarsvæði,7,0.0,22.0,71.0,7.0,11118.0,4447200.0,2015-12-07,2023-07-31,True
+IS,Ísland,IS0,Ísland,IS00,Ísland,IS002,Landsbyggð,57,0.0,148.0,1518.0,56.0,13776736.0,5510694400.0,2015-02-02,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC11,Torino,312,2203353.0,11.0,97.0,68.0,33985.0,13594000.0,2016-04-18,2024-07-01,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC12,Vercelli,82,165821.0,26.0,166.0,52.0,764477.0,305790800.0,2016-04-18,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC13,Biella,74,168707.0,12.0,25.0,8.0,18404.0,7361600.0,2017-11-20,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC14,Verbano-Cusio-Ossola,74,153844.0,5.0,9.0,7.0,3079.0,1231600.0,2016-04-18,2024-07-01,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC15,Novara,87,364046.0,25.0,152.0,35.0,573478.0,229391200.0,2017-12-25,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC16,Cuneo,247,582194.0,9.0,59.0,40.0,20443.0,8177200.0,2016-04-18,2024-07-01,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC17,Asti,117,207785.0,2.0,2.0,2.0,275.0,110000.0,2020-10-05,2022-11-14,True
+IT,Italia,ITC,Nord-Ovest,ITC1,Piemonte,ITC18,Alessandria,187,406831.0,27.0,155.0,45.0,65019.0,26007600.0,2015-07-27,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC2,Valle d’Aosta/Vallée d’Aoste,ITC20,Valle d’Aosta/Vallée d’Aoste,74,123018.0,2.0,24.0,21.0,54374.0,21749600.0,2016-04-18,2024-05-27,True
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC31,Imperia,66,208844.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC32,Savona,69,267584.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC33,Genova,67,817260.0,4.0,4.0,1.0,119.0,47600.0,2017-11-20,2019-01-07,True
+IT,Italia,ITC,Nord-Ovest,ITC3,Liguria,ITC34,La Spezia,32,215159.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC41,Varese,136,881000.0,1.0,1.0,1.0,2.0,800.0,2016-11-21,2016-11-28,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC42,Como,148,598604.0,2.0,4.0,3.0,2064.0,825600.0,2017-01-23,2023-11-13,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC43,Lecco,84,333578.0,3.0,3.0,3.0,268.0,107200.0,2017-01-23,2023-11-13,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC44,Sondrio,77,178948.0,4.0,21.0,15.0,9300.0,3720000.0,2017-01-23,2024-05-27,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC46,Bergamo,243,1111228.0,4.0,5.0,4.0,364.0,145600.0,2024-03-25,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC47,Brescia,205,1262271.0,17.0,68.0,32.0,12424.0,4969600.0,2017-04-24,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC48,Pavia,185,539239.0,33.0,811.0,129.0,942103.0,376841200.0,2015-07-27,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC49,Lodi,60,229628.0,20.0,104.0,37.0,72609.0,29043600.0,2017-04-24,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC4A,Cremona,113,353537.0,20.0,201.0,57.0,212495.0,84998000.0,2017-04-24,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC4B,Mantova,64,407051.0,37.0,281.0,49.0,588278.0,235311200.0,2015-05-04,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC4C,Milano,133,3247764.0,21.0,92.0,39.0,124286.0,49714400.0,2016-11-21,2025-01-06,True
+IT,Italia,ITC,Nord-Ovest,ITC4,Lombardia,ITC4D,Monza e della Brianza,55,877680.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF1,Abruzzo,ITF11,L’Aquila,108,287238.0,4.0,39.0,29.0,35211.0,14084400.0,2018-12-03,2024-12-16,True
+IT,Italia,ITF,Sud,ITF1,Abruzzo,ITF12,Teramo,47,299151.0,1.0,3.0,3.0,360.0,144000.0,2018-03-05,2018-03-12,True
+IT,Italia,ITF,Sud,ITF1,Abruzzo,ITF13,Pescara,46,312378.0,1.0,1.0,1.0,206.0,82400.0,2018-12-03,2018-12-10,True
+IT,Italia,ITF,Sud,ITF1,Abruzzo,ITF14,Chieti,104,371196.0,1.0,1.0,1.0,1394.0,557600.0,2024-12-02,2024-12-16,True
+IT,Italia,ITF,Sud,ITF2,Molise,ITF21,Isernia,52,79385.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF2,Molise,ITF22,Campobasso,84,210028.0,6.0,11.0,4.0,6099.0,2439600.0,2018-02-19,2023-04-17,True
+IT,Italia,ITF,Sud,ITF3,Campania,ITF31,Caserta,104,906080.0,9.0,111.0,31.0,78529.0,31411600.0,2018-02-19,2023-03-06,True
+IT,Italia,ITF,Sud,ITF3,Campania,ITF32,Benevento,78,261431.0,7.0,8.0,4.0,1844.0,737600.0,2018-11-19,2023-03-06,True
+IT,Italia,ITF,Sud,ITF3,Campania,ITF33,Napoli,92,2967736.0,2.0,2.0,1.0,398.0,159200.0,2019-11-11,2019-12-02,True
+IT,Italia,ITF,Sud,ITF3,Campania,ITF34,Avellino,118,397010.0,10.0,21.0,7.0,16798.0,6719200.0,2017-01-23,2024-04-15,True
+IT,Italia,ITF,Sud,ITF3,Campania,ITF35,Salerno,158,1057819.0,9.0,33.0,15.0,43978.0,17591200.0,2015-02-02,2023-04-24,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF43,Taranto,29,553170.0,4.0,6.0,6.0,718.0,287200.0,2015-02-02,2024-04-15,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF44,Brindisi,20,377058.0,1.0,3.0,3.0,1708.0,683200.0,2017-09-11,2017-09-18,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF45,Lecce,96,767356.0,1.0,8.0,8.0,4065.0,1626000.0,2017-09-11,2017-09-18,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF46,Foggia,61,592911.0,22.0,73.0,20.0,117504.0,47001600.0,2015-02-02,2024-04-15,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF47,Bari,41,1221782.0,1.0,4.0,4.0,936.0,374400.0,2024-03-11,2024-04-15,True
+IT,Italia,ITF,Sud,ITF4,Puglia,ITF48,Barletta-Andria-Trani,10,377973.0,15.0,20.0,5.0,9910.0,3964000.0,2015-03-09,2024-04-15,True
+IT,Italia,ITF,Sud,ITF5,Basilicata,ITF51,Potenza,100,343508.0,7.0,19.0,16.0,13574.0,5429600.0,2015-02-02,2024-04-15,True
+IT,Italia,ITF,Sud,ITF5,Basilicata,ITF52,Matera,31,190128.0,5.0,17.0,8.0,5748.0,2299200.0,2015-02-02,2024-04-15,True
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF61,Cosenza,150,670165.0,5.0,19.0,13.0,15235.0,6094000.0,2015-03-09,2024-01-15,True
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF62,Crotone,27,161733.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF63,Catanzaro,80,340642.0,2.0,2.0,1.0,1376.0,550400.0,2018-04-30,2024-01-15,True
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF64,Vibo Valentia,50,150564.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITF,Sud,ITF6,Calabria,ITF65,Reggio Calabria,97,515046.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG11,Trapani,25,412976.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG12,Palermo,82,1198594.0,1.0,2.0,2.0,362.0,144800.0,2018-10-29,2018-11-05,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG13,Messina,108,598165.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG14,Agrigento,43,410323.0,2.0,17.0,12.0,22545.0,9018000.0,2015-02-16,2018-11-05,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG15,Caltanissetta,22,246960.0,2.0,7.0,7.0,2702.0,1080800.0,2015-02-16,2018-11-05,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG16,Enna,20,153589.0,4.0,7.0,4.0,1834.0,733600.0,2015-02-16,2024-09-16,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG17,Catania,58,1071041.0,5.0,31.0,20.0,52849.0,21139600.0,2015-02-16,2024-09-16,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG18,Ragusa,12,319260.0,3.0,8.0,5.0,2272.0,908800.0,2016-03-14,2024-09-16,True
+IT,Italia,ITG,Isole,ITG1,Sicilia,ITG19,Siracusa,21,383604.0,5.0,8.0,4.0,13372.0,5348800.0,2015-02-16,2024-09-16,True
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2D,Sassari,92,473236.0,3.0,12.0,8.0,9685.0,3874000.0,2017-03-06,2023-06-05,True
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2E,Nuoro,74,197003.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2F,Cagliari,17,418761.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2G,Oristano,87,149078.0,6.0,46.0,16.0,38033.0,15213200.0,2020-04-27,2024-05-27,True
+IT,Italia,ITG,Isole,ITG2,Sardegna,ITG2H,Sud Sardegna,107,331754.0,6.0,8.0,2.0,6282.0,2512800.0,2020-04-27,2024-05-27,True
+IT,Italia,ITH,Nord-Est,ITH1,Provincia Autonoma di Bolzano/Bozen,ITH10,Bolzano-Bozen,116,536933.0,7.0,24.0,20.0,20864.0,8345600.0,2018-02-26,2024-03-18,True
+IT,Italia,ITH,Nord-Est,ITH2,Provincia Autonoma di Trento,ITH20,Trento,166,545183.0,9.0,34.0,22.0,20303.0,8121200.0,2017-01-23,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH31,Verona,98,927231.0,30.0,222.0,49.0,198773.0,79509200.0,2015-02-09,2025-01-06,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH32,Vicenza,114,854568.0,21.0,73.0,36.0,44305.0,17722000.0,2016-05-30,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH33,Belluno,61,197767.0,10.0,27.0,14.0,29628.0,11851200.0,2017-01-30,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH34,Treviso,94,878545.0,22.0,87.0,41.0,40751.0,16300400.0,2016-01-25,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH35,Venezia,44,834940.0,50.0,251.0,30.0,179692.0,71876800.0,2015-02-09,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH36,Padova,102,931469.0,22.0,99.0,50.0,49912.0,19964800.0,2015-02-09,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH3,Veneto,ITH37,Rovigo,50,227452.0,42.0,170.0,42.0,164114.0,65645600.0,2015-02-09,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH4,Friuli-Venezia Giulia,ITH41,Pordenone,50,311149.0,23.0,116.0,31.0,44019.0,17607600.0,2016-01-25,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH4,Friuli-Venezia Giulia,ITH42,Udine,134,517261.0,32.0,261.0,75.0,112087.0,44834800.0,2016-01-25,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH4,Friuli-Venezia Giulia,ITH43,Gorizia,25,138430.0,25.0,79.0,14.0,28285.0,11314000.0,2016-01-25,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH4,Friuli-Venezia Giulia,ITH44,Trieste,6,228952.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH51,Piacenza,46,285842.0,28.0,140.0,26.0,143504.0,57401600.0,2015-07-27,2025-01-06,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH52,Parma,44,454537.0,19.0,117.0,17.0,173112.0,69244800.0,2017-04-24,2025-01-06,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH53,Reggio nell’Emilia,42,529261.0,23.0,107.0,27.0,150096.0,60038400.0,2017-01-16,2025-01-06,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH54,Modena,47,706972.0,40.0,209.0,27.0,435738.0,174295200.0,2015-05-04,2025-01-06,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH55,Bologna,55,1018346.0,39.0,235.0,32.0,571511.0,228604400.0,2015-02-09,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH56,Ferrara,21,339750.0,47.0,330.0,21.0,854613.0,341845200.0,2015-02-09,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH57,Ravenna,18,387273.0,29.0,79.0,14.0,190053.0,76021200.0,2015-02-09,2024-11-25,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH58,Forlì-Cesena,30,393065.0,3.0,4.0,3.0,1340.0,536000.0,2023-04-24,2024-11-11,True
+IT,Italia,ITH,Nord-Est,ITH5,Emilia-Romagna,ITH59,Rimini,27,340142.0,3.0,8.0,4.0,1009.0,403600.0,2020-05-11,2023-04-17,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI11,Massa-Carrara,17,187064.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI12,Lucca,33,381659.0,7.0,14.0,4.0,26442.0,10576800.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI13,Pistoia,20,290042.0,7.0,29.0,8.0,55931.0,22372400.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI14,Firenze,41,990336.0,10.0,24.0,10.0,34838.0,13935200.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI15,Prato,7,260972.0,5.0,6.0,2.0,1908.0,763200.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI16,Livorno,19,325978.0,8.0,16.0,5.0,19812.0,7924800.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI17,Pisa,37,418093.0,8.0,60.0,20.0,90998.0,36399200.0,2016-02-15,2023-11-13,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI18,Arezzo,36,333741.0,10.0,22.0,7.0,15238.0,6095200.0,2017-04-17,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI19,Siena,35,260623.0,8.0,29.0,15.0,13522.0,5408800.0,2017-04-17,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI1,Toscana,ITI1A,Grosseto,28,216290.0,5.0,19.0,12.0,42787.0,17114800.0,2015-08-24,2023-04-17,True
+IT,Italia,ITI,Centro (IT),ITI2,Umbria,ITI21,Perugia,59,638130.0,16.0,168.0,40.0,165235.0,66094000.0,2017-04-17,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI2,Umbria,ITI22,Terni,33,216248.0,9.0,25.0,12.0,6920.0,2768000.0,2018-03-05,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI31,Pesaro e Urbino,50,350335.0,0.0,0.0,0.0,0.0,0.0,,,False
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI32,Ancona,47,461966.0,2.0,2.0,2.0,135.0,54000.0,2018-04-30,2022-02-28,True
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI33,Macerata,55,303510.0,8.0,17.0,13.0,11287.0,4514800.0,2018-03-05,2023-06-05,True
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI34,Ascoli Piceno,33,200988.0,1.0,2.0,2.0,244.0,97600.0,2018-03-05,2018-03-12,True
+IT,Italia,ITI,Centro (IT),ITI3,Marche,ITI35,Fermo,40,167628.0,1.0,1.0,1.0,84.0,33600.0,2022-02-21,2022-02-28,True
+IT,Italia,ITI,Centro (IT),ITI4,Lazio,ITI41,Viterbo,60,308187.0,6.0,31.0,20.0,8358.0,3343200.0,2017-11-13,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI4,Lazio,ITI42,Rieti,73,150320.0,8.0,28.0,13.0,23858.0,9543200.0,2018-03-05,2024-12-16,True
+IT,Italia,ITI,Centro (IT),ITI4,Lazio,ITI43,Roma,121,4230292.0,7.0,25.0,16.0,22542.0,9016800.0,2017-11-13,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI4,Lazio,ITI44,Latina,33,566485.0,9.0,20.0,12.0,22031.0,8812400.0,2017-11-13,2024-04-29,True
+IT,Italia,ITI,Centro (IT),ITI4,Lazio,ITI45,Frosinone,91,464988.0,1.0,4.0,4.0,905.0,362000.0,2019-11-04,2020-01-06,True
+LI,Liechtenstein,LI0,Liechtenstein,LI00,Liechtenstein,LI000,Liechtenstein,11,40023.0,1.0,1.0,1.0,222.0,88800.0,2018-10-15,2018-10-22,True
+LT,Lietuva,LT0,Lietuva,LT01,Sostinės regionas,LT011,Vilniaus apskritis,8,868251.0,42.0,114.0,7.0,98279.0,39311600.0,2015-02-09,2024-12-16,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT021,Alytaus apskritis,5,134181.0,36.0,82.0,5.0,180941.0,72376400.0,2014-12-29,2024-12-16,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT022,Kauno apskritis,8,585430.0,48.0,163.0,8.0,186799.0,74719600.0,2015-02-09,2024-12-16,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT023,Klaipėdos apskritis,7,339831.0,84.0,256.0,7.0,6726292.0,2690516800.0,2014-12-29,2024-12-30,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT024,Marijampolės apskritis,5,134663.0,39.0,139.0,5.0,421603.0,168641200.0,2015-02-09,2024-12-16,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT025,Panevėžio apskritis,6,209093.0,52.0,180.0,6.0,616198.0,246479200.0,2014-12-29,2024-05-06,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT026,Šiaulių apskritis,7,266803.0,50.0,167.0,7.0,184142.0,73656800.0,2015-10-12,2024-05-06,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT027,Tauragės apskritis,4,90534.0,68.0,154.0,4.0,2976482.0,1190592800.0,2015-01-12,2024-12-30,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT028,Telšių apskritis,4,130913.0,36.0,83.0,4.0,85032.0,34012800.0,2016-01-25,2024-12-16,True
+LT,Lietuva,LT0,Lietuva,LT02,Vidurio ir vakarų Lietuvos regionas ,LT029,Utenos apskritis,6,126192.0,82.0,197.0,6.0,369054.0,147621600.0,2015-02-09,2024-10-28,True
+LU,Luxembourg,LU0,Luxembourg,LU00,Luxembourg,LU000,Luxembourg,100,672050.0,14.0,91.0,34.0,47048.0,18819200.0,2017-12-04,2024-12-02,True
+LV,Latvija,LV0,Latvija,LV00,Latvija,LV005,Latgale,9,246631.0,61.0,245.0,8.0,1537849.0,615139600.0,2015-01-12,2024-10-28,True
+LV,Latvija,LV0,Latvija,LV00,Latvija,LV009,Zemgale,6,224871.0,65.0,222.0,6.0,713836.0,285534400.0,2014-12-29,2024-05-06,True
+LV,Latvija,LV0,Latvija,LV00,Latvija,LV00A,Rīga,9,854453.0,54.0,258.0,9.0,298590.0,119436000.0,2014-12-29,2024-04-15,True
+LV,Latvija,LV0,Latvija,LV00,Latvija,LV00B,Kurzeme,8,276845.0,76.0,320.0,8.0,2381229.0,952491600.0,2014-12-29,2024-12-16,True
+LV,Latvija,LV0,Latvija,LV00,Latvija,LV00C,Vidzeme,11,279127.0,64.0,254.0,11.0,1270303.0,508121200.0,2014-12-29,2024-10-28,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK001,Вардарски,9,136948.0,9.0,18.0,7.0,18710.0,7484000.0,2015-03-09,2024-11-18,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK002,Источен,11,147474.0,12.0,41.0,8.0,246577.0,98630800.0,2016-02-22,2024-11-18,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK003,Југозападен,9,176120.0,8.0,16.0,6.0,18458.0,7383200.0,2015-01-19,2024-12-30,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK004,Југоисточен,10,146592.0,15.0,34.0,8.0,45763.0,18305200.0,2014-12-29,2024-11-18,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK005,Пелагониски,9,207463.0,12.0,39.0,7.0,559829.0,223931600.0,2015-01-19,2024-11-18,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK006,Полошки,9,251993.0,8.0,15.0,6.0,6826.0,2730400.0,2015-01-19,2024-12-30,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK007,Североисточен,6,152177.0,2.0,2.0,1.0,225.0,90000.0,2016-02-22,2023-04-10,True
+MK,Северна Македонија,MK0,Северна Македонија,MK00,Северна Македонија,MK008,Скопски,17,607480.0,12.0,14.0,5.0,5321.0,2128400.0,2016-02-22,2024-12-16,True
+MT,Malta,MT0,Malta,MT00,Malta,MT001,Malta,54,522517.0,0.0,0.0,0.0,0.0,0.0,,,False
+MT,Malta,MT0,Malta,MT00,Malta,MT002,Gozo and Comino/Għawdex u Kemmuna,14,40926.0,0.0,0.0,0.0,0.0,0.0,,,False
+NL,Nederland,NL1,Noord-Nederland,NL11,Groningen,NL112,Delfzijl en omgeving,1,45106.0,25.0,25.0,1.0,19946.0,7978400.0,2015-03-09,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL11,Groningen,NL114,Oost-Groningen,5,137920.0,34.0,56.0,4.0,92339.0,36935600.0,2015-12-28,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL11,Groningen,NL115,Overig Groningen,4,418321.0,40.0,104.0,4.0,197954.0,79181600.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL12,Friesland (NL),NL126,Zuidoost-Friesland,5,190818.0,41.0,117.0,5.0,91726.0,36690400.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL12,Friesland (NL),NL127,Noord-Friesland,11,328736.0,34.0,185.0,10.0,295093.0,118037200.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL12,Friesland (NL),NL128,Zuidwest-Friesland,2,142350.0,32.0,62.0,2.0,347275.0,138910000.0,2015-01-12,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL13,Drenthe,NL131,Noord-Drenthe,5,196060.0,35.0,101.0,5.0,126316.0,50526400.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL13,Drenthe,NL132,Zuidoost-Drenthe,3,171085.0,39.0,73.0,3.0,32927.0,13170800.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL1,Noord-Nederland,NL13,Drenthe,NL133,Zuidwest-Drenthe,4,136984.0,31.0,74.0,4.0,44541.0,17816400.0,2015-02-16,2024-12-02,True
+NL,Nederland,NL2,Oost-Nederland,NL21,Overijssel,NL211,Noord-Overijssel,8,387623.0,45.0,210.0,8.0,815023.0,326009200.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL2,Oost-Nederland,NL21,Overijssel,NL212,Zuidwest-Overijssel,3,160604.0,33.0,71.0,3.0,452918.0,181167200.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL2,Oost-Nederland,NL21,Overijssel,NL213,Twente,14,640806.0,38.0,118.0,12.0,164421.0,65768400.0,2015-03-09,2024-12-02,True
+NL,Nederland,NL2,Oost-Nederland,NL22,Gelderland,NL221,Veluwe,16,722493.0,41.0,164.0,15.0,429698.0,171879200.0,2014-12-29,2024-04-01,True
+NL,Nederland,NL2,Oost-Nederland,NL22,Gelderland,NL224,Zuidwest-Gelderland,8,255655.0,49.0,250.0,8.0,1333775.0,533510000.0,2015-03-09,2024-04-01,True
+NL,Nederland,NL2,Oost-Nederland,NL22,Gelderland,NL225,Achterhoek,11,406785.0,44.0,188.0,11.0,807542.0,323016800.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL2,Oost-Nederland,NL22,Gelderland,NL226,Arnhem/Nijmegen,16,764138.0,47.0,321.0,16.0,631943.0,252777200.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL2,Oost-Nederland,NL23,Flevoland,NL230,Flevoland,6,450826.0,45.0,141.0,5.0,287183.0,114873200.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL321,Kop van Noord-Holland,11,386554.0,39.0,160.0,11.0,100586.0,40234400.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL323,IJmond,5,201325.0,22.0,28.0,4.0,4588.0,1835200.0,2015-01-12,2024-02-19,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL325,Zaanstreek,2,177941.0,10.0,12.0,2.0,5655.0,2262000.0,2015-12-28,2022-07-04,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL327,Het Gooi en Vechtstreek,6,244766.0,14.0,24.0,6.0,30030.0,12012000.0,2015-12-28,2024-04-01,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL328,Alkmaar en omgeving,4,256624.0,18.0,28.0,4.0,17582.0,7032800.0,2015-01-12,2024-12-02,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL32A,Agglomeratie Haarlem,4,236484.0,9.0,14.0,3.0,16126.0,6450400.0,2015-11-09,2024-02-19,True
+NL,Nederland,NL3,West-Nederland,NL32,Noord-Holland,NL32B,Groot-Amsterdam,12,1472793.0,32.0,80.0,10.0,121289.0,48515600.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL3,West-Nederland,NL34,Zeeland,NL341,Zeeuwsch-Vlaanderen,3,105612.0,58.0,129.0,3.0,297689.0,119075600.0,2015-01-12,2024-11-11,True
+NL,Nederland,NL3,West-Nederland,NL34,Zeeland,NL342,Overig Zeeland,10,286022.0,66.0,257.0,10.0,334875.0,133950000.0,2014-12-29,2024-11-11,True
+NL,Nederland,NL3,West-Nederland,NL35,Utrecht,NL350,Utrecht,26,1400057.0,43.0,218.0,25.0,740834.0,296333600.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL361,Agglomeratie ’s-Gravenhage,6,917558.0,42.0,85.0,5.0,66665.0,26666000.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL362,Delft en Westland,3,244895.0,9.0,11.0,2.0,6849.0,2739600.0,2015-03-09,2024-02-19,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL363,Agglomeratie Leiden en Bollenstreek,11,445756.0,31.0,70.0,8.0,72136.0,28854400.0,2015-02-16,2024-03-11,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL364,Zuidoost-Zuid-Holland,9,381090.0,46.0,115.0,7.0,113748.0,45499200.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL365,Oost-Zuid-Holland,6,348579.0,17.0,41.0,6.0,261329.0,104531600.0,2015-10-26,2024-02-19,True
+NL,Nederland,NL3,West-Nederland,NL36,Zuid-Holland,NL366,Groot-Rijnmond,15,1502582.0,80.0,302.0,12.0,231135.0,92454000.0,2014-12-29,2024-11-11,True
+NL,Nederland,NL4,Zuid-Nederland,NL41,Noord-Brabant,NL411,West-Noord-Brabant,13,651175.0,75.0,255.0,13.0,159138.0,63655200.0,2015-01-12,2024-11-11,True
+NL,Nederland,NL4,Zuid-Nederland,NL41,Noord-Brabant,NL414,Zuidoost-Noord-Brabant,21,809176.0,62.0,278.0,21.0,195789.0,78315600.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL4,Zuid-Nederland,NL41,Noord-Brabant,NL415,Midden-Noord-Brabant,11,507474.0,55.0,213.0,11.0,728838.0,291535200.0,2015-02-16,2024-04-01,True
+NL,Nederland,NL4,Zuid-Nederland,NL41,Noord-Brabant,NL416,Noordoost-Noord-Brabant,11,676914.0,51.0,260.0,11.0,461934.0,184773600.0,2015-11-09,2024-04-01,True
+NL,Nederland,NL4,Zuid-Nederland,NL42,Limburg (NL),NL421,Noord-Limburg,8,290392.0,55.0,213.0,8.0,422666.0,169066400.0,2014-12-29,2024-12-02,True
+NL,Nederland,NL4,Zuid-Nederland,NL42,Limburg (NL),NL422,Midden-Limburg,7,242573.0,17.0,59.0,7.0,97503.0,39001200.0,2015-01-12,2024-12-02,True
+NL,Nederland,NL4,Zuid-Nederland,NL42,Limburg (NL),NL423,Zuid-Limburg,16,600290.0,17.0,54.0,6.0,52360.0,20944000.0,2015-01-12,2024-12-02,True
+NO,Norge,NO0,Norge,NO02,Innlandet,NO020,Innlandet,46,376304.0,74.0,846.0,46.0,4577788.0,1831115200.0,2015-04-06,2024-12-16,True
+NO,Norge,NO0,Norge,NO06,Trøndelag/Trööndelage,NO060,Trøndelag/Trööndelage,38,482956.0,65.0,680.0,37.0,2887877.0,1155150800.0,2015-06-22,2024-12-23,True
+NO,Norge,NO0,Norge,NO07,Nord-Norge,NO071,Nordland/Nordlánnda,40,242621.0,75.0,741.0,40.0,2520140.0,1008056000.0,2015-06-22,2024-12-23,True
+NO,Norge,NO0,Norge,NO07,Nord-Norge,NO072,Troms/Romsa/Tromssa,21,169610.0,57.0,355.0,21.0,2462164.0,984865600.0,2015-07-13,2024-12-23,True
+NO,Norge,NO0,Norge,NO07,Nord-Norge,NO073,Finnmark/Finnmárku/Finmarkku,18,75053.0,70.0,531.0,18.0,5095994.0,2038397600.0,2015-03-30,2024-12-23,True
+NO,Norge,NO0,Norge,NO08,Oslo og Viken,NO081,Oslo,1,717710.0,8.0,8.0,1.0,1906.0,762400.0,2015-08-24,2023-05-01,True
+NO,Norge,NO0,Norge,NO08,Oslo og Viken,NO083,Østfold,12,312152.0,18.0,34.0,10.0,15758.0,6303200.0,2016-05-23,2024-05-06,True
+NO,Norge,NO0,Norge,NO08,Oslo og Viken,NO084,Akershus,21,728803.0,13.0,38.0,12.0,42335.0,16934000.0,2017-06-12,2024-05-06,True
+NO,Norge,NO0,Norge,NO08,Oslo og Viken,NO085,Buskerud,18,269819.0,45.0,201.0,14.0,6879596.0,2751838400.0,2015-08-03,2024-12-16,True
+NO,Norge,NO0,Norge,NO09,Agder og Sør-Østlandet,NO092,Agder,25,319850.0,39.0,240.0,24.0,732206.0,292882400.0,2015-02-23,2023-12-04,True
+NO,Norge,NO0,Norge,NO09,Agder og Sør-Østlandet,NO093,Vestfold,6,256432.0,6.0,13.0,5.0,3744.0,1497600.0,2015-08-24,2023-05-01,True
+NO,Norge,NO0,Norge,NO09,Agder og Sør-Østlandet,NO094,Telemark,17,177093.0,49.0,189.0,14.0,2758278.0,1103311200.0,2015-02-23,2024-12-16,True
+NO,Norge,NO0,Norge,NO0A,Vestlandet,NO0A1,Rogaland,23,499417.0,41.0,157.0,21.0,223260.0,89304000.0,2015-08-24,2024-10-21,True
+NO,Norge,NO0,Norge,NO0A,Vestlandet,NO0A2,Vestland,43,651299.0,53.0,445.0,31.0,3797165.0,1518866000.0,2015-08-03,2024-12-16,True
+NO,Norge,NO0,Norge,NO0A,Vestlandet,NO0A3,Møre og Romsdal,27,270624.0,48.0,289.0,18.0,988775.0,395510000.0,2015-06-22,2024-12-16,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL213,Miasto Kraków,1,806201.0,11.0,11.0,1.0,1507.0,602800.0,2017-09-11,2024-02-19,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL214,Krakowski,53,771436.0,26.0,57.0,15.0,52627.0,21050800.0,2017-03-27,2024-07-01,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL217,Tarnowski,31,449684.0,29.0,104.0,23.0,50549.0,20219600.0,2015-02-02,2024-11-18,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL218,Nowosądecki,39,532368.0,3.0,7.0,7.0,1191.0,476400.0,2019-01-14,2024-07-01,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL219,Nowotarski,28,339471.0,32.0,47.0,4.0,18872.0,7548800.0,2017-11-13,2024-11-18,True
+PL,Polska,PL2,Makroregion południowy,PL21,Małopolskie,PL21A,Oświęcimski,30,530472.0,42.0,151.0,13.0,145985.0,58394000.0,2017-01-30,2024-12-16,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL224,Częstochowski,31,487075.0,8.0,22.0,10.0,7877.0,3150800.0,2017-03-27,2024-02-26,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL225,Bielski,38,655213.0,32.0,73.0,10.0,13643.0,5457200.0,2016-09-19,2024-11-18,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL227,Rybnicki,25,601229.0,14.0,53.0,14.0,68806.0,27522400.0,2016-12-26,2024-12-16,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL228,Bytomski,19,413513.0,9.0,15.0,5.0,3351.0,1340400.0,2017-01-30,2024-03-11,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL229,Gliwicki,10,436933.0,5.0,5.0,3.0,993.0,397200.0,2017-01-30,2024-11-18,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL22A,Katowicki,6,690200.0,0.0,0.0,0.0,0.0,0.0,,,False
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL22B,Sosnowiecki,21,643700.0,9.0,11.0,6.0,2176.0,870400.0,2017-01-30,2024-03-11,True
+PL,Polska,PL2,Makroregion południowy,PL22,Śląskie,PL22C,Tyski,17,392267.0,13.0,29.0,10.0,11847.0,4738800.0,2017-03-27,2024-11-18,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL411,Pilski,37,395481.0,21.0,130.0,34.0,346903.0,138761200.0,2015-09-14,2024-10-28,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL414,Koniński,58,635245.0,56.0,630.0,55.0,1224324.0,489729600.0,2015-05-25,2024-12-30,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL415,Miasto Poznań,1,538439.0,7.0,7.0,1.0,1932.0,772800.0,2016-11-07,2024-03-11,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL416,Kaliski,50,650249.0,48.0,251.0,43.0,288323.0,115329200.0,2015-05-25,2024-12-16,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL417,Leszczyński,43,548427.0,48.0,546.0,40.0,1123774.0,449509600.0,2016-11-07,2024-11-18,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL41,Wielkopolskie,PL418,Poznański,37,720132.0,38.0,325.0,33.0,225187.0,90074800.0,2016-11-07,2024-11-18,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL42,Zachodniopomorskie,PL424,Miasto Szczecin,1,389066.0,5.0,5.0,1.0,2503.0,1001200.0,2016-02-22,2024-01-29,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL42,Zachodniopomorskie,PL426,Koszaliński,26,343987.0,15.0,129.0,24.0,116547.0,46618800.0,2017-10-02,2024-10-28,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL42,Zachodniopomorskie,PL427,Szczecinecko-pyrzycki,44,395926.0,38.0,249.0,35.0,287577.0,115030800.0,2015-01-12,2024-11-18,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL42,Zachodniopomorskie,PL428,Szczeciński,42,502805.0,42.0,397.0,40.0,1076742.0,430696800.0,2015-01-12,2024-12-23,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL43,Lubuskie,PL431,Gorzowski,29,369990.0,61.0,460.0,28.0,3168106.0,1267242400.0,2015-01-12,2024-11-18,True
+PL,Polska,PL4,Makroregion północno-zachodni,PL43,Lubuskie,PL432,Zielonogórski,53,605033.0,64.0,517.0,48.0,729278.0,291711200.0,2015-02-09,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL51,Dolnośląskie,PL514,Miasto Wrocław,1,673743.0,12.0,12.0,1.0,14000.0,5600000.0,2017-02-13,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL51,Dolnośląskie,PL515,Jeleniogórski,51,530718.0,40.0,146.0,36.0,165255.0,66102000.0,2015-02-09,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL51,Dolnośląskie,PL516,Legnicko-głogowski,29,428543.0,42.0,241.0,28.0,683008.0,273203200.0,2016-11-07,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL51,Dolnośląskie,PL517,Wałbrzyski,45,605614.0,25.0,106.0,29.0,164605.0,65842000.0,2016-11-07,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL51,Dolnośląskie,PL518,Wrocławski,43,640653.0,47.0,381.0,42.0,895140.0,358056000.0,2016-11-07,2024-11-18,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL52,Opolskie,PL523,Nyski,28,350225.0,36.0,179.0,28.0,559790.0,223916000.0,2016-11-07,2024-12-16,True
+PL,Polska,PL5,Makroregion południowo-zachodni,PL52,Opolskie,PL524,Opolski,43,586500.0,29.0,143.0,33.0,159363.0,63745200.0,2016-11-07,2024-12-16,True
+PL,Polska,PL6,Makroregion północny,PL61,Kujawsko-pomorskie,PL613,Bydgosko-toruński,19,762489.0,21.0,62.0,18.0,22763.0,9105200.0,2015-09-14,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL61,Kujawsko-pomorskie,PL616,Grudziądzki,41,371592.0,32.0,232.0,36.0,113192.0,45276800.0,2015-01-12,2024-03-11,True
+PL,Polska,PL6,Makroregion północny,PL61,Kujawsko-pomorskie,PL617,Inowrocławski,24,344542.0,48.0,209.0,24.0,173938.0,69575200.0,2015-08-24,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL61,Kujawsko-pomorskie,PL618,Świecki,21,180574.0,18.0,59.0,18.0,21431.0,8572400.0,2015-08-24,2024-10-28,True
+PL,Polska,PL6,Makroregion północny,PL61,Kujawsko-pomorskie,PL619,Włocławski,39,336806.0,39.0,186.0,37.0,146634.0,58653600.0,2015-12-14,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL62,Warmińsko-mazurskie,PL621,Elbląski,44,496665.0,57.0,303.0,38.0,154957.0,61982800.0,2015-01-12,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL62,Warmińsko-mazurskie,PL622,Olsztyński,47,589537.0,50.0,574.0,44.0,744784.0,297913600.0,2015-04-27,2024-07-01,True
+PL,Polska,PL6,Makroregion północny,PL62,Warmińsko-mazurskie,PL623,Ełcki,25,271708.0,64.0,450.0,25.0,450993.0,180397200.0,2014-12-29,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL63,Pomorskie,PL633,Trójmiejski,3,760463.0,8.0,8.0,2.0,537.0,214800.0,2015-01-12,2022-01-03,True
+PL,Polska,PL6,Makroregion północny,PL63,Pomorskie,PL634,Gdański,38,640277.0,45.0,149.0,25.0,77407.0,30962800.0,2015-01-12,2024-12-30,True
+PL,Polska,PL6,Makroregion północny,PL63,Pomorskie,PL636,Słupski,26,321976.0,27.0,130.0,22.0,250463.0,100185200.0,2015-08-24,2024-06-17,True
+PL,Polska,PL6,Makroregion północny,PL63,Pomorskie,PL637,Chojnicki,20,221361.0,21.0,47.0,14.0,13194.0,5277600.0,2015-08-24,2024-10-28,True
+PL,Polska,PL6,Makroregion północny,PL63,Pomorskie,PL638,Starogardzki,36,415496.0,32.0,155.0,32.0,61883.0,24753200.0,2015-01-12,2024-12-16,True
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL711,Miasto Łódź,1,652015.0,0.0,0.0,0.0,0.0,0.0,,,False
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL712,Łódzki,27,390271.0,20.0,40.0,11.0,10037.0,4014800.0,2015-12-14,2024-12-30,True
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL713,Piotrkowski,53,554320.0,27.0,131.0,34.0,38834.0,15533600.0,2015-12-14,2024-11-18,True
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL714,Sieradzki,51,425514.0,29.0,175.0,42.0,87827.0,35130800.0,2017-01-16,2024-12-30,True
+PL,Polska,PL7,Makroregion centralny,PL71,Łódzkie,PL715,Skierniewicki,45,340399.0,35.0,360.0,36.0,749053.0,299621200.0,2015-12-14,2024-12-30,True
+PL,Polska,PL7,Makroregion centralny,PL72,Świętokrzyskie,PL721,Kielecki,44,719595.0,19.0,58.0,20.0,16388.0,6555200.0,2015-12-28,2024-10-28,True
+PL,Polska,PL7,Makroregion centralny,PL72,Świętokrzyskie,PL722,Sandomiersko-jędrzejowski,58,448904.0,17.0,157.0,44.0,246453.0,98581200.0,2015-12-28,2024-11-18,True
+PL,Polska,PL8,Makroregion wschodni,PL81,Lubelskie,PL811,Bialski,43,281945.0,47.0,718.0,41.0,1152661.0,461064400.0,2015-10-12,2024-10-28,True
+PL,Polska,PL8,Makroregion wschodni,PL81,Lubelskie,PL812,Chełmsko-zamojski,77,578901.0,41.0,384.0,47.0,656791.0,262716400.0,2015-05-25,2024-11-25,True
+PL,Polska,PL8,Makroregion wschodni,PL81,Lubelskie,PL814,Lubelski,41,703004.0,43.0,274.0,29.0,465516.0,186206400.0,2016-01-25,2024-10-28,True
+PL,Polska,PL8,Makroregion wschodni,PL81,Lubelskie,PL815,Puławski,52,447197.0,57.0,249.0,37.0,144026.0,57610400.0,2015-02-09,2024-12-30,True
+PL,Polska,PL8,Makroregion wschodni,PL82,Podkarpackie,PL821,Krośnieński,43,460482.0,9.0,44.0,24.0,23510.0,9404000.0,2018-01-01,2024-07-01,True
+PL,Polska,PL8,Makroregion wschodni,PL82,Podkarpackie,PL822,Przemyski,39,371350.0,30.0,86.0,26.0,40016.0,16006400.0,2015-12-14,2024-11-25,True
+PL,Polska,PL8,Makroregion wschodni,PL82,Podkarpackie,PL823,Rzeszowski,38,648277.0,12.0,32.0,21.0,7439.0,2975600.0,2015-12-28,2024-11-25,True
+PL,Polska,PL8,Makroregion wschodni,PL82,Podkarpackie,PL824,Tarnobrzeski,40,591567.0,27.0,110.0,32.0,60821.0,24328400.0,2015-12-28,2024-11-25,True
+PL,Polska,PL8,Makroregion wschodni,PL84,Podlaskie,PL841,Białostocki,26,510830.0,56.0,619.0,26.0,2770822.0,1108328800.0,2014-12-29,2024-12-16,True
+PL,Polska,PL8,Makroregion wschodni,PL84,Podlaskie,PL842,Łomżyński,57,369846.0,70.0,893.0,54.0,5130859.0,2052343600.0,2014-12-29,2024-12-16,True
+PL,Polska,PL8,Makroregion wschodni,PL84,Podlaskie,PL843,Suwalski,35,257540.0,60.0,662.0,35.0,5532020.0,2212808000.0,2014-12-29,2024-12-16,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL91,Warszawski stołeczny,PL911,Miasto Warszawa,1,1861599.0,19.0,19.0,1.0,4315.0,1726000.0,2016-01-25,2023-03-06,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL91,Warszawski stołeczny,PL912,Warszawski wschodni,38,693885.0,44.0,262.0,31.0,310369.0,124147600.0,2015-02-09,2024-12-30,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL91,Warszawski stołeczny,PL913,Warszawski zachodni,31,715249.0,36.0,136.0,21.0,93951.0,37580400.0,2015-05-25,2024-11-18,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL921,Radomski,51,578979.0,38.0,238.0,36.0,92859.0,37143600.0,2015-02-09,2024-12-30,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL922,Ciechanowski,44,324044.0,51.0,485.0,41.0,449540.0,179816000.0,2015-04-27,2024-11-18,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL923,Płocki,28,311218.0,45.0,199.0,23.0,121807.0,48722800.0,2015-04-27,2024-12-30,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL924,Ostrołęcki,46,368349.0,64.0,963.0,45.0,3331326.0,1332530400.0,2014-12-29,2024-11-11,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL925,Siedlecki,52,401848.0,60.0,431.0,45.0,444845.0,177938000.0,2015-02-09,2024-10-28,True
+PL,Polska,PL9,Makroregion województwo mazowieckie,PL92,Mazowiecki regionalny,PL926,Żyrardowski,23,255356.0,33.0,88.0,14.0,62850.0,25140000.0,2015-05-25,2024-11-18,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT111,Alto Minho,208,231266.0,4.0,22.0,20.0,8777.0,3510800.0,2017-03-13,2021-03-22,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT112,Cávado,170,416605.0,6.0,12.0,9.0,3170.0,1268000.0,2017-01-02,2022-03-21,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT119,Ave,168,418455.0,6.0,16.0,10.0,2400.0,960000.0,2017-04-24,2022-09-19,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT11A,Área Metropolitana do Porto,173,1736228.0,7.0,13.0,12.0,1410.0,564000.0,2017-04-24,2023-03-27,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT11B,Alto Tâmega e Barroso,118,84248.0,17.0,57.0,15.0,33378.0,13351200.0,2016-04-04,2024-04-15,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT11C,Tâmega e Sousa,177,408637.0,1.0,1.0,1.0,144.0,57600.0,2017-11-20,2017-11-27,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT11D,Douro,217,183875.0,3.0,5.0,3.0,540.0,216000.0,2016-04-04,2023-01-02,True
+PT,Portugal,PT1,Continente,PT11,Norte,PT11E,Terras de Trás-os-Montes,195,107272.0,0.0,0.0,0.0,0.0,0.0,,,False
+PT,Portugal,PT1,Continente,PT15,Algarve,PT150,Algarve,67,467343.0,35.0,348.0,26.0,1616956.0,646782400.0,2015-01-12,2024-02-19,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT191,Região de Aveiro,74,367403.0,89.0,1302.0,39.0,5953700.0,2381480000.0,2015-02-02,2024-09-23,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT192,Região de Coimbra,168,436862.0,76.0,967.0,49.0,2655190.0,1062076000.0,2015-02-02,2024-09-23,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT193,Região de Leiria,67,286752.0,37.0,125.0,13.0,79283.0,31713200.0,2015-04-27,2024-07-22,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT194,Viseu Dão Lafões,156,252777.0,1.0,1.0,1.0,134.0,53600.0,2018-04-23,2018-07-09,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT195,Beira Baixa,72,98799.0,16.0,30.0,9.0,4749.0,1899600.0,2016-10-10,2024-09-23,True
+PT,Portugal,PT1,Continente,PT19,Centro (PT),PT196,Beiras e Serra da Estrela,266,210602.0,10.0,27.0,19.0,7871.0,3148400.0,2016-10-10,2024-09-23,True
+PT,Portugal,PT1,Continente,PT1A,Grande Lisboa,PT1A0,Grande Lisboa,81,2062306.0,31.0,65.0,11.0,1512022.0,604808800.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1B,Península de Setúbal,PT1B0,Península de Setúbal,37,807902.0,31.0,334.0,28.0,242986.0,97194400.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1C,Alentejo,PT1C1,Alentejo Litoral,31,96442.0,35.0,282.0,22.0,1699581.0,679832400.0,2015-01-12,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1C,Alentejo,PT1C2,Baixo Alentejo,62,114863.0,39.0,237.0,42.0,115535.0,46214000.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1C,Alentejo,PT1C3,Alto Alentejo,69,104923.0,27.0,212.0,32.0,96087.0,38434800.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1C,Alentejo,PT1C4,Alentejo Central,69,152444.0,34.0,412.0,49.0,193593.0,77437200.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1D,Oeste e Vale do Tejo,PT1D1,Oeste,89,363511.0,37.0,133.0,26.0,82362.0,32944800.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT1,Continente,PT1D,Oeste e Vale do Tejo,PT1D2,Médio Tejo,80,210533.0,16.0,72.0,19.0,34394.0,13757600.0,2016-04-04,2024-04-15,True
+PT,Portugal,PT1,Continente,PT1D,Oeste e Vale do Tejo,PT1D3,Lezíria do Tejo,68,235861.0,40.0,713.0,49.0,3498346.0,1399338400.0,2014-12-29,2024-07-22,True
+PT,Portugal,PT2,Região Autónoma dos Açores,PT20,Região Autónoma dos Açores,PT200,Região Autónoma dos Açores,156,236413.0,0.0,0.0,0.0,0.0,0.0,,,False
+PT,Portugal,PT3,Região Autónoma da Madeira,PT30,Região Autónoma da Madeira,PT300,Região Autónoma da Madeira,54,250744.0,0.0,0.0,0.0,0.0,0.0,,,False
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO111,Bihor,101,608988.0,58.0,310.0,54.0,851151.0,340460400.0,2014-12-29,2024-11-25,True
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO112,Bistriţa-Năsăud,62,323452.0,10.0,41.0,13.0,5863.0,2345200.0,2018-02-19,2024-03-25,True
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO113,Cluj,81,743731.0,11.0,40.0,13.0,9524.0,3809600.0,2016-05-02,2024-11-25,True
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO114,Maramureş,76,509343.0,11.0,36.0,19.0,22209.0,8883600.0,2018-01-29,2024-02-05,True
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO115,Satu Mare,65,378351.0,37.0,354.0,50.0,514041.0,205616400.0,2015-05-25,2024-11-25,True
+RO,România,RO1,Macroregiunea Unu,RO11,Nord-Vest,RO116,Sălaj,61,237896.0,12.0,21.0,10.0,4330.0,1732000.0,2018-03-12,2024-03-25,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO121,Alba,78,363472.0,10.0,56.0,28.0,11783.0,4713200.0,2016-05-02,2024-11-25,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO122,Braşov,58,641194.0,8.0,42.0,29.0,35370.0,14148000.0,2016-05-02,2024-09-09,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO123,Covasna,45,221176.0,10.0,49.0,25.0,49563.0,19825200.0,2015-12-28,2024-10-14,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO124,Harghita,67,323960.0,2.0,6.0,6.0,24293.0,9717200.0,2018-06-25,2019-03-18,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO125,Mureş,102,578250.0,12.0,92.0,33.0,94969.0,37987600.0,2016-05-02,2024-03-25,True
+RO,România,RO1,Macroregiunea Unu,RO12,Centru,RO126,Sibiu,64,467707.0,8.0,28.0,17.0,9440.0,3776000.0,2016-05-02,2024-11-25,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO211,Bacău,93,716717.0,30.0,184.0,48.0,80481.0,32192400.0,2015-03-09,2024-10-14,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO212,Botoşani,78,457086.0,39.0,551.0,72.0,211329.0,84531600.0,2014-12-29,2025-01-06,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO213,Iaşi,98,991882.0,45.0,370.0,76.0,278463.0,111385200.0,2014-12-29,2025-01-06,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO214,Neamţ,83,547397.0,20.0,179.0,45.0,81296.0,32518400.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO215,Suceava,114,763689.0,47.0,247.0,41.0,110761.0,44304400.0,2015-03-23,2025-01-06,True
+RO,România,RO2,Macroregiunea Doi,RO21,Nord-Est,RO216,Vaslui,86,508929.0,28.0,175.0,53.0,180926.0,72370400.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO221,Brăila,44,321481.0,44.0,762.0,44.0,1708839.0,683535600.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO222,Buzău,87,440041.0,39.0,365.0,41.0,451918.0,180767200.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO223,Constanţa,70,748503.0,65.0,363.0,54.0,440819.0,176327600.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO224,Galaţi,65,623979.0,44.0,340.0,52.0,235087.0,94034800.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO225,Tulcea,51,222451.0,57.0,964.0,48.0,10761064.0,4304425600.0,2014-12-29,2024-12-16,True
+RO,România,RO2,Macroregiunea Doi,RO22,Sud-Est,RO226,Vrancea,73,370751.0,36.0,179.0,28.0,117218.0,46887200.0,2014-12-29,2024-12-16,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO311,Argeş,102,610761.0,26.0,58.0,20.0,34509.0,13803600.0,2014-12-29,2024-11-25,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO312,Călăraşi,55,294103.0,24.0,231.0,42.0,599958.0,239983200.0,2014-12-29,2024-11-11,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO313,Dâmboviţa,89,504311.0,25.0,85.0,34.0,63017.0,25206800.0,2017-04-10,2024-11-25,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO314,Giurgiu,54,258382.0,34.0,212.0,45.0,157431.0,62972400.0,2014-12-29,2024-11-18,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO315,Ialomiţa,66,275282.0,54.0,507.0,63.0,1067886.0,427154400.0,2014-12-29,2024-12-16,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO316,Prahova,104,756881.0,31.0,121.0,37.0,62361.0,24944400.0,2014-12-29,2024-04-22,True
+RO,România,RO3,Macroregiunea Trei,RO31,Sud-Muntenia,RO317,Teleorman,97,342040.0,35.0,501.0,89.0,567897.0,227158800.0,2014-12-29,2024-11-18,True
+RO,România,RO3,Macroregiunea Trei,RO32,Bucureşti-Ilfov,RO321,Bucureşti,1,2142929.0,0.0,0.0,0.0,0.0,0.0,,,False
+RO,România,RO3,Macroregiunea Trei,RO32,Bucureşti-Ilfov,RO322,Ilfov,40,513734.0,10.0,21.0,18.0,9920.0,3968000.0,2015-03-09,2024-11-11,True
+RO,România,RO4,Macroregiunea Patru,RO41,Sud-Vest Oltenia,RO411,Dolj,111,667094.0,34.0,343.0,76.0,491313.0,196525200.0,2014-12-29,2024-11-25,True
+RO,România,RO4,Macroregiunea Patru,RO41,Sud-Vest Oltenia,RO412,Gorj,70,341928.0,9.0,37.0,21.0,35322.0,14128800.0,2014-12-29,2024-11-18,True
+RO,România,RO4,Macroregiunea Patru,RO41,Sud-Vest Oltenia,RO413,Mehedinţi,66,265968.0,21.0,119.0,27.0,179508.0,71803200.0,2014-12-29,2024-11-25,True
+RO,România,RO4,Macroregiunea Patru,RO41,Sud-Vest Oltenia,RO414,Olt,112,410371.0,30.0,135.0,55.0,94183.0,37673200.0,2014-12-29,2024-11-18,True
+RO,România,RO4,Macroregiunea Patru,RO41,Sud-Vest Oltenia,RO415,Vâlcea,89,384827.0,3.0,9.0,6.0,5608.0,2243200.0,2020-03-23,2024-06-24,True
+RO,România,RO4,Macroregiunea Patru,RO42,Vest,RO421,Arad,78,460267.0,34.0,326.0,60.0,4550389.0,1820155600.0,2014-12-29,2024-11-18,True
+RO,România,RO4,Macroregiunea Patru,RO42,Vest,RO422,Caraş-Severin,77,300758.0,17.0,46.0,15.0,28482.0,11392800.0,2015-02-02,2024-07-01,True
+RO,România,RO4,Macroregiunea Patru,RO42,Vest,RO423,Hunedoara,69,430736.0,4.0,11.0,10.0,2944.0,1177600.0,2016-05-02,2024-11-25,True
+RO,România,RO4,Macroregiunea Patru,RO42,Vest,RO424,Timiş,99,762429.0,30.0,354.0,69.0,488221.0,195288400.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS11,Београдски регион,RS110,Београдска област,17,0.0,28.0,75.0,7.0,57843.0,23137200.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS121,Западнобачка област,4,0.0,48.0,125.0,4.0,2197562.0,879024800.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS122,Јужнобанатска област,8,0.0,29.0,117.0,8.0,747072.0,298828800.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS123,Јужнобачка област,12,0.0,45.0,150.0,12.0,162761.0,65104400.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS124,Севернобанатска област,6,0.0,31.0,75.0,6.0,491293.0,196517200.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS125,Севернобачка област,3,0.0,32.0,48.0,3.0,2674356.0,1069742400.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS126,Средњобанатска област,5,0.0,32.0,75.0,5.0,661859.0,264743600.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS1,Србија - север ,RS12,Регион Војводине,RS127,Сремска област,7,0.0,38.0,108.0,6.0,243557.0,97422800.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS211,Златиборска област,11,0.0,6.0,6.0,2.0,14848.0,5939200.0,2019-01-14,2022-12-05,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS212,Колубарска област,6,0.0,5.0,7.0,2.0,4980.0,1992000.0,2014-12-29,2024-04-15,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS213,Мачванска област,8,0.0,38.0,51.0,4.0,47897.0,19158800.0,2014-12-29,2024-12-30,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS214,Моравичка област,4,0.0,2.0,2.0,1.0,2849.0,1139600.0,2019-01-14,2019-07-22,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS215,Поморавска област,6,0.0,4.0,7.0,3.0,6438.0,2575200.0,2015-03-09,2019-07-22,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS216,Расинска област,6,0.0,5.0,12.0,5.0,6869.0,2747600.0,2015-03-09,2022-03-14,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS217,Рашка област,5,0.0,8.0,10.0,4.0,8877.0,3550800.0,2015-03-09,2022-12-05,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS21,Регион Шумадије и Западне Србије,RS218,Шумадијска област,7,0.0,5.0,8.0,3.0,1869.0,747600.0,2014-12-29,2019-07-22,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS221,Борска област,4,0.0,12.0,17.0,3.0,8202.0,3280800.0,2014-12-29,2024-11-18,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS222,Браничевска област,9,0.0,16.0,22.0,3.0,8385.0,3354000.0,2015-02-02,2024-11-18,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS223,Зајечарска област,4,0.0,1.0,1.0,1.0,263.0,105200.0,2015-03-09,2015-04-20,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS224,Јабланичка област,6,0.0,9.0,12.0,3.0,2862.0,1144800.0,2014-12-29,2023-04-10,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS225,Нишавска област,11,0.0,7.0,15.0,5.0,24160.0,9664000.0,2014-12-29,2022-03-14,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS226,Пиротска област,4,0.0,4.0,4.0,1.0,1029.0,411600.0,2014-12-29,2018-10-01,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS227,Подунавска област,3,0.0,7.0,11.0,3.0,13504.0,5401600.0,2014-12-29,2024-04-15,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS228,Пчињска област,8,0.0,14.0,27.0,7.0,18330.0,7332000.0,2014-12-29,2023-04-10,True
+RS,Srbija/Сpбија,RS2,Србија - југ ,RS22,Регион Јужне и Источне Србије,RS229,Топличка област,4,0.0,2.0,2.0,2.0,9039.0,3615600.0,2015-03-09,2022-03-14,True
+SE,Sverige,SE1,Östra Sverige,SE11,Stockholm,SE110,Stockholms län,26,2454821.0,60.0,260.0,19.0,356771.0,142708400.0,2015-02-09,2025-01-06,True
+SE,Sverige,SE1,Östra Sverige,SE12,Östra Mellansverige,SE121,Uppsala län,8,404589.0,63.0,354.0,8.0,4617319.0,1846927600.0,2015-02-09,2025-01-06,True
+SE,Sverige,SE1,Östra Sverige,SE12,Östra Mellansverige,SE122,Södermanlands län,9,301944.0,64.0,258.0,9.0,699252.0,279700800.0,2015-02-09,2024-12-16,True
+SE,Sverige,SE1,Östra Sverige,SE12,Östra Mellansverige,SE123,Östergötlands län,13,472298.0,60.0,336.0,13.0,1130042.0,452016800.0,2016-05-09,2024-07-01,True
+SE,Sverige,SE1,Östra Sverige,SE12,Östra Mellansverige,SE124,Örebro län,12,308116.0,47.0,281.0,12.0,1050603.0,420241200.0,2016-08-22,2024-12-16,True
+SE,Sverige,SE1,Östra Sverige,SE12,Östra Mellansverige,SE125,Västmanlands län,10,280813.0,77.0,309.0,10.0,2452477.0,980990800.0,2015-02-09,2025-01-06,True
+SE,Sverige,SE2,Södra Sverige,SE21,Småland med öarna,SE211,Jönköpings län,13,368856.0,45.0,207.0,13.0,389584.0,155833600.0,2016-08-22,2024-12-09,True
+SE,Sverige,SE2,Södra Sverige,SE21,Småland med öarna,SE212,Kronobergs län,8,203686.0,46.0,172.0,8.0,273297.0,109318800.0,2015-06-01,2024-12-09,True
+SE,Sverige,SE2,Södra Sverige,SE21,Småland med öarna,SE213,Kalmar län,12,246667.0,61.0,255.0,12.0,434873.0,173949200.0,2015-06-01,2024-06-17,True
+SE,Sverige,SE2,Södra Sverige,SE21,Småland med öarna,SE214,Gotlands län,1,61029.0,37.0,37.0,1.0,693626.0,277450400.0,2014-12-29,2024-09-30,True
+SE,Sverige,SE2,Södra Sverige,SE22,Sydsverige,SE221,Blekinge län,5,157973.0,35.0,76.0,5.0,38421.0,15368400.0,2015-06-01,2024-12-09,True
+SE,Sverige,SE2,Södra Sverige,SE22,Sydsverige,SE224,Skåne län,33,1421781.0,44.0,554.0,32.0,1033491.0,413396400.0,2016-09-19,2024-12-16,True
+SE,Sverige,SE2,Södra Sverige,SE23,Västsverige,SE231,Hallands län,6,343746.0,35.0,113.0,6.0,128552.0,51420800.0,2016-11-07,2024-12-09,True
+SE,Sverige,SE2,Södra Sverige,SE23,Västsverige,SE232,Västra Götalands län,49,1767016.0,56.0,735.0,47.0,1044050.0,417620000.0,2016-08-22,2024-12-09,True
+SE,Sverige,SE3,Norra Sverige,SE31,Norra Mellansverige,SE311,Värmlands län,16,283548.0,56.0,378.0,16.0,1123154.0,449261600.0,2015-06-22,2024-12-16,True
+SE,Sverige,SE3,Norra Sverige,SE31,Norra Mellansverige,SE312,Dalarnas län,15,287253.0,73.0,264.0,15.0,692924.0,277169600.0,2015-02-09,2025-01-06,True
+SE,Sverige,SE3,Norra Sverige,SE31,Norra Mellansverige,SE313,Gävleborgs län,10,285642.0,66.0,241.0,10.0,1398589.0,559435600.0,2015-02-09,2025-01-06,True
+SE,Sverige,SE3,Norra Sverige,SE32,Mellersta Norrland,SE321,Västernorrlands län,7,242148.0,37.0,87.0,7.0,226115.0,90446000.0,2015-12-28,2024-12-23,True
+SE,Sverige,SE3,Norra Sverige,SE32,Mellersta Norrland,SE322,Jämtlands län,8,132572.0,83.0,322.0,8.0,5095021.0,2038008400.0,2015-02-16,2024-12-23,True
+SE,Sverige,SE3,Norra Sverige,SE33,Övre Norrland,SE331,Västerbottens län,15,278729.0,78.0,386.0,15.0,4064142.0,1625656800.0,2015-02-16,2025-01-06,True
+SE,Sverige,SE3,Norra Sverige,SE33,Övre Norrland,SE332,Norrbottens län,14,248480.0,115.0,637.0,14.0,33617659.0,13447063600.0,2015-03-30,2025-01-06,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI031,Pomurska,27,113668.0,7.0,30.0,15.0,18199.0,7279600.0,2015-02-02,2024-07-01,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI032,Podravska,41,330572.0,11.0,74.0,24.0,39154.0,15661600.0,2015-02-02,2024-05-27,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI033,Koroška,12,70492.0,1.0,1.0,1.0,724.0,289600.0,2015-02-02,2015-04-06,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI034,Savinjska,31,261786.0,14.0,19.0,6.0,9555.0,3822000.0,2015-02-02,2024-01-01,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI035,Zasavska,4,57243.0,0.0,0.0,0.0,0.0,0.0,,,False
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI036,Posavska,6,76027.0,16.0,31.0,5.0,18276.0,7310400.0,2015-10-19,2024-02-05,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI037,Jugovzhodna Slovenija,21,147789.0,19.0,106.0,16.0,132546.0,53018400.0,2015-10-19,2024-03-25,True
+SI,Slovenija,SI0,Slovenija,SI03,Vzhodna Slovenija,SI038,Primorsko-notranjska,6,54109.0,19.0,51.0,6.0,525097.0,210038800.0,2016-01-25,2024-05-27,True
+SI,Slovenija,SI0,Slovenija,SI04,Zahodna Slovenija,SI041,Osrednjeslovenska,25,565353.0,20.0,86.0,15.0,179874.0,71949600.0,2016-01-25,2024-02-05,True
+SI,Slovenija,SI0,Slovenija,SI04,Zahodna Slovenija,SI042,Gorenjska,18,209451.0,11.0,21.0,8.0,9075.0,3630000.0,2016-02-22,2023-06-05,True
+SI,Slovenija,SI0,Slovenija,SI04,Zahodna Slovenija,SI043,Goriška,13,118254.0,12.0,18.0,6.0,28009.0,11203600.0,2016-01-25,2024-11-25,True
+SI,Slovenija,SI0,Slovenija,SI04,Zahodna Slovenija,SI044,Obalno-kraška,8,119205.0,12.0,14.0,3.0,602.0,240800.0,2016-01-25,2024-07-01,True
+SK,Slovensko,SK0,Slovensko,SK01,Bratislavský kraj,SK010,Bratislavský kraj,89,732757.0,34.0,237.0,69.0,312655.0,125062000.0,2014-12-29,2024-11-18,True
+SK,Slovensko,SK0,Slovensko,SK02,Západné Slovensko,SK021,Trnavský kraj,251,566114.0,33.0,748.0,223.0,1278513.0,511405200.0,2014-12-29,2024-11-18,True
+SK,Slovensko,SK0,Slovensko,SK02,Západné Slovensko,SK022,Trenčiansky kraj,276,568102.0,20.0,108.0,56.0,77373.0,30949200.0,2018-01-01,2024-11-18,True
+SK,Slovensko,SK0,Slovensko,SK02,Západné Slovensko,SK023,Nitriansky kraj,354,668301.0,47.0,712.0,234.0,1240349.0,496139600.0,2014-12-29,2024-11-18,True
+SK,Slovensko,SK0,Slovensko,SK03,Stredné Slovensko,SK031,Žilinský kraj,315,687174.0,14.0,41.0,20.0,9219.0,3687600.0,2017-11-13,2024-05-27,True
+SK,Slovensko,SK0,Slovensko,SK03,Stredné Slovensko,SK032,Banskobystrický kraj,516,614356.0,36.0,483.0,123.0,251758.0,100703200.0,2014-12-29,2024-05-27,True
+SK,Slovensko,SK0,Slovensko,SK04,Východné Slovensko,SK041,Prešovský kraj,665,808810.0,17.0,159.0,136.0,34808.0,13923200.0,2017-02-13,2024-07-01,True
+SK,Slovensko,SK0,Slovensko,SK04,Východné Slovensko,SK042,Košický kraj,461,779073.0,50.0,1169.0,252.0,1141203.0,456481200.0,2016-01-11,2024-11-18,True

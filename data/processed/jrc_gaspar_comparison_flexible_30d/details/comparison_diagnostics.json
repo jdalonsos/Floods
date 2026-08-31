@@ -1,0 +1,69 @@
+{
+  "summary": {
+    "date_window_days": 30,
+    "jrc_canonical_commune_rows": 64327,
+    "jrc_unique_events": 288,
+    "jrc_unique_communes": 9829,
+    "jrc_unique_departments": 90,
+    "gaspar_canonical_commune_rows": 19217,
+    "gaspar_unique_event_uids": 3505,
+    "gaspar_unique_decrees": 164,
+    "gaspar_unique_communes": 12469,
+    "gaspar_unique_departments": 101,
+    "commune_level_matches": 3668,
+    "matched_jrc_commune_events": 3080,
+    "matched_gaspar_commune_events": 2204,
+    "matched_jrc_events_commune_level": 80,
+    "matched_gaspar_event_uids_commune_level": 587,
+    "department_level_matches": 4821,
+    "matched_jrc_department_events": 1002,
+    "matched_gaspar_department_events": 2466,
+    "matched_jrc_events_department_level": 171,
+    "matched_gaspar_event_uids_department_level": 1886,
+    "commune_level_reciprocal_best_event_pairs": 50,
+    "department_level_reciprocal_best_event_pairs": 123
+  },
+  "jrc_diagnostics": {
+    "raw_rows": 64420,
+    "rows_after_insee_match_filter": 64420,
+    "invalid_rows_dropped": 0,
+    "duplicate_event_commune_rows_dropped": 93,
+    "canonical_rows": 64327,
+    "unique_jrc_events": 288,
+    "unique_jrc_communes": 9829,
+    "unique_jrc_departments": 90
+  },
+  "gaspar_diagnostics": {
+    "raw_rows": 19304,
+    "invalid_rows_dropped": 0,
+    "duplicate_event_commune_rows_dropped": 87,
+    "canonical_rows": 19217,
+    "unique_gaspar_event_uids": 3505,
+    "unique_gaspar_decrees": 164,
+    "unique_gaspar_communes": 12469,
+    "gaspar_decrees_with_multiple_date_pairs": 149,
+    "max_unique_date_pairs_within_one_decree": 85,
+    "unique_gaspar_departments": 101
+  },
+  "department_reference_diagnostics": {
+    "department_reference_rows": 90,
+    "departments_with_multiple_nuts3_codes": 0
+  },
+  "parquet_outputs": {
+    "commune_event_matches_flexible_30d": "data\\processed\\jrc_gaspar_comparison_flexible_30d\\details\\commune_event_matches_flexible_30d.parquet",
+    "commune_event_match_scores": "data\\processed\\jrc_gaspar_comparison_flexible_30d\\details\\commune_event_match_scores.parquet",
+    "department_event_matches_flexible_30d": "data\\processed\\jrc_gaspar_comparison_flexible_30d\\details\\department_event_matches_flexible_30d.parquet",
+    "department_event_match_scores": "data\\processed\\jrc_gaspar_comparison_flexible_30d\\details\\department_event_match_scores.parquet"
+  },
+  "excel_status": {
+    "summary": "written_rows_22",
+    "coverage": "written_rows_4",
+    "best_match_commune": "written_rows_80",
+    "best_match_dept": "written_rows_171"
+  },
+  "notes": {
+    "gaspar_event_uid_definition": "cod_nat_catnat + dat_deb + dat_fin",
+    "flexible_match_rule": "same normalized INSEE or department code AND ((abs(start-start) <= window AND abs(end-end) <= window) OR (abs(jrc_start-gaspar_end) <= window AND abs(gaspar_start-jrc_end) <= window) OR expanded interval overlap within the same window)",
+    "department_level_note": "Department outputs use French department codes derived from commune INSEE codes. JRC NUTS3 labels are attached as reference where available."
+  }
+}

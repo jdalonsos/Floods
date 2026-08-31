@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: gaspar-jrc-france-map
+    runtime: python
+    plan: free
+    branch: codex-geodata-clean-push
+    buildCommand: pip install -r src/requirements.txt
+    startCommand: python -m streamlit run src/gaspar_jrc_france_map_app.py --server.address=0.0.0.0 --server.port=$PORT --server.headless=true --browser.gatherUsageStats=false
+    healthCheckPath: /_stcore/health

@@ -1,0 +1,9 @@
+data/raw/tri_2020_sig_di/n_inondable_*.shp filter=lfs diff=lfs merge=lfs -text
+data/raw/tri_2020_sig_di/n_inondable_*.dbf filter=lfs diff=lfs merge=lfs -text
+data/raw/tri_2020_sig_di/n_inondable_*.shx filter=lfs diff=lfs merge=lfs -text
+data/raw/France_Riparian/**/Data/rpz_*.shp filter=lfs diff=lfs merge=lfs -text
+data/raw/France_Riparian/**/Data/rpz_*.dbf filter=lfs diff=lfs merge=lfs -text
+data/raw/France_Riparian/**/Data/rpz_*.shx filter=lfs diff=lfs merge=lfs -text
+data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica/HPH_Mosaicatura_ISPRA_2020_pericolosita_idraulica_elevata.shp filter=lfs diff=lfs merge=lfs -text
+data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica/HPH_Mosaicatura_ISPRA_2020_pericolosita_idraulica_elevata.dbf filter=lfs diff=lfs merge=lfs -text
+data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica/HPH_Mosaicatura_ISPRA_2020_pericolosita_idraulica_elevata.shx filter=lfs diff=lfs merge=lfs -text

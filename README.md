@@ -1,6 +1,546 @@
 # Floods Project
 
-This repository includes the full pipeline for the analysis of Satellite-derived flood depth maps for Europe
+This repository contains a full workflow for working with the Copernicus / JRC European Satellite-Derived Flood Depth Maps:
+
+- event-based tabularization for Europe with Eurostat `LAU + NUTS`
+- France harmonization from `LAU -> current INSEE commune`
+- historical `old INSEE -> current INSEE` update tables
+- efficient TIFF visualization in both notebook and Streamlit dashboard form
+
+> **New to the repository?** Start with the
+> **[documentation guide and recommended reading order](docs/README.md)**.
+> It explains the project structure, separates current code from legacy and
+> exploratory folders, and provides routes for geodata processing, portfolio
+> flood checks, visualization, and deployment.
+
+## Quick Start
+
+The project targets Python 3.12. From the repository root:
+
+```bash
+python -m pip install -r requirements-pip.txt
+python -m pytest -q
+```
+
+Then inspect the command for the workflow you need:
+
+```bash
+python src/granular_tabularization.py --help
+python src/check_points_against_jrc_floods.py --help
+python src/build_flood_lgd_exports.py --help
+```
+
+Not every large source dataset or generated output is stored in Git. Read the
+[documentation guide](docs/README.md) and the selected workflow guide before a
+full run to confirm the required local inputs.
+
+## Current Recommended Components
+
+- Europe pipeline: `src/granular_tabularization.py`
+- France harmonization: `src/france_lau_to_insee.py`
+- Single-raster notebook inspection: `src/5_Visualize_Flood_TIFF_Map.ipynb`
+- Interactive raster browser: `src/app.py`
+- Shared dashboard / notebook preview engine: `src/flood_preview.py`
+- TRI folder reference: `docs/tri_2020_sig_di_reference.md`
+
+## Very Important Visualization Note
+
+The flood TIFFs are **not** stored in ordinary web-map coordinates.
+
+They are stored in an **Azimuthal Equidistant projected CRS** that is equivalent in practice to `EPSG:27704` for this dataset version.
+
+That means:
+
+- the raster is correct in its own projected coordinate system
+- but a web map usually expects `EPSG:4326` / `EPSG:3857` logic
+- if you place a projected raster directly on a web map using only a latitude/longitude bounding box, the image can be visually shifted
+- this is especially noticeable near coastlines, where flood cells can appear falsely "in the sea"
+
+### What was wrong in the old dashboard logic
+
+The original dashboard fallback overlay used a simple image box on the web map.
+
+That is **not sufficient** for a raster whose pixels come from a projected flood grid.
+
+So the issue was:
+
+- **not necessarily the TIFF**
+- **not necessarily the flood data**
+- but the **web overlay placement logic**
+
+### What the current dashboard logic does
+
+The current dashboard logic now:
+
+1. finds the flood area with a coarse raster scan
+2. reads only a detailed crop of the source TIFF
+3. serves large rasters as on-demand web-map tiles with nearest-neighbour sampling
+4. queries the original TIFF cell when the user clicks the map
+5. keeps polygon-based rendering available for small, alignment-sensitive inspections
+6. uses raster overlay only as a fast approximate view
+
+Those rendering strategies are:
+
+- scalable nearest-neighbour tiles for large events
+- exact native source pixels for sparse events
+- preview-grid polygon pixels for medium-size events
+- raster overlay for broad qualitative previews
+
+Important clarification:
+
+- reprojecting the crop before overlay is necessary
+- but it is **not always sufficient** to make a rectangular image overlay line up perfectly with external viewers such as Felt
+- polygon-based rendering is still the more trustworthy option when spatial alignment matters
+
+So the issue was never simply "the TIFF is wrong".
+
+The main difference is how the web app draws the flood cells.
+
+## Why this matters for data scientists
+
+If you are not used to geospatial data, the important idea is:
+
+- a TIFF can be perfectly valid
+- but still look wrong on a web map
+- if the application displays it without the right reprojection step
+
+So in this project, we separate:
+
+- **scientific raster storage CRS**
+- **analysis CRS handling**
+- **web visualization CRS**
+
+That separation is necessary for both correct analytics and correct map display.
+
+## How to Run the Dashboard
+
+From the project root:
+
+```bash
+streamlit run src/app.py
+```
+
+If `streamlit` is not recognized:
+
+```bash
+python -m streamlit run src/app.py
+```
+
+The dashboard lets you:
+
+- browse official TIFF rasters by year
+- filter filenames
+- inspect one raster quickly without loading the whole file at full resolution
+- switch between `Scalable tiled raster`, `Auto`, `Polygon pixels`, and `Raster overlay` modes
+- click a tiled raster and read the exact flood depth, source row, and source column
+
+Recommended interpretation of those modes:
+
+- `Scalable tiled raster` is the default for large rasters. It loads only the tiles visible in the browser, uses nearest-neighbour sampling to avoid interpolated flood values, and resolves clicks against the original native TIFF cell
+- `Polygon pixels` is exact but should only be used for small events because one browser polygon is created per flood cell
+- `Raster overlay` is the fastest mode, but also the most approximate
+- `Auto` chooses between the legacy preview strategies
+
+The tile colors are a visualization. The value shown after a click is read directly
+from the original raster, so it remains the authoritative native-pixel depth.
+
+## How to Run the France Commune Activity App
+
+This second Streamlit app is for the France `Gaspar vs JRC` comparison workflow.
+It colors the active communes on a France map for:
+
+- one exact date
+- one month in one year
+- one full year
+- one custom date range
+
+It supports:
+
+- `Gaspar` only
+- `JRC` only
+- `Gaspar vs JRC` overlap / difference mode
+- commune reconciliation from `Gaspar cod_commune` to current `INSEE` using:
+  - exact current code
+  - old `INSEE -> current INSEE` update tables
+  - unique commune-name fallback
+  - Corsica-style alphanumeric codes such as `2B246`
+
+From the project root:
+
+```bat
+run_gaspar_jrc_france_map.cmd
+```
+
+From Git Bash:
+
+```bash
+bash run_gaspar_jrc_france_map.sh
+```
+
+By default it opens on `http://localhost:8502`.
+
+If you want another port:
+
+```bat
+run_gaspar_jrc_france_map.cmd -Port 8503
+```
+
+From Git Bash with another port:
+
+```bash
+bash run_gaspar_jrc_france_map.sh --port 8503
+```
+
+For a deep walkthrough of this France commune app, see [docs/france_commune_activity_app_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/france_commune_activity_app_deep_guide.md).
+
+For a real `24/7` Oracle Cloud Always Free deployment package for this app, see
+[docs/oracle_always_free_streamlit_deployment.md](/D:/M2_MoSEF/DataCollection/docs/oracle_always_free_streamlit_deployment.md)
+and
+[deploy/oracle_always_free](/D:/M2_MoSEF/DataCollection/deploy/oracle_always_free).
+
+For a simpler free deployment on Streamlit Community Cloud, see
+[docs/streamlit_community_cloud_deployment.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_community_cloud_deployment.md).
+
+For a Render deployment path with an `onrender.com` domain, see
+[docs/render_deployment.md](/D:/M2_MoSEF/DataCollection/docs/render_deployment.md)
+and [render.yaml](/D:/M2_MoSEF/DataCollection/render.yaml).
+
+For a targeted external-source audit of the largest `Gaspar-only` and
+`JRC-only` mismatch clusters in **July 2021**, see
+[docs/july_2021_gaspar_jrc_mismatch_evidence_report.md](/D:/M2_MoSEF/DataCollection/docs/july_2021_gaspar_jrc_mismatch_evidence_report.md).
+
+For a bilingual summary of national match statistics plus quarter-region manual
+map checks, see
+[docs/gaspar_jrc_match_audit_en.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_match_audit_en.md)
+and
+[docs/gaspar_jrc_match_audit_fr.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_match_audit_fr.md).
+
+For a broader bilingual `2015-2024` horizon audit with ranked mismatch
+periods, deeper manual map checks, and supporting public-source chronology, see
+[docs/gaspar_jrc_horizon_audit_en.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_horizon_audit_en.md)
+and
+[docs/gaspar_jrc_horizon_audit_fr.md](/D:/M2_MoSEF/DataCollection/docs/gaspar_jrc_horizon_audit_fr.md).
+
+For a compact slide-deck summary of the last two weeks of Gaspar / JRC work,
+see
+[docs/presentations/gaspar_jrc_two_week_summary.pptx](/D:/M2_MoSEF/DataCollection/docs/presentations/gaspar_jrc_two_week_summary.pptx).
+
+For a beginner-friendly deep walkthrough of the whole dashboard display process, see [docs/streamlit_raster_dashboard_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/streamlit_raster_dashboard_deep_guide.md).
+
+## How to Run the Main Europe Pipeline
+
+```bash
+python src/granular_tabularization.py \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
+  --flood-dir data/JRC_flood_depth_maps \
+  --out-dir data/processed/_outputs_eurostat_full
+```
+
+The tabularization now also writes NUTS3 coverage diagnostics so you can check
+which official NUTS3 regions exist in the Eurostat lookup versus which ones
+actually appear in flood-event outputs:
+
+- `nuts3_event_coverage.csv`
+- `country_nuts3_event_coverage.csv`
+- `nuts3_without_flood_events.csv`
+
+## How to Run the France Harmonization
+
+This command reads the canonical Europe output `events_lau_long.csv` and
+creates the France-specific commune table `events_fr_insee_long.csv`.
+
+Important implementation note:
+
+- the Europe table already contains `nuts0` to `nuts3`
+- the France lookup adds another `nuts3` mapping for documentation and fallback
+- the script now resolves that merge safely, keeping the event-table `nuts3_*`
+  columns as canonical and only using lookup values when the event table is
+  missing them
+
+```bash
+python src/france_lau_to_insee.py \
+  --tabular-file data/processed/_outputs_eurostat_full/events_lau_long.csv \
+  --lau data/raw/LAU_RG_01M_2024_4326.gpkg \
+  --nuts data/raw/NUTS_RG_01M_2024_4326.gpkg \
+  --adminexpress data/raw/adminexpress-cog-simpl-000-2025.gpkg \
+  --commune-history data/raw/insee_history/v_commune_depuis_1943.csv \
+  --commune-movements data/raw/insee_history/v_mvt_commune_2025.csv \
+  --out-dir data/processed/france_lau_insee_documentation
+```
+
+## How to Check Point Locations Against JRC Floods
+
+Use [src/check_points_against_jrc_floods.py](/D:/M2_MoSEF/DataCollection/src/check_points_against_jrc_floods.py) when you have one or many latitude / longitude points and want to know whether they were hit by any JRC flood event.
+
+For a deeper implementation walkthrough, see [docs/check_points_against_jrc_floods_deep_guide.md](/D:/M2_MoSEF/DataCollection/docs/check_points_against_jrc_floods_deep_guide.md).
+
+For the simplified output-column definitions, see [docs/flood_workbook_column_dictionary.md](/D:/M2_MoSEF/DataCollection/docs/flood_workbook_column_dictionary.md).
+
+The workflow is intentionally optimized in two stages:
+
+- first map each point to its Eurostat LAU polygon
+- use the processed JRC LAU event table to keep only candidate events touching that LAU
+- open official TIFF rasters only for those candidate events
+- check both the `40 m` point buffer and the `1 km` surrounding buffer around it
+
+This is much faster than testing every point against every TIFF, especially once you scale from a few example cities to hundreds of addresses.
+
+Default inputs:
+
+- point workbook: `data/raw/france_20_gps_google_maps.xlsx`
+- LAU polygons: `data/raw/LAU_RG_01M_2024_4326.gpkg`
+- processed JRC event table: `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
+- France lookup enrichment: `data/processed/france_lau_insee_documentation/fr_lau_insee_lookup.csv`
+- raw JRC TIFF root: `data/JRC_flood_depth_maps`
+
+Default output:
+
+- `data/processed/france_points_jrc_flood_check.xlsx`
+
+The output workbook contains three sheets:
+
+- `point_summary`: original point columns plus flood flags, LAU / INSEE / NUTS metadata, candidate-event counts, and max flood indicators for both the 40 m point buffer and the 1 km surrounding buffer
+- `candidate_events`: all candidate JRC events for each mapped point, including the TIFF file, event dates, and both buffer scales
+- `event_hits`: only the positive hits at either buffer scale, now including `min` depth and flooded-pixel percentages for the buffers
+
+Run it with:
+
+```bash
+python src/check_points_against_jrc_floods.py
+```
+
+Example with a study period, the default 1 km surrounding buffer, and a minimum flood threshold:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --study-start 2018-01-01 \
+  --study-end 2024-12-31 \
+  --buffer-km 1 \
+  --threshold-cm 10 \
+  --out-file data/processed/france_points_jrc_flood_check_2018_2024.xlsx
+```
+
+### T20 Portfolio Rule
+
+For `data/processed/T20_Anonymised.xlsx`, the matching logic can be kept simple and still remain correct for this project:
+
+1. map each `LAT` / `LONG` point to its LAU
+2. keep only JRC events already touching that LAU
+3. for each row, build a study window as:
+   - `study_period_start = full history` by default
+   - `study_period_end = Closed_Default_Date`
+   - if `Closed_Default_Date` is empty, use `Cut_off_Date` instead
+4. keep only JRC events whose `[start_date, end_date]` interval overlaps that row-specific study window
+5. inspect the remaining TIFFs with:
+   - a `40 m` point buffer for the local match metrics
+   - a `1 km` surrounding buffer for the broader nearby context
+
+That is the recommended balance here:
+
+- simple, because the time rule is just one interval overlap per row
+- fast, because the LAU prefilter avoids opening irrelevant TIFFs
+- robust, because the final flood decision still comes from the raster itself rather than only from the tabular prefilter
+
+Coordinate parsing for the T20-style workbook is handled inside:
+
+- `load_points_table()`
+- via `parse_coordinate_series()`
+- with helper `normalize_decimal_text()`
+
+That is what allows the script to accept both:
+
+- decimal dots like `47.87431063`
+- decimal commas like `47,87431063`
+
+If you still want the old bounded lookback, you can pass `--row-study-lookback-years X`.
+
+Example command for the new default full-history T20 logic:
+
+```bash
+python src/check_points_against_jrc_floods.py \
+  --points-file data/processed/T20_Anonymised.xlsx \
+  --sheet-name Feuil2 \
+  --latitude-col LAT \
+  --longitude-col LONG \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --point-buffer-m 40 \
+  --buffer-km 1 \
+  --out-file data/processed/T20_Anonymised_jrc_flood_check.xlsx
+```
+
+### Collaterals Workbook Preset
+
+For collateral-style workbooks, use:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx
+```
+
+This preset expects:
+
+- `ID_geoloc`
+- `lat`
+- `lon`
+- `last_date`
+
+Its default temporal rule is:
+
+- start = `2000-01-01`
+- end = each row's `last_date`
+
+Default output files:
+
+- `data/processed/france_points_jrc_flood_check_collaterals.xlsx`
+- `data/processed/france_points_gaspar_check_collaterals.xlsx`
+
+To keep all floods from another start year up to each row's `last_date`, change `--study-start`:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx \
+  --study-start 2015-01-01
+```
+
+If the workbook tab is not the first one:
+
+```bash
+python src/check_points_against_jrc_floods_collaterals.py \
+  --points-file data/raw/my_collaterals_points.xlsx \
+  --sheet-name Sheet1
+```
+
+The output workbook will also keep the raw T20 date columns and add:
+
+- `study_period_anchor_date`
+- `study_period_primary_end_date`
+- `study_period_fallback_end_date`
+- `study_period_start`
+- `study_period_end`
+- `study_period_end_source`
+
+Interpretation of the main flags:
+
+- `lau_matched = False`: the point did not fall inside any LAU polygon in the supplied LAU layer
+- `lau_touched_by_any_jrc_event = False`: the point was mapped to a LAU, but that LAU never appears in the processed JRC flood-event table
+- `jrc_flood_hit = False`: the LAU was touched by one or more JRC events, but no flooded pixel above threshold was found inside the `40 m` point buffer or the `1 km` surrounding buffer
+- `jrc_flood_hit = True`: at least one JRC event produced flooded pixels above threshold inside the `40 m` point buffer or the `1 km` surrounding buffer
+
+Important metric meaning:
+
+- `hit_at_point_event_count` now means event hits inside the `40 m` point buffer, not only one exact raster pixel
+- `hit_within_buffer_event_count` now means event hits inside the `1 km` surrounding buffer
+- `hit_event_count` already counts positive matched flood events inside the main row window, meaning from the past up to `Closed_Default_Date`, or up to `Cut_off_Date` when `Closed_Default_Date` is empty
+- `hit_event_count_until_default_date` is the additional feature that counts positive matched flood events from the past up to the default-start date, which in this workflow is `Reference_Date`
+- `hit_event_count_until_default_date` is only a descriptive feature in `point_summary`; it does not change the main candidate filtering or the final `jrc_flood_hit` logic
+- `max_point_buffer_*` columns summarize the `40 m` point-buffer depth metrics
+- `max_buffer_*` columns summarize the `1 km` surrounding-buffer depth metrics
+
+Buffer event-level metrics now also include:
+
+- `*_min_depth_cm` alongside `*_max_depth_cm`, `*_median_depth_cm`, and `*_mean_depth_cm`
+- `*_total_pixels` for the number of raster pixels touched by the buffer and available for evaluation
+- `*_flooded_pixel_pct` for `100 * flooded_pixels / total_pixels`
+
+The script is designed so that later you can replace city-centre example points with large address lists converted to latitude / longitude and keep the same flood-check workflow.
+
+## How to Check Italy T20 Points Against JRC And HANZE Plus TRI
+
+Use [src/check_italy_points_against_jrc_hanze.py](/D:/M2_MoSEF/DataCollection/src/check_italy_points_against_jrc_hanze.py) when you want the Italy version of the T20 point workflow.
+
+For the workflow guide, see [docs/check_italy_points_against_jrc_hanze_guide.md](/D:/M2_MoSEF/DataCollection/docs/check_italy_points_against_jrc_hanze_guide.md).
+
+For the Italy output-column dictionary, see [docs/italy_flood_workbook_column_dictionary.md](/D:/M2_MoSEF/DataCollection/docs/italy_flood_workbook_column_dictionary.md).
+
+This Italy script writes two separate workbooks:
+
+- a JRC workbook using the same raster-confirmation logic as the France point script
+- a HANZE plus TRI workbook that flags a point only when:
+  - the point matches a HANZE event through `NUTS3`
+  - the HANZE event year is `>= 2000` by default
+  - and the point lies inside the Italian `HPH / elevata` flood-hazard layer
+
+Default inputs:
+
+- point workbook: `data/processed/T20_Anonymised.xlsx`
+- LAU polygons: `data/raw/LAU_RG_01M_2024_4326.gpkg`
+- LAU to NUTS lookup: `data/processed/_outputs_eurostat_full/lau_nuts_lookup.csv`
+- processed JRC event table: `data/processed/_outputs_eurostat_full/events_lau_long.parquet`
+- raw JRC TIFF root: `data/JRC_flood_depth_maps`
+- HANZE events: `data/processed/HANZE_events_v3_transformed.csv`
+  This file is produced by `src/transform_hanze_events_v3.py`, which expands
+  HANZE rows by `NUTS3` and normalizes `Start date` and `End date` to
+  `YYYY-MM-DD`.
+- Italian TRI root: `data/raw/Mosaicatura_ISPRA_2020_aree_pericolosita_idraulica`
+
+Typical command:
+
+```bash
+python src/check_italy_points_against_jrc_hanze.py \
+  --points-file data/processed/T20_Anonymised.xlsx \
+  --sheet-name Feuil2 \
+  --latitude-col LAT \
+  --longitude-col LONG \
+  --row-study-anchor-col Reference_Date \
+  --row-study-end-col Closed_Default_Date \
+  --row-study-end-fallback-col Cut_off_Date \
+  --hanze-min-year 2000 \
+  --out-file data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx
+```
+
+Expected outputs:
+
+- `data/processed/T20_Anonymised_italy_jrc_flood_check.xlsx`
+- `data/processed/T20_Anonymised_italy_hanze_tri_check.xlsx`
+
+## TIFFs and Git
+
+Flood TIFFs should **not** be pushed to GitHub from this project workflow.
+
+The repository is configured to ignore:
+
+- `*.tif`
+- large tabular exports such as `*.parquet`, `*.xlsx`, `*.csv`
+
+That keeps the code repository light and prevents accidental pushes of heavy raster data.
+
+## How to Compare France JRC vs Gaspar
+
+Use the France commune-event output from `src/france_lau_to_insee.py` together
+with the cleaned first sheet of `data/processed/Gaspar_2015_2024.xlsx`.
+
+The comparison script:
+
+- normalizes INSEE commune codes on both sources
+- uses a flexible date rule on both start and end dates
+- matches on:
+  - same commune code
+  - `abs(jrc_start - gaspar_start) <= 7 days`
+  - `abs(jrc_end - gaspar_end) <= 7 days`
+- defines the Gaspar event grain as:
+  - `cod_nat_catnat + dat_deb + dat_fin`
+  - because one `cod_nat_catnat` can contain multiple date pairs
+- writes a small top-level result pack:
+  - `comparison_guide.md`
+  - `comparison_summary.csv`
+  - `comparison_summary.xlsx`
+  - `coverage_overview.csv`
+  - `coverage_overview.xlsx`
+  - `best_match_overview_commune.csv`
+  - `best_match_overview_commune.xlsx`
+- keeps the long audit tables inside `details/`
+
+```bash
+python src/compare_france_jrc_gaspar.py \
+  --jrc-file data/processed/france_lau_insee_documentation/events_fr_insee_long.csv \
+  --gaspar-file data/processed/Gaspar_2015_2024.xlsx \
+  --sheet-name Gaspar20152024FloodsClean \
+  --date-window-days 7 \
+  --out-dir data/processed/jrc_gaspar_comparison_7d
+```
 
 ---
 

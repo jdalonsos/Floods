@@ -1,0 +1,17 @@
+name: gaspar-jrc-france-map
+
+services:
+  app:
+    container_name: gaspar-jrc-france-map
+    image: gaspar-jrc-france-map:oracle-always-free
+    build:
+      context: ../..
+      dockerfile: deploy/oracle_always_free/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-8501}:8501"
+    environment:
+      STREAMLIT_PORT: "8501"
+      PYTHONPATH: /app/src
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+      STREAMLIT_SERVER_HEADLESS: "true"

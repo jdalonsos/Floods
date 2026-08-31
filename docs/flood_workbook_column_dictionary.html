@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>flood_workbook_column_dictionary.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> or <div class="page"></div> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="flood-workbook-column-dictionary">Flood Workbook Column Dictionary</h1>
+<p>This document explains the output columns used by the current flood-screening workbooks created by <code>src/check_points_against_jrc_floods.py</code>.</p>
+<p>Current output files:</p>
+<ul>
+<li><code>data/processed/T20_Anonymised_jrc_flood_check.xlsx</code></li>
+<li><code>data/processed/T20_Anonymised_gaspar_check.xlsx</code></li>
+</ul>
+<p>The goal is to keep the <code>event_hits</code> sheets short and readable, while still documenting every kept variable.</p>
+<p>For the exact TRI and Copernicus riparian shapefiles behind the Gaspar spatial flags, see:</p>
+<ul>
+<li><code>docs/tri_2020_sig_di_reference.md</code></li>
+</ul>
+<h2 id="1-workbook-structure">1. Workbook Structure</h2>
+<h3 id="jrc-workbook">JRC workbook</h3>
+<p>Sheets:</p>
+<ul>
+<li><code>point_flags</code></li>
+<li><code>Detailed</code></li>
+<li><code>candidate_events</code></li>
+<li><code>event_hits</code></li>
+</ul>
+<p>Meaning:</p>
+<ul>
+<li><code>point_flags</code> gives one row per point and a simple <code>0/1</code> flood flag.</li>
+<li><code>Detailed</code> keeps one row per original T20 input row, with all original workbook columns plus a leading binary <code>touched</code> flag.</li>
+<li><code>candidate_events</code> keeps the full point x JRC-event diagnostic detail.</li>
+<li><code>event_hits</code> keeps only the positive JRC matches and only the core columns.</li>
+</ul>
+<p>Large-sheet note:</p>
+<ul>
+<li>if a workbook sheet exceeds the Excel row limit, the code automatically splits it into numbered tabs such as:
+<ul>
+<li><code>candidate_events</code></li>
+<li><code>candidate_events_2</code></li>
+<li><code>candidate_events_3</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="gaspar-workbook">Gaspar workbook</h3>
+<p>Sheets:</p>
+<ul>
+<li><code>point_flags</code></li>
+<li><code>Detailed</code></li>
+<li><code>candidate_events</code></li>
+<li><code>event_hits</code></li>
+</ul>
+<p>Meaning:</p>
+<ul>
+<li><code>point_flags</code> gives one row per point and a simple <code>0/1</code> Gaspar-derived flood flag.</li>
+<li><code>Detailed</code> keeps one row per original T20 input row, with all original workbook columns plus a leading binary <code>touched</code> flag.</li>
+<li><code>candidate_events</code> keeps the point x Gaspar-event matches that survive the row-level date filter.</li>
+<li><code>event_hits</code> keeps only the final spatial positives:
+<ul>
+<li><code>TRI For</code></li>
+<li>or <code>outside n_tri</code> and <code>inside riparian</code></li>
+</ul>
+</li>
+</ul>
+<p>Large-sheet note:</p>
+<ul>
+<li>if a workbook sheet exceeds the Excel row limit, the code automatically splits it into numbered tabs such as:
+<ul>
+<li><code>candidate_events</code></li>
+<li><code>candidate_events_2</code></li>
+<li><code>candidate_events_3</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="2-point_flags-columns">2. <code>point_flags</code> Columns</h2>
+<p>These columns are the same in both workbooks.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>point_id</code></td>
+<td>Point identifier from the input workbook.</td>
+</tr>
+<tr>
+<td><code>flag_flood</code></td>
+<td>Final point-level flag. <code>1</code> means at least one positive event hit was found for that point. <code>0</code> means none was found.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-detailed-sheet">3. <code>Detailed</code> Sheet</h2>
+<p>These columns are written in both workbooks.</p>
+<ul>
+<li><code>point_id</code> is moved to the front.</li>
+<li><code>touched</code> is inserted right after it.</li>
+<li>all other original T20 columns are kept after those two leading fields.</li>
+</ul>
+<p>Meaning of <code>touched</code>:</p>
+<ul>
+<li>JRC workbook:
+<code>1</code> means the point has at least one positive JRC event hit, where either the local <code>40 m</code> point buffer or the <code>1 km</code> surrounding buffer was flooded.</li>
+<li>Gaspar workbook:
+<code>1</code> means the point has at least one positive Gaspar hit after the <code>TRI For / outside n_tri + riparian</code> filter.</li>
+</ul>
+<h2 id="4-jrc-event_hits-columns">4. JRC <code>event_hits</code> Columns</h2>
+<p>The JRC <code>event_hits</code> sheet keeps only the essential point, event, date, and buffer-depth fields.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>point_id</code></td>
+<td>Point identifier from the input workbook.</td>
+</tr>
+<tr>
+<td><code>excel_row_number</code></td>
+<td>Original Excel row number of the point after header detection.</td>
+</tr>
+<tr>
+<td><code>point_latitude</code></td>
+<td>Point latitude used for the spatial check.</td>
+</tr>
+<tr>
+<td><code>point_longitude</code></td>
+<td>Point longitude used for the spatial check.</td>
+</tr>
+<tr>
+<td><code>lau_code</code></td>
+<td>Eurostat LAU code matched to the point.</td>
+</tr>
+<tr>
+<td><code>lau_name</code></td>
+<td>LAU name matched to the point.</td>
+</tr>
+<tr>
+<td><code>insee_com</code></td>
+<td>Current French commune INSEE code linked to the point.</td>
+</tr>
+<tr>
+<td><code>Reference_Date</code></td>
+<td>Raw point-level anchor date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>Closed_Default_Date</code></td>
+<td>Preferred row-level end date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>Cut_off_Date</code></td>
+<td>Fallback row-level end date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>study_period_end</code></td>
+<td>Effective row-level end date actually used to filter JRC events.</td>
+</tr>
+<tr>
+<td><code>study_period_end_source</code></td>
+<td>Which source column supplied <code>study_period_end</code>.</td>
+</tr>
+<tr>
+<td><code>event_id</code></td>
+<td>JRC flood event identifier.</td>
+</tr>
+<tr>
+<td><code>raster_file</code></td>
+<td>TIFF filename used for the JRC event check.</td>
+</tr>
+<tr>
+<td><code>start_date</code></td>
+<td>JRC event start date.</td>
+</tr>
+<tr>
+<td><code>end_date</code></td>
+<td>JRC event end date.</td>
+</tr>
+<tr>
+<td><code>duration_days</code></td>
+<td>Duration of the JRC event in days.</td>
+</tr>
+<tr>
+<td><code>max_depth_cm</code></td>
+<td>Maximum flood depth reported by the processed JRC event table for the event.</td>
+</tr>
+<tr>
+<td><code>flooded_pixels</code></td>
+<td>Total flooded pixels reported by the processed JRC event table for the event.</td>
+</tr>
+<tr>
+<td><code>flooded_area_m2</code></td>
+<td>Total flooded area reported by the processed JRC event table for the event.</td>
+</tr>
+<tr>
+<td><code>hit_at_point</code></td>
+<td><code>True</code> when the local <code>40 m</code> point buffer contains flooded pixels above threshold.</td>
+</tr>
+<tr>
+<td><code>exact_point_depth_cm</code></td>
+<td>Current local point-depth field written by the script for the <code>40 m</code> branch.</td>
+</tr>
+<tr>
+<td><code>point_buffer_radius_m</code></td>
+<td>Radius of the local buffer used around the point, in meters.</td>
+</tr>
+<tr>
+<td><code>point_buffer_flood_hit</code></td>
+<td><code>True</code> when the <code>40 m</code> buffer contains flooded pixels above threshold.</td>
+</tr>
+<tr>
+<td><code>point_buffer_flooded_pixels</code></td>
+<td>Number of flooded pixels inside the <code>40 m</code> buffer.</td>
+</tr>
+<tr>
+<td><code>point_buffer_flooded_pixel_pct</code></td>
+<td>Share of pixels flooded inside the <code>40 m</code> buffer, in percent.</td>
+</tr>
+<tr>
+<td><code>point_buffer_flooded_area_m2</code></td>
+<td>Flooded area inside the <code>40 m</code> buffer, in square meters.</td>
+</tr>
+<tr>
+<td><code>point_buffer_min_depth_cm</code></td>
+<td>Minimum flooded-pixel depth inside the <code>40 m</code> buffer.</td>
+</tr>
+<tr>
+<td><code>point_buffer_max_depth_cm</code></td>
+<td>Maximum flooded-pixel depth inside the <code>40 m</code> buffer.</td>
+</tr>
+<tr>
+<td><code>point_buffer_median_depth_cm</code></td>
+<td>Median flooded-pixel depth inside the <code>40 m</code> buffer.</td>
+</tr>
+<tr>
+<td><code>point_buffer_mean_depth_cm</code></td>
+<td>Mean flooded-pixel depth inside the <code>40 m</code> buffer.</td>
+</tr>
+<tr>
+<td><code>buffer_radius_km</code></td>
+<td>Radius of the surrounding buffer used around the point, in kilometers.</td>
+</tr>
+<tr>
+<td><code>buffer_flood_hit</code></td>
+<td><code>True</code> when the <code>1 km</code> surrounding buffer contains flooded pixels above threshold.</td>
+</tr>
+<tr>
+<td><code>buffer_flooded_pixels</code></td>
+<td>Number of flooded pixels inside the <code>1 km</code> surrounding buffer.</td>
+</tr>
+<tr>
+<td><code>buffer_flooded_pixel_pct</code></td>
+<td>Share of pixels flooded inside the <code>1 km</code> surrounding buffer, in percent.</td>
+</tr>
+<tr>
+<td><code>buffer_flooded_area_m2</code></td>
+<td>Flooded area inside the <code>1 km</code> surrounding buffer, in square meters.</td>
+</tr>
+<tr>
+<td><code>buffer_min_depth_cm</code></td>
+<td>Minimum flooded-pixel depth inside the <code>1 km</code> surrounding buffer.</td>
+</tr>
+<tr>
+<td><code>buffer_max_depth_cm</code></td>
+<td>Maximum flooded-pixel depth inside the <code>1 km</code> surrounding buffer.</td>
+</tr>
+<tr>
+<td><code>buffer_median_depth_cm</code></td>
+<td>Median flooded-pixel depth inside the <code>1 km</code> surrounding buffer.</td>
+</tr>
+<tr>
+<td><code>buffer_mean_depth_cm</code></td>
+<td>Mean flooded-pixel depth inside the <code>1 km</code> surrounding buffer.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-gaspar-candidate_events-and-event_hits-columns">5. Gaspar <code>candidate_events</code> and <code>event_hits</code> Columns</h2>
+<p>The Gaspar <code>event_hits</code> sheet is a filtered subset of the Gaspar <code>candidate_events</code> sheet.</p>
+<p><code>candidate_events</code> keeps all Gaspar point-event rows that survive the row-level date filter.</p>
+<p><code>event_hits</code> keeps only rows where:</p>
+<ul>
+<li>the point is in <code>TRI For</code></li>
+<li>or the point is outside <code>n_tri</code> and inside a riparian polygon</li>
+</ul>
+<p>The kept columns are:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>point_id</code></td>
+<td>Point identifier from the input workbook.</td>
+</tr>
+<tr>
+<td><code>excel_row_number</code></td>
+<td>Original Excel row number of the point after header detection.</td>
+</tr>
+<tr>
+<td><code>point_latitude</code></td>
+<td>Point latitude used for the spatial check.</td>
+</tr>
+<tr>
+<td><code>point_longitude</code></td>
+<td>Point longitude used for the spatial check.</td>
+</tr>
+<tr>
+<td><code>lau_code</code></td>
+<td>Eurostat LAU code matched to the point.</td>
+</tr>
+<tr>
+<td><code>lau_name</code></td>
+<td>LAU name matched to the point.</td>
+</tr>
+<tr>
+<td><code>insee_com</code></td>
+<td>Current French commune INSEE code linked to the point.</td>
+</tr>
+<tr>
+<td><code>Reference_Date</code></td>
+<td>Raw point-level anchor date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>Closed_Default_Date</code></td>
+<td>Preferred row-level end date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>Cut_off_Date</code></td>
+<td>Fallback row-level end date from the source workbook when present.</td>
+</tr>
+<tr>
+<td><code>study_period_end</code></td>
+<td>Effective row-level end date actually used to filter Gaspar events.</td>
+</tr>
+<tr>
+<td><code>study_period_end_source</code></td>
+<td>Which source column supplied <code>study_period_end</code>.</td>
+</tr>
+<tr>
+<td><code>gaspar_event_uid</code></td>
+<td>Unique Gaspar event-row identifier built in the processed Gaspar table.</td>
+</tr>
+<tr>
+<td><code>cod_nat_catnat</code></td>
+<td>CatNat decree identifier used in the Gaspar source.</td>
+</tr>
+<tr>
+<td><code>gaspar_start_date</code></td>
+<td>Gaspar event start date.</td>
+</tr>
+<tr>
+<td><code>gaspar_end_date</code></td>
+<td>Gaspar event end date.</td>
+</tr>
+<tr>
+<td><code>gaspar_commune_name</code></td>
+<td>Commune name attached to the Gaspar event row.</td>
+</tr>
+<tr>
+<td><code>gaspar_commune_match_method</code></td>
+<td>How the Gaspar commune was matched to the current point commune.</td>
+</tr>
+<tr>
+<td><code>tri_for_hit</code></td>
+<td><code>True</code> when the point falls inside a plain TRI <code>For</code> polygon.</td>
+</tr>
+<tr>
+<td><code>tri_boundary_hit</code></td>
+<td><code>True</code> when the point falls inside an <code>n_tri</code> territory-boundary polygon.</td>
+</tr>
+<tr>
+<td><code>tri_zone_status</code></td>
+<td>Simplified TRI status used by the Gaspar logic: <code>for</code>, <code>inside_n_tri_not_for</code>, or <code>outside_n_tri</code>.</td>
+</tr>
+<tr>
+<td><code>riparian_hit</code></td>
+<td><code>True</code> when the point falls inside a riparian polygon.</td>
+</tr>
+<tr>
+<td><code>gaspar_hit_reason</code></td>
+<td>Final spatial reason kept by the workflow: <code>tri_for</code>, <code>riparian_outside_n_tri</code>, or <code>not_selected</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-reading-the-two-workbooks-together">6. Reading the Two Workbooks Together</h2>
+<p>The simplest interpretation is:</p>
+<ul>
+<li>JRC workbook:
+<ul>
+<li><code>point_flags</code> answers: did JRC produce one or more positive flood hits for this point?</li>
+<li><code>event_hits</code> answers: which JRC events produced those hits, and what were the <code>40 m</code> and <code>1 km</code> depth metrics?</li>
+</ul>
+</li>
+<li>Gaspar workbook:
+<ul>
+<li><code>point_flags</code> answers: did Gaspar produce one or more final hits after the <code>TRI For / outside n_tri + riparian</code> rule?</li>
+<li><code>event_hits</code> answers: which Gaspar events survived both the row-level date filter and the final spatial rule?</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-qa">7. Q&amp;A</h2>
+<h3 id="about-point_flags">About <code>point_flags</code></h3>
+<p>Question:</p>
+<ul>
+<li>does one row in <code>point_flags</code> mean one address, that is one latitude / longitude pair?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>technically, one row in <code>point_flags</code> means one unique <code>point_id</code></li>
+<li>in practice, if the source workbook has one address per row, that usually means one address = one point</li>
+<li>but the code does not force latitude / longitude uniqueness</li>
+<li>so two different rows can have the same latitude / longitude and still be treated as two distinct points if they have two different <code>point_id</code> values</li>
+</ul>
+<h3 id="about-detailed">About <code>Detailed</code></h3>
+<p>Question:</p>
+<ul>
+<li>does <code>Detailed</code> also contain construction fields such as <code>study_period_anchor_date</code>?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>yes</li>
+<li><code>Detailed</code> keeps the original T20 row plus the extra study-period columns created by the script before export</li>
+<li>typical examples include:
+<ul>
+<li><code>study_period_anchor_date</code></li>
+<li><code>study_period_primary_end_date</code></li>
+<li><code>study_period_fallback_end_date</code></li>
+<li><code>study_period_start</code></li>
+<li><code>study_period_end</code></li>
+<li><code>study_period_end_source</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="about-jrc-event_hits">About JRC <code>event_hits</code></h3>
+<p>Question:</p>
+<ul>
+<li>does <code>event_hits</code> contain one row per flood event before <code>study_period_end</code>?</li>
+<li>and for JRC, is a hit either <code>hit_at_point=True</code> or <code>buffer_flood_hit=True</code>?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>yes, with one nuance</li>
+<li>in the current T20 setup, because the study logic keeps the full history up to <code>study_period_end</code>, the practical rule is:
+<ul>
+<li><code>event_start_date &lt;= study_period_end</code></li>
+</ul>
+</li>
+<li>more generally, the code uses interval-overlap logic</li>
+<li>and yes, a JRC event is kept in <code>event_hits</code> when it is positive locally, meaning:
+<ul>
+<li><code>point_buffer_flood_hit = True</code></li>
+<li>or <code>surrounding_buffer_flood_hit = True</code></li>
+</ul>
+</li>
+<li><code>buffer_flood_hit</code> is the simplified-sheet alias for the <code>1 km</code> surrounding-buffer logic</li>
+</ul>
+<h3 id="about-lau_code">About <code>lau_code</code></h3>
+<p>Question:</p>
+<ul>
+<li>what LAU level is <code>lau_code</code>?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>it is the Eurostat LAU level at municipality / commune scale</li>
+<li>for France, it can be read as a commune-level LAU code such as <code>FR_25011</code></li>
+</ul>
+<h3 id="about-flooded_pixels">About <code>flooded_pixels</code></h3>
+<p>Question:</p>
+<ul>
+<li>is <code>flooded_pixels</code> the total number of flooded pixels in the whole JRC TIFF?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>no</li>
+<li>it is not the total for the full TIFF</li>
+<li><code>flooded_pixels</code> is the number of flooded pixels for that event inside the LAU attached to the row</li>
+<li>so it is:
+<ul>
+<li>not limited to the <code>40 m</code> buffer</li>
+<li>not limited to the <code>1 km</code> buffer</li>
+<li>not the whole TIFF either</li>
+</ul>
+</li>
+<li>it is an <code>event x LAU</code> metric precomputed in the processed JRC event table</li>
+<li>for local point-neighborhood metrics, use:
+<ul>
+<li><code>point_buffer_flooded_pixels</code></li>
+<li><code>buffer_flooded_pixels</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="about-point_buffer_radius_m-and-buffer_radius_km">About <code>point_buffer_radius_m</code> and <code>buffer_radius_km</code></h3>
+<p>Question:</p>
+<ul>
+<li>are they always equal to <code>40 m</code> and <code>1 km</code> in the current methodology?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>yes, with the current run settings</li>
+<li>more precisely:
+<ul>
+<li><code>point_buffer_radius_m = 40</code></li>
+<li><code>buffer_radius_km = 1</code></li>
+</ul>
+</li>
+<li>these are script parameters, so they change only if the CLI values are changed at runtime</li>
+</ul>
+<h3 id="about-hit_at_point-and-point_buffer_flood_hit">About <code>hit_at_point</code> and <code>point_buffer_flood_hit</code></h3>
+<p>Question:</p>
+<ul>
+<li>what is the difference between <code>hit_at_point</code> and <code>point_buffer_flood_hit</code>?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>in the current version, there is no functional difference</li>
+<li><code>hit_at_point</code> is a historical alias</li>
+<li>it now reflects the same logic as <code>point_buffer_flood_hit</code></li>
+<li>in practice:
+<ul>
+<li><code>hit_at_point == point_buffer_flood_hit</code></li>
+</ul>
+</li>
+<li>the old name may sound like an exact pixel under the coordinate, but the real current logic is the local <code>40 m</code> buffer</li>
+</ul>
+<h3 id="about-gaspar_commune_match_method">About <code>gaspar_commune_match_method</code></h3>
+<p>Question:</p>
+<ul>
+<li>what are the possible values of <code>gaspar_commune_match_method</code>?</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>the current code can produce:
+<ul>
+<li><code>current_code_exact</code></li>
+<li><code>historical_code_update_ready</code></li>
+<li><code>current_name_unique_adminexpress</code></li>
+<li><code>current_name_unique_lau</code></li>
+</ul>
+</li>
+<li>and in internal diagnostics it may also show:
+<ul>
+<li><code>unresolved</code></li>
+</ul>
+</li>
+<li>but the final point-matching workflow normally keeps resolved rows</li>
+</ul>
+<h3 id="about-tri_zone_status">About <code>tri_zone_status</code></h3>
+<p>Question:</p>
+<ul>
+<li>is the following rule correct?
+<ul>
+<li>if <code>tri_for_hit=True</code> then <code>tri_zone_status=&quot;for&quot;</code></li>
+<li>if <code>tri_for_hit=False</code> and <code>tri_boundary_hit=True</code> then <code>tri_zone_status=&quot;inside_n_tri_not_for&quot;</code></li>
+<li>if <code>tri_for_hit=False</code> and <code>tri_boundary_hit=False</code> then <code>tri_zone_status=&quot;outside_n_tri&quot;</code></li>
+</ul>
+</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>yes, that is correct</li>
+<li>one nuance:
+<ul>
+<li>if <code>tri_for_hit=True</code>, that status takes priority even if the point is also inside the broader <code>n_tri</code> boundary</li>
+</ul>
+</li>
+</ul>
+<h3 id="about-gaspar_hit_reason">About <code>gaspar_hit_reason</code></h3>
+<p>Question:</p>
+<ul>
+<li>is the following rule correct?
+<ul>
+<li>if <code>tri_for_hit=True</code> then <code>gaspar_hit_reason=&quot;tri_for&quot;</code></li>
+<li>if <code>tri_for_hit=False</code> and <code>tri_boundary_hit=False</code> and <code>riparian_hit=True</code> then <code>gaspar_hit_reason=&quot;riparian_outside_n_tri&quot;</code></li>
+<li>otherwise <code>gaspar_hit_reason=&quot;not_selected&quot;</code></li>
+</ul>
+</li>
+</ul>
+<p>Answer:</p>
+<ul>
+<li>yes, that is correct</li>
+<li>so the following cases correctly lead to <code>not_selected</code>:
+<ul>
+<li><code>tri_for_hit=False</code> and <code>tri_boundary_hit=True</code></li>
+<li><code>tri_for_hit=False</code> and <code>tri_boundary_hit=False</code> and <code>riparian_hit=False</code></li>
+</ul>
+</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+{
+  "clean_diagnostics": {
+    "source_kind": "raw_live_transform",
+    "raw_rows": 260799,
+    "rows_after_flood_risk_filter": 155112,
+    "optional_date_window_applied": false,
+    "rows_after_optional_date_window": 155112,
+    "rows_dropped_missing_core_fields": 26620,
+    "canonical_rows_after_dedup": 122240,
+    "unique_decrees": 462,
+    "unique_event_uids": 9851
+  },
+  "resolved_diagnostics": {
+    "resolved_rows": 122184,
+    "unresolved_rows": 56,
+    "match_method_counts": {
+      "current_code_exact": 121945,
+      "historical_code_update_ready": 238,
+      "unresolved": 56,
+      "current_name_unique_adminexpress": 1
+    },
+    "code_changed_rows": 239,
+    "unresolved_examples": [
+      {
+        "gaspar_source_cod_commune": "08294",
+        "gaspar_commune_name": "La Moncelle",
+        "cod_nat_catnat": "INTE0300183A"
+      },
+      {
+        "gaspar_source_cod_commune": "64541",
+        "gaspar_commune_name": "Urdès",
+        "cod_nat_catnat": "INTE1324832A"
+      },
+      {
+        "gaspar_source_cod_commune": "64541",
+        "gaspar_commune_name": "Urdès",
+        "cod_nat_catnat": "INTE1324832A"
+      },
+      {
+        "gaspar_source_cod_commune": "16238",
+        "gaspar_commune_name": "Moutonneau",
+        "cod_nat_catnat": "INTE1328613A"
+      },
+      {
+        "gaspar_source_cod_commune": "33409",
+        "gaspar_commune_name": "Saint-Genis-du-Bois",
+        "cod_nat_catnat": "INTE2019260A"
+      },
+      {
+        "gaspar_source_cod_commune": "39548",
+        "gaspar_commune_name": "Vaux-sur-Poligny",
+        "cod_nat_catnat": "INTE2137449A"
+      },
+      {
+        "gaspar_source_cod_commune": "22027",
+        "gaspar_commune_name": "Le Cambout",
+        "cod_nat_catnat": "INTE8800136A"
+      },
+      {
+        "gaspar_source_cod_commune": "01330",
+        "gaspar_commune_name": "Ruffieu",
+        "cod_nat_catnat": "INTE9000113A"
+      },
+      {
+        "gaspar_source_cod_commune": "93059",
+        "gaspar_commune_name": "Pierrefitte-sur-Seine",
+        "cod_nat_catnat": "INTE9200474A"
+      },
+      {
+        "gaspar_source_cod_commune": "93059",
+        "gaspar_commune_name": "Pierrefitte-sur-Seine",
+        "cod_nat_catnat": "INTE9200533A"
+      },
+      {
+        "gaspar_source_cod_commune": "08294",
+        "gaspar_commune_name": "La Moncelle",
+        "cod_nat_catnat": "INTE9300213A"
+      },
+      {
+        "gaspar_source_cod_commune": "16238",
+        "gaspar_commune_name": "Moutonneau",
+        "cod_nat_catnat": "INTE9400046A"
+      },
+      {
+        "gaspar_source_cod_commune": "08294",
+        "gaspar_commune_name": "La Moncelle",
+        "cod_nat_catnat": "INTE9400065A"
+      },
+      {
+        "gaspar_source_cod_commune": "08294",
+        "gaspar_commune_name": "La Moncelle",
+        "cod_nat_catnat": "INTE9500070A"
+      },
+      {
+        "gaspar_source_cod_commune": "22027",
+        "gaspar_commune_name": "Le Cambout",
+        "cod_nat_catnat": "INTE9800067A"
+      },
+      {
+        "gaspar_source_cod_commune": "22027",
+        "gaspar_commune_name": "Le Cambout",
+        "cod_nat_catnat": "INTE9800067A"
+      },
+      {
+        "gaspar_source_cod_commune": "39548",
+        "gaspar_commune_name": "Vaux-sur-Poligny",
+        "cod_nat_catnat": "INTE9900148A"
+      },
+      {
+        "gaspar_source_cod_commune": "93059",
+        "gaspar_commune_name": "Pierrefitte-sur-Seine",
+        "cod_nat_catnat": "INTE9900346A"
+      },
+      {
+        "gaspar_source_cod_commune": "39474",
+        "gaspar_commune_name": "Sainte-Agnès",
+        "cod_nat_catnat": "INTE9900614A"
+      },
+      {
+        "gaspar_source_cod_commune": "39548",
+        "gaspar_commune_name": "Vaux-sur-Poligny",
+        "cod_nat_catnat": "INTE9900614A"
+      }
+    ]
+  },
+  "kept_risk_labels": [
+    "Inondations et/ou Coulées de Boue",
+    "Inondations Remontée Nappe",
+    "Chocs Mécaniques liés à l'action des Vagues"
+  ],
+  "resolved_rows": 122184,
+  "unresolved_rows": 56
+}

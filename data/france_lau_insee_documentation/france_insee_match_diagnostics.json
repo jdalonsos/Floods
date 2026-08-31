@@ -1,0 +1,141 @@
+{
+  "france_lau_total": 34946,
+  "adminexpress_communes_total": 34877,
+  "exact_code_matches": 34865,
+  "spatial_point_within_matches": 81,
+  "spatial_point_intersects_matches": 0,
+  "matched_total": 34946,
+  "unresolved_total": 0,
+  "fallback_spatial_matches": 81,
+  "code_changed_matches": 81,
+  "lau_missing_adminexpress_by_code_before_fallback": 81,
+  "adminexpress_missing_lau_by_code": 12,
+  "code_changed_examples": [
+    {
+      "lau_code_local": "02311",
+      "insee_com": "02589",
+      "lau_name_lau": "Filain",
+      "commune_name_adminexpress": "Pargny-et-Filain"
+    },
+    {
+      "lau_code_local": "01330",
+      "insee_com": "01187",
+      "lau_name_lau": "Ruffieu",
+      "commune_name_adminexpress": "Haut Valromey"
+    },
+    {
+      "lau_code_local": "08294",
+      "insee_com": "08053",
+      "lau_name_lau": "La Moncelle",
+      "commune_name_adminexpress": "Bazeilles"
+    },
+    {
+      "lau_code_local": "08300",
+      "insee_com": "08439",
+      "lau_name_lau": "Le Mont-Dieu",
+      "commune_name_adminexpress": "Tannay-le-Mont-Dieu"
+    },
+    {
+      "lau_code_local": "09287",
+      "insee_com": "09088",
+      "lau_name_lau": "Senconac",
+      "commune_name_adminexpress": "Caychax-et-Senconac"
+    },
+    {
+      "lau_code_local": "14300",
+      "insee_com": "14743",
+      "lau_name_lau": "Gerrots",
+      "commune_name_adminexpress": "Victot-en-Auge"
+    },
+    {
+      "lau_code_local": "14623",
+      "insee_com": "14408",
+      "lau_name_lau": "Saint-Martin-de-Fontenay",
+      "commune_name_adminexpress": "Saint-Martin-de-May"
+    },
+    {
+      "lau_code_local": "12076",
+      "insee_com": "12218",
+      "lau_name_lau": "Conques-en-Rouergue",
+      "commune_name_adminexpress": "Conques-en-Rouergue"
+    },
+    {
+      "lau_code_local": "14011",
+      "insee_com": "14581",
+      "lau_name_lau": "Aurseulles",
+      "commune_name_adminexpress": "Aurseulles"
+    },
+    {
+      "lau_code_local": "19223",
+      "insee_com": "19248",
+      "lau_name_lau": "Saint-Martin-Sepert",
+      "commune_name_adminexpress": "Les Trois-Saints"
+    },
+    {
+      "lau_code_local": "19230",
+      "insee_com": "19248",
+      "lau_name_lau": "Saint-Pardoux-Corbier",
+      "commune_name_adminexpress": "Les Trois-Saints"
+    },
+    {
+      "lau_code_local": "18131",
+      "insee_com": "18173",
+      "lau_name_lau": "Lugny-Bourbonnais",
+      "commune_name_adminexpress": "Osmery"
+    },
+    {
+      "lau_code_local": "16147",
+      "insee_com": "16198",
+      "lau_name_lau": "Gardes-le-Pontaroux",
+      "commune_name_adminexpress": "Magnac-lès-Gardes"
+    },
+    {
+      "lau_code_local": "16226",
+      "insee_com": "16393",
+      "lau_name_lau": "Montignac-Charente",
+      "commune_name_adminexpress": "La Boixe"
+    },
+    {
+      "lau_code_local": "16238",
+      "insee_com": "16023",
+      "lau_name_lau": "Moutonneau",
+      "commune_name_adminexpress": "Aunac-sur-Charente"
+    },
+    {
+      "lau_code_local": "16355",
+      "insee_com": "16097",
+      "lau_name_lau": "Saint-Sulpice-de-Cognac",
+      "commune_name_adminexpress": "Val-de-Cognac"
+    },
+    {
+      "lau_code_local": "17334",
+      "insee_com": "17268",
+      "lau_name_lau": "Saint-Georges-de-Longuepierre",
+      "commune_name_adminexpress": "Rives-de-Boutonne"
+    },
+    {
+      "lau_code_local": "25620",
+      "insee_com": "25390",
+      "lau_name_lau": "Ville-du-Pont",
+      "commune_name_adminexpress": "Pays-de-Montbenoît"
+    },
+    {
+      "lau_code_local": "25282",
+      "insee_com": "25060",
+      "lau_name_lau": "Goux-les-Usiers",
+      "commune_name_adminexpress": "Val-d'Usiers"
+    },
+    {
+      "lau_code_local": "25297",
+      "insee_com": "25364",
+      "lau_name_lau": "Le Gratteris",
+      "commune_name_adminexpress": "Mamirolle"
+    }
+  ],
+  "nuts_diagnostics": {
+    "missing_nuts0_code": 0,
+    "missing_nuts1_code": 0,
+    "missing_nuts2_code": 0,
+    "missing_nuts3_code": 0
+  }
+}
