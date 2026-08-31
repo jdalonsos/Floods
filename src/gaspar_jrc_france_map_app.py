@@ -54,9 +54,14 @@ MAP_TILES = {
     "OpenStreetMap": "OpenStreetMap",
 }
 COMPARISON_COLORS = {
+    "all_three": "#7e22ce",
+    "gaspar_jrc": "#0f766e",
+    "gaspar_hanze": "#be123c",
+    "jrc_hanze": "#0891b2",
     "both": "#0f766e",
     "gaspar_only": "#ea580c",
     "jrc_only": "#2563eb",
+    "hanze_only": "#65a30d",
 }
 
 
@@ -205,9 +210,14 @@ def prepare_tooltip_columns(activity: pd.DataFrame, display_mode: str) -> pd.Dat
     if display_mode == "Comparison" and "comparison_class" in tooltip_df.columns:
         tooltip_df["comparison_label"] = tooltip_df["comparison_class"].map(
             {
+                "all_three": "Gaspar + JRC + HANZE",
+                "gaspar_jrc": "Gaspar + JRC",
+                "gaspar_hanze": "Gaspar + HANZE",
+                "jrc_hanze": "JRC + HANZE",
                 "both": "Both active",
                 "gaspar_only": "Gaspar only",
                 "jrc_only": "JRC only",
+                "hanze_only": "HANZE only",
             }
         ).fillna("Inactive")
     return tooltip_df
@@ -273,6 +283,8 @@ def build_tooltip_config(display_mode: str) -> tuple[list[str], list[str]]:
             "jrc_row_count",
             "jrc_unique_event_count",
             "jrc_max_depth_cm",
+            "hanze_row_count",
+            "hanze_unique_event_count",
             "comparison_label",
         ],
         [
@@ -284,6 +296,8 @@ def build_tooltip_config(display_mode: str) -> tuple[list[str], list[str]]:
             "JRC active rows",
             "JRC unique events",
             "JRC max depth (cm)",
+            "HANZE active rows",
+            "HANZE unique events",
             "Status",
         ],
     )
@@ -376,9 +390,13 @@ def build_map(
             line-height: 1.5;
         ">
             <div style="font-weight: 600; margin-bottom: 4px;">Comparison</div>
-            <div><span style="display:inline-block;width:12px;height:12px;background:#0f766e;margin-right:8px;"></span>Both active</div>
+            <div><span style="display:inline-block;width:12px;height:12px;background:#7e22ce;margin-right:8px;"></span>Gaspar + JRC + HANZE</div>
+            <div><span style="display:inline-block;width:12px;height:12px;background:#0f766e;margin-right:8px;"></span>Gaspar + JRC</div>
+            <div><span style="display:inline-block;width:12px;height:12px;background:#be123c;margin-right:8px;"></span>Gaspar + HANZE</div>
+            <div><span style="display:inline-block;width:12px;height:12px;background:#0891b2;margin-right:8px;"></span>JRC + HANZE</div>
             <div><span style="display:inline-block;width:12px;height:12px;background:#ea580c;margin-right:8px;"></span>Gaspar only</div>
             <div><span style="display:inline-block;width:12px;height:12px;background:#2563eb;margin-right:8px;"></span>JRC only</div>
+            <div><span style="display:inline-block;width:12px;height:12px;background:#65a30d;margin-right:8px;"></span>HANZE only</div>
         </div>
         """
         fmap.get_root().html.add_child(folium.Element(legend_html))
@@ -527,7 +545,7 @@ def main() -> None:
 
     hanze_rows = None
     hanze_diagnostics = None
-    if display_mode == "HANZE":
+    if display_mode in {"HANZE", "Comparison"}:
         with st.spinner("Loading HANZE NUTS3 events and mapping them to communes..."):
             hanze_rows, hanze_diagnostics = cached_prepare_hanze(hanze_path, lookup_path)
 
@@ -625,8 +643,8 @@ def main() -> None:
     elif display_mode == "HANZE":
         activity = aggregate_hanze_activity(hanze_active)
     else:
-        activity = build_comparison_activity(gaspar_active, jrc_active)
-        activity = activity[activity["comparison_class"].isin(["both", "gaspar_only", "jrc_only"])].copy()
+        activity = build_comparison_activity(gaspar_active, jrc_active, hanze_active)
+        activity = activity[activity["comparison_class"].ne("inactive")].copy()
 
     activity = prepare_tooltip_columns(activity, display_mode)
     activity_gdf = communes_gdf.merge(activity, on="insee_com", how="inner", validate="1:1")
@@ -640,14 +658,14 @@ def main() -> None:
             f"{len(gaspar_active_all) if gaspar_active_all is not None else 0:,}",
         )
         metric_cols[2].metric(
-            "Filtered JRC rows",
-            f"{len(jrc_active) if jrc_active is not None else 0:,}",
+            "JRC / HANZE rows",
+            f"{len(jrc_active) if jrc_active is not None else 0:,} / "
+            f"{len(hanze_active) if hanze_active is not None else 0:,}",
         )
-        both_count = int(activity["comparison_class"].eq("both").sum()) if not activity.empty else 0
+        all_three_count = int(activity["comparison_class"].eq("all_three").sum()) if not activity.empty else 0
         metric_cols[3].metric(
-            "Both / Gaspar only / JRC only",
-            f"{both_count:,} / {int(activity['comparison_class'].eq('gaspar_only').sum()):,} / "
-            f"{int(activity['comparison_class'].eq('jrc_only').sum()):,}",
+            "All three sources",
+            f"{all_three_count:,}",
         )
     elif gaspar_active is not None:
         metric_cols[1].metric(

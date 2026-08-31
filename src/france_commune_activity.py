@@ -843,25 +843,45 @@ def aggregate_hanze_activity(active_rows: pd.DataFrame) -> pd.DataFrame:
 def build_comparison_activity(
     gaspar_active: pd.DataFrame,
     jrc_active: pd.DataFrame,
+    hanze_active: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     gaspar_agg = aggregate_gaspar_activity(gaspar_active)
     jrc_agg = aggregate_jrc_activity(jrc_active)
+    hanze_agg = aggregate_hanze_activity(hanze_active) if hanze_active is not None else None
 
-    merged = gaspar_agg.merge(
-        jrc_agg,
-        on="insee_com",
-        how="outer",
-        suffixes=("_gaspar", "_jrc"),
-    )
-    merged["commune_name_current"] = merged["commune_name_current_gaspar"].combine_first(
-        merged["commune_name_current_jrc"]
-    )
-    merged["lau_code"] = merged["lau_code_gaspar"].combine_first(merged["lau_code_jrc"])
-    merged["lau_code_local"] = merged["lau_code_local_gaspar"].combine_first(
-        merged["lau_code_local_jrc"]
-    )
-    merged["insee_dep"] = merged["insee_dep"].astype("string")
-    merged["insee_reg"] = merged["insee_reg"].astype("string")
+    source_frames = [gaspar_agg, jrc_agg]
+    if hanze_agg is not None:
+        source_frames.append(hanze_agg)
+    all_codes = pd.Index([], dtype="string")
+    for frame in source_frames:
+        all_codes = all_codes.union(pd.Index(frame["insee_com"].dropna().astype("string")))
+    merged = pd.DataFrame({"insee_com": all_codes})
+
+    identity_columns = [
+        "commune_name_current", "insee_dep", "insee_reg", "lau_code",
+        "lau_code_local", "nuts3_code", "nuts3_name",
+    ]
+    for column in identity_columns:
+        merged[column] = pd.NA
+        for frame in source_frames:
+            if column in frame.columns:
+                identity = frame.assign(insee_com=frame["insee_com"].astype("string"))
+                values = identity.drop_duplicates("insee_com").set_index("insee_com")[column]
+                merged[column] = merged[column].combine_first(merged["insee_com"].map(values))
+
+    for frame in source_frames:
+        data_columns = [
+            column for column in frame.columns
+            if column not in {"insee_com", *identity_columns}
+        ]
+        if data_columns:
+            source_data = frame.assign(insee_com=frame["insee_com"].astype("string"))[
+                ["insee_com", *data_columns]
+            ]
+            merged = merged.merge(source_data, on="insee_com", how="left", validate="1:1")
+
+    for column in ["insee_dep", "insee_reg"]:
+        merged[column] = merged[column].astype("string")
 
     for column in [
         "gaspar_row_count",
@@ -870,6 +890,8 @@ def build_comparison_activity(
         "jrc_row_count",
         "jrc_unique_event_count",
         "jrc_total_flooded_area_m2",
+        "hanze_row_count",
+        "hanze_unique_event_count",
     ]:
         if column in merged.columns:
             merged[column] = merged[column].fillna(0)
@@ -877,9 +899,19 @@ def build_comparison_activity(
     merged["comparison_class"] = "inactive"
     gaspar_mask = merged["gaspar_row_count"].fillna(0).gt(0)
     jrc_mask = merged["jrc_row_count"].fillna(0).gt(0)
-    merged.loc[gaspar_mask & ~jrc_mask, "comparison_class"] = "gaspar_only"
-    merged.loc[~gaspar_mask & jrc_mask, "comparison_class"] = "jrc_only"
-    merged.loc[gaspar_mask & jrc_mask, "comparison_class"] = "both"
+    if hanze_agg is None:
+        merged.loc[gaspar_mask & ~jrc_mask, "comparison_class"] = "gaspar_only"
+        merged.loc[~gaspar_mask & jrc_mask, "comparison_class"] = "jrc_only"
+        merged.loc[gaspar_mask & jrc_mask, "comparison_class"] = "both"
+    else:
+        hanze_mask = merged["hanze_row_count"].fillna(0).gt(0)
+        merged.loc[gaspar_mask & ~jrc_mask & ~hanze_mask, "comparison_class"] = "gaspar_only"
+        merged.loc[~gaspar_mask & jrc_mask & ~hanze_mask, "comparison_class"] = "jrc_only"
+        merged.loc[~gaspar_mask & ~jrc_mask & hanze_mask, "comparison_class"] = "hanze_only"
+        merged.loc[gaspar_mask & jrc_mask & ~hanze_mask, "comparison_class"] = "gaspar_jrc"
+        merged.loc[gaspar_mask & ~jrc_mask & hanze_mask, "comparison_class"] = "gaspar_hanze"
+        merged.loc[~gaspar_mask & jrc_mask & hanze_mask, "comparison_class"] = "jrc_hanze"
+        merged.loc[gaspar_mask & jrc_mask & hanze_mask, "comparison_class"] = "all_three"
 
     keep_cols = [
         "insee_com",
@@ -897,6 +929,11 @@ def build_comparison_activity(
         "jrc_unique_event_count",
         "jrc_max_depth_cm",
         "jrc_total_flooded_area_m2",
+        "hanze_row_count",
+        "hanze_unique_event_count",
+        "hanze_flood_types",
+        "hanze_flood_sources",
+        "hanze_causes",
         "comparison_class",
     ]
     keep_cols = [column for column in keep_cols if column in merged.columns]
